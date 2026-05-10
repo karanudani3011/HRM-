@@ -1,7 +1,20 @@
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { auth } from '../firebase';
+import { signOut } from 'firebase/auth';
 import './Header.css';
 
 const Header = () => {
+  const { user } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (err) {
+      console.error('Logout failed:', err);
+    }
+  };
+
   return (
     <header className="header">
       <div className="container header-container">
@@ -23,6 +36,9 @@ const Header = () => {
             <li><a href="/#find-doctor">Find Doctor</a></li>
           </ul>
           <Link to="/contact" className="btn-contact">Contact Us</Link>
+          {user && (
+            <button onClick={handleLogout} className="btn-logout">Logout</button>
+          )}
         </nav>
       </div>
     </header>

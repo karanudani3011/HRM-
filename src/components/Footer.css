@@ -1,0 +1,89 @@
+.footer {
+  background-color: #1a1a1a;
+  color: var(--white);
+  padding: 60px 0 20px;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 40px;
+  margin-bottom: 40px;
+}
+
+.footer-logo {
+  max-width: 300px;
+}
+
+.footer-logo .logo-hrm {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--white);
+  line-height: 1;
+}
+
+.footer-logo .logo-hrm span {
+  color: var(--primary-red);
+}
+
+.logo-subtext-white {
+  display: block;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #cccccc;
+  margin-top: 2px;
+}
+
+.footer-logo p {
+  margin-top: 15px;
+  font-size: 14px;
+  color: #aaaaaa;
+}
+
+.footer-links {
+  display: flex;
+  gap: 60px;
+}
+
+.link-group h3 {
+  font-size: 18px;
+  margin-bottom: 20px;
+  color: var(--white);
+  font-weight: 600;
+}
+
+.link-group ul {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.link-group a {
+  color: #aaaaaa;
+  font-size: 14px;
+  transition: color 0.3s ease;
+}
+
+.link-group a:hover {
+  color: var(--primary-red);
+}
+
+.footer-bottom {
+  text-align: center;
+  padding-top: 20px;
+  border-top: 1px solid #333333;
+  color: #aaaaaa;
+  font-size: 13px;
+}
+
+@media (max-width: 768px) {
+  .footer-content {
+    flex-direction: column;
+  }
+  
+  .footer-links {
+    flex-wrap: wrap;
+  }
+}

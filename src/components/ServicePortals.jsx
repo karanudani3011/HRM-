@@ -1,0 +1,65 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { Stethoscope, Users, Building2, HeartPulse } from 'lucide-react';
+import './ServicePortals.css';
+
+const ServicePortals = () => {
+  return (
+    <section className="service-portals" id="services">
+      <div className="container">
+        <div className="section-header">
+          <h2>Our <span>Service Portals</span></h2>
+          <p>Comprehensive healthcare solutions for every stakeholder</p>
+        </div>
+
+        <div className="portals-grid">
+          {/* Card 1 */}
+          <div className="portal-card-large">
+            <div className="icon-box red-bg">
+              <Stethoscope size={24} color="white" />
+            </div>
+            <h3>For Doctors</h3>
+            <p>Register your practice, manage patients, video consultations & 5 Cr Finance access</p>
+            <Link to="/portal/doctor" className="access-link">Access Portal &rarr;</Link>
+          </div>
+
+          {/* Card 2 */}
+          <div className="portal-card-large">
+            <div className="icon-box dark-bg">
+              <Users size={24} color="white" />
+            </div>
+            <h3>For HR Professionals</h3>
+            <p>B2B lead extractor, recruitment tools & HRM Partner Clinic registration</p>
+            <Link to="/portal/hr" className="access-link">Access Portal &rarr;</Link>
+          </div>
+
+          {/* Card 3 */}
+          <div className="portal-card-large">
+            <div className="icon-box dark-bg">
+              <Building2 size={24} color="white" />
+            </div>
+            <h3>For Hospitals</h3>
+            <p>HRM Health Partner registration, doctor network & patient management</p>
+            <Link to="/portal/hospital" className="access-link">Access Portal &rarr;</Link>
+          </div>
+
+          {/* Card 4 */}
+          <div className="portal-card-large">
+            <div className="icon-box red-bg">
+              <HeartPulse size={24} color="white" />
+            </div>
+            <h3>For Patients</h3>
+            <p>Find specialists in any city, book video consultations & health records</p>
+            <Link to="/portal/patient" className="access-link">Access Portal &rarr;</Link>
+          </div>
+        </div>
+
+        <div className="finance-btn-container">
+          <button className="finance-btn">Rs 5 Cr Finance - Doctors Only</button>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default ServicePortals;

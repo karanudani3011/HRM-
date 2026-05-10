@@ -1,0 +1,38 @@
+.top-bar {
+  background-color: #111827;
+  color: #ffffff;
+  padding: 8px 0;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.top-bar-content {
+  display: flex;
+  justify-content: center;
+}
+
+.contact-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #e5e7eb;
+  transition: color 0.2s ease;
+}
+
+.contact-item:hover {
+  color: var(--primary-red);
+}
+
+.contact-icon {
+  color: var(--primary-red);
+}
+
+.divider {
+  color: #4b5563;
+}

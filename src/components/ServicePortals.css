@@ -1,0 +1,115 @@
+.service-portals {
+  padding: 80px 0;
+  background-color: #f8fafc;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.section-header h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 36px;
+  color: #1a1a1a;
+  margin-bottom: 10px;
+}
+
+.section-header h2 span {
+  color: var(--primary-red);
+}
+
+.section-header p {
+  color: #666;
+  font-size: 16px;
+}
+
+.portals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 30px;
+  margin-bottom: 50px;
+}
+
+.portal-card-large {
+  background: white;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  transition: transform 0.3s ease;
+}
+
+.portal-card-large:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.icon-box.red-bg {
+  background-color: var(--primary-red);
+}
+
+.icon-box.dark-bg {
+  background-color: #111827;
+}
+
+.portal-card-large h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 15px;
+  font-family: 'Playfair Display', serif;
+}
+
+.portal-card-large p {
+  color: #666;
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 25px;
+  flex-grow: 1;
+}
+
+.access-link {
+  color: var(--primary-red);
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.access-link:hover {
+  text-decoration: underline;
+}
+
+.finance-btn-container {
+  display: flex;
+  justify-content: center;
+}
+
+.finance-btn {
+  background-color: var(--primary-red);
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 15px 40px;
+  border-radius: 50px;
+  transition: background-color 0.3s;
+}
+
+.finance-btn:hover {
+  background-color: var(--dark-red);
+}

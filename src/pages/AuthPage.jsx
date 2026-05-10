@@ -6,23 +6,19 @@ import {
   signInWithPopup,
   GoogleAuthProvider,
   OAuthProvider,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword
+  RecaptchaVerifier,
+  signInWithPhoneNumber
 } from 'firebase/auth';
 import './AuthPage.css';
 
 const AuthPage = () => {
-  const [activeTab, setActiveTab] = useState('Login');
-  const [identifier, setIdentifier] = useState(''); // Email or Mobile
-  const [credential, setCredential] = useState(''); // Password or OTP
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [otpSent, setOtpSent] = useState(false);
+  const [confirmationResult, setConfirmationResult] = useState(null);
   const navigate = useNavigate();
-
-  // Scroll to top when page loads
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
@@ -31,7 +27,6 @@ const AuthPage = () => {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
       navigate('/');
-      console.log("Google Sign In clicked");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -43,44 +38,94 @@ const AuthPage = () => {
     setLoading(true);
     setError(null);
     try {
-      // LinkedIn provider requires custom setup in Firebase
-      // const provider = new OAuthProvider('oidc.linkedin');
-      // await signInWithPopup(auth, provider);
-      console.log("LinkedIn Sign In clicked");
+      const clientId = import.meta.env.VITE_LINKEDIN_CLIENT_ID;
+      const redirectUri = encodeURIComponent(window.location.origin + '/portal/linkedin-callback');
+      const scope = encodeURIComponent('openid profile email');
+      const authUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}`;
+      window.location.href = authUrl;
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Scroll to top when page loads
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+
+
+  const setupRecaptcha = () => {
+    if (!window.recaptchaVerifier) {
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        'size': 'invisible',
+        'callback': (response) => {
+          // reCAPTCHA solved, allow signInWithPhoneNumber.
+          console.log("reCAPTCHA solved");
+        },
+        'expired-callback': () => {
+          // Response expired. Ask user to solve reCAPTCHA again.
+          setError("reCAPTCHA expired. Please try again.");
+        }
+      });
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!otpSent) return;
+
     setLoading(true);
     setError(null);
 
     try {
-      // In a real app, you'd check if 'identifier' is an email or phone number
-      // and use the appropriate Firebase Auth method.
-      // For this example, we assume Email/Password if it's not OTP flow.
-      if (activeTab === 'Login') {
-        await signInWithEmailAndPassword(auth, identifier, credential);
-        console.log("Login submitted", { identifier, credential });
-      } else {
-        await createUserWithEmailAndPassword(auth, identifier, credential);
-        console.log("Sign up submitted", { identifier, credential });
+      if (confirmationResult) {
+        await confirmationResult.confirm(otp);
+        console.log("OTP verified successfully");
+        navigate('/');
       }
-      navigate('/');
     } catch (err) {
-      setError(err.message);
+      console.error("Auth error:", err);
+      setError("Invalid OTP. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSendOTP = () => {
-    console.log("Sending OTP to:", identifier);
-    // Add Firebase Phone Auth logic here
+  const handleSendOTP = async () => {
+    let formattedNumber = phoneNumber.trim();
+    if (!formattedNumber.startsWith('+')) {
+      if (formattedNumber.length === 10) {
+        formattedNumber = `+91${formattedNumber}`;
+      } else {
+        setError("Please enter a phone number with country code (e.g., +91...)");
+        setLoading(false);
+        return;
+      }
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      setupRecaptcha();
+      const appVerifier = window.recaptchaVerifier;
+      const confirmation = await signInWithPhoneNumber(auth, formattedNumber, appVerifier);
+      setConfirmationResult(confirmation);
+      setOtpSent(true);
+      console.log("OTP sent to:", formattedNumber);
+    } catch (err) {
+      console.error("OTP send error:", err);
+      setError(err.message);
+      if (window.recaptchaVerifier) {
+        window.recaptchaVerifier.clear();
+        window.recaptchaVerifier = null;
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -105,81 +150,78 @@ const AuthPage = () => {
 
         {/* Welcome Text */}
         <div className="auth-welcome">
-          <h2>Sign Up / Log In</h2>
-          <p>Join HRM Consultancy Doctors Choice platform</p>
-        </div>
-
-        {/* Tabs */}
-        <div className="auth-tabs">
-          <button
-            className={`tab-btn ${activeTab === 'Login' ? 'active' : ''}`}
-            onClick={() => setActiveTab('Login')}
-          >
-            Login
-          </button>
-          <button
-            className={`tab-btn ${activeTab === 'Sign Up' ? 'active' : ''}`}
-            onClick={() => setActiveTab('Sign Up')}
-          >
-            Sign Up
-          </button>
+          <h2>{otpSent ? 'Verify OTP' : 'Login / Sign Up'}</h2>
+          <p>{otpSent ? `Enter the 6-digit code sent to ${phoneNumber}` : 'Join HRM Consultancy Doctors Choice platform'}</p>
         </div>
 
         {/* Social Logins */}
-        <div className="social-login-container">
-          <button className="social-btn google-btn" onClick={handleGoogleSignIn} disabled={loading}>
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="social-icon" />
-            Continue with Google
-          </button>
-          <button className="social-btn linkedin-btn" onClick={handleLinkedInSignIn} disabled={loading}>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0A66C2" className="social-icon">
-              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-            </svg>
-            Continue with LinkedIn
-          </button>
-        </div>
-
-        <div className="auth-divider">
-          <span>OR</span>
-        </div>
-
-        {/* Auth Form */}
-        <form className="auth-form" onSubmit={handleSubmit}>
-          {error && <div className="auth-error">{error}</div>}
-
-          <div className="form-group">
-            <label>Email or Mobile Number</label>
-            <input
-              type="text"
-              placeholder="Enter email or mobile"
-              value={identifier}
-              onChange={(e) => setIdentifier(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Password / OTP</label>
-            <div className="input-with-button">
-              <input
-                type="password"
-                placeholder="Enter OTP or Password"
-                value={credential}
-                onChange={(e) => setCredential(e.target.value)}
-                required
-              />
-              <button
-                type="button"
-                className="send-otp-btn"
-                onClick={handleSendOTP}
-              >
-                Send OTP
+        {!otpSent && (
+          <>
+            <div className="social-login-container" style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '0 32px', marginTop: '16px' }}>
+              <button className="social-btn google-btn" onClick={handleGoogleSignIn} disabled={loading} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', padding: '14px', border: '1px solid #d1d5db', borderRadius: '12px', background: 'white', fontWeight: '600', cursor: 'pointer' }}>
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style={{ width: '20px', marginRight: '12px' }} />
+                Continue with Google
+              </button>
+              <button className="social-btn linkedin-btn" onClick={handleLinkedInSignIn} disabled={loading} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', padding: '14px', border: '1px solid #d1d5db', borderRadius: '12px', background: 'white', fontWeight: '600', cursor: 'pointer' }}>
+                <svg viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg" style={{ marginRight: '12px' }}>
+                  <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" fill="#0077b5"/>
+                </svg>
+                Continue with LinkedIn
               </button>
             </div>
+
+            <div className="auth-divider" style={{ display: 'flex', alignItems: 'center', margin: '24px 32px' }}>
+              <div style={{ flex: 1, borderBottom: '1px solid #e5e7eb' }}></div>
+              <span style={{ padding: '0 16px', color: '#9ca3af', fontSize: '14px' }}>OR</span>
+              <div style={{ flex: 1, borderBottom: '1px solid #e5e7eb' }}></div>
+            </div>
+          </>
+        )}
+
+        {/* Auth Form */}
+        <form className="auth-form" onSubmit={otpSent ? handleSubmit : handleSendOTP}>
+          {error && <div className="auth-error">{error}</div>}
+
+          <div id="recaptcha-container"></div>
+
+          <div className="form-group">
+            <label>Mobile Number</label>
+            <input
+              type="text"
+              placeholder="e.g. +91 98765 43210"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              disabled={otpSent || loading}
+              required
+            />
+            {otpSent && (
+              <button 
+                type="button" 
+                className="change-number-link" 
+                onClick={() => { setOtpSent(false); setConfirmationResult(null); setOtp(''); }}
+              >
+                Change Number
+              </button>
+            )}
           </div>
 
+          {otpSent && (
+            <div className="form-group animate-in">
+              <label>Enter OTP</label>
+              <input
+                type="text"
+                placeholder="Enter 6-digit OTP"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                maxLength={6}
+                required
+                autoFocus
+              />
+            </div>
+          )}
+
           <button type="submit" className="auth-submit-btn" disabled={loading}>
-            {loading ? 'Processing...' : activeTab}
+            {loading ? 'Processing...' : (otpSent ? 'Verify OTP' : 'Send OTP')}
           </button>
         </form>
 

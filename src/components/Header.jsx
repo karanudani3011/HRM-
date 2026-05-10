@@ -1,7 +1,20 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { signOut } from 'firebase/auth';
+import { auth } from '../firebase';
 import './Header.css';
 
-const Header = () => {
+const Header = ({ user }) => {
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      navigate('/portal-secure-login');
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
+
   return (
     <header className="header">
       <div className="container header-container">
@@ -22,7 +35,12 @@ const Header = () => {
             <li><a href="/#hr-tools">HR Tools</a></li>
             <li><a href="/#find-doctor">Find Doctor</a></li>
           </ul>
-          <Link to="/contact" className="btn-contact">Contact Us</Link>
+          <div className="nav-buttons">
+            <Link to="/contact" className="btn-contact">Contact Us</Link>
+            {user && (
+              <button onClick={handleLogout} className="btn-logout">Logout</button>
+            )}
+          </div>
         </nav>
       </div>
     </header>

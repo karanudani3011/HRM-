@@ -96,6 +96,29 @@
   transform: translateY(-2px);
 }
 
+.nav-buttons {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.btn-logout {
+  background: none;
+  border: 1px solid var(--primary-red);
+  color: var(--primary-red);
+  padding: 8px 20px;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-logout:hover {
+  background-color: var(--primary-red);
+  color: var(--white);
+}
+
 @media (max-width: 992px) {
   .header-container {
     flex-direction: column;

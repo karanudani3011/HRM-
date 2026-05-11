@@ -7,10 +7,7 @@ const Footer = () => {
     <footer className="footer">
       <div className="container footer-content">
         <div className="footer-logo">
-          <div className="logo-box">
-            <span className="logo-hrm">HRM</span>
-            <span className="logo-subtext-white">HRM CONSULTANCY-DOCTORS CHOICE</span>
-          </div>
+          <img src="/logo.jpeg" alt="HRM Consultancy Logo" className="brand-logo footer-brand-logo" />
           <p>Connecting Healthcare Professionals across India.</p>
         </div>
         <div className="footer-links">

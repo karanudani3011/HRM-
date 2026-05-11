@@ -16,24 +16,10 @@
   max-width: 300px;
 }
 
-.footer-logo .logo-hrm {
-  font-size: 32px;
-  font-weight: 800;
-  color: var(--white);
-  line-height: 1;
-}
-
-.footer-logo .logo-hrm span {
-  color: var(--primary-red);
-}
-
-.logo-subtext-white {
-  display: block;
-  font-size: 8px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  color: #cccccc;
-  margin-top: 2px;
+.footer-brand-logo {
+  height: 60px;
+  width: auto;
+  object-fit: contain;
 }
 
 .footer-logo p {

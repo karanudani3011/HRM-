@@ -23,7 +23,7 @@ const PortalLogin = () => {
 
   // Redirect if already logged in
   useEffect(() => {
-    if (auth.currentUser) {
+    if (auth && auth.currentUser) {
       navigate('/');
     }
     window.scrollTo(0, 0);

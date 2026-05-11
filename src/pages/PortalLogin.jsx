@@ -5,7 +5,8 @@ import {
   signInWithPopup,
   GoogleAuthProvider,
   signInWithEmailAndPassword,
-  createUserWithEmailAndPassword
+  createUserWithEmailAndPassword,
+  fetchSignInMethodsForEmail
 } from 'firebase/auth';
 import './PortalLogin.css';
 
@@ -15,7 +16,6 @@ const PortalLogin = () => {
   const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -62,38 +62,43 @@ const PortalLogin = () => {
     setLoading(true);
 
     try {
-      if (isSignUp) {
-        await createUserWithEmailAndPassword(auth, email, password);
-      } else {
-        await signInWithEmailAndPassword(auth, email, password);
-      }
+      // Try sign in first
+      await signInWithEmailAndPassword(auth, email, password);
       navigate(from, { replace: true });
     } catch (err) {
-      console.error(err);
-      switch (err.code) {
-        case 'auth/email-already-in-use':
-          setError('This email is already registered. Please log in instead.');
-          break;
-        case 'auth/invalid-email':
-          setError('Please enter a valid email address.');
-          break;
-        case 'auth/weak-password':
-          setError('Password should be at least 6 characters.');
-          break;
-        case 'auth/user-not-found':
-          setError('No account found with this email. Please sign up.');
-          break;
-        case 'auth/wrong-password':
-          setError('Incorrect password. Please try again.');
-          break;
-        case 'auth/invalid-credential':
-          setError('Invalid email or password. Please try again.');
-          break;
-        case 'auth/too-many-requests':
-          setError('Too many failed attempts. Please try again later.');
-          break;
-        default:
-          setError(err.message);
+      // If user not found or invalid credential, try creating account
+      if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
+        try {
+          await createUserWithEmailAndPassword(auth, email, password);
+          navigate(from, { replace: true });
+        } catch (signUpErr) {
+          console.error(signUpErr);
+          switch (signUpErr.code) {
+            case 'auth/email-already-in-use':
+              setError('Incorrect password. Please try again.');
+              break;
+            case 'auth/weak-password':
+              setError('Password should be at least 6 characters.');
+              break;
+            case 'auth/invalid-email':
+              setError('Please enter a valid email address.');
+              break;
+            default:
+              setError(signUpErr.message);
+          }
+        }
+      } else {
+        console.error(err);
+        switch (err.code) {
+          case 'auth/invalid-email':
+            setError('Please enter a valid email address.');
+            break;
+          case 'auth/too-many-requests':
+            setError('Too many failed attempts. Please try again later.');
+            break;
+          default:
+            setError(err.message);
+        }
       }
     } finally {
       setLoading(false);
@@ -104,11 +109,8 @@ const PortalLogin = () => {
     <div className="new-login-page">
       <div className="login-card">
         <div className="login-card-header">
-          <h1>{isSignUp ? 'Create Account' : 'Welcome Back'}</h1>
-          <p>{isSignUp
-            ? `Sign up for HRM Consultancy ${type.charAt(0).toUpperCase() + type.slice(1)} portal`
-            : `Log in to HRM Consultancy ${type.charAt(0).toUpperCase() + type.slice(1)} portal`
-          }</p>
+          <h1>Welcome</h1>
+          <p>{`Sign in to HRM Consultancy ${type.charAt(0).toUpperCase() + type.slice(1)} portal`}</p>
         </div>
 
         <div className="social-login-section">
@@ -154,7 +156,7 @@ const PortalLogin = () => {
             <div className="password-field-wrapper">
               <input
                 type={showPassword ? 'text' : 'password'}
-                placeholder={isSignUp ? 'Min. 6 characters' : 'Enter your password'}
+                placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={loading}
@@ -175,17 +177,10 @@ const PortalLogin = () => {
           {error && <div className="login-error-msg">{error}</div>}
 
           <button type="submit" className="login-main-btn" disabled={loading}>
-            {loading ? 'Processing...' : (isSignUp ? 'Create Account' : 'Log In')}
+            {loading ? 'Processing...' : 'Continue'}
           </button>
         </form>
 
-        <div className="login-toggle">
-          {isSignUp ? (
-            <p>Already have an account? <button className="toggle-auth-btn" onClick={() => { setIsSignUp(false); setError(''); }}>Log In</button></p>
-          ) : (
-            <p>Don't have an account? <button className="toggle-auth-btn" onClick={() => { setIsSignUp(true); setError(''); }}>Sign Up</button></p>
-          )}
-        </div>
 
         <div className="login-footer">
           By continuing, you agree to our Terms & Privacy Policy

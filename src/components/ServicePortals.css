@@ -26,7 +26,7 @@
 
 .portals-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 30px;
   margin-bottom: 50px;
 }
@@ -63,6 +63,27 @@
 
 .icon-box.dark-bg {
   background-color: #111827;
+}
+
+.icon-box.partner-bg {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.hrm-partner-card {
+  border: 2px solid rgba(245, 158, 11, 0.2);
+  background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
+}
+
+.hrm-partner-card:hover {
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+.partner-link {
+  color: #d97706 !important;
+}
+
+.partner-link:hover {
+  color: #b45309 !important;
 }
 
 .portal-card-large h3 {
@@ -112,4 +133,35 @@
 
 .finance-btn:hover {
   background-color: var(--dark-red);
+}
+
+@media (max-width: 768px) {
+  .service-portals {
+    padding: 50px 0;
+  }
+  .portals-grid {
+    gap: 15px;
+  }
+  .portal-card-large {
+    padding: 20px;
+  }
+  .portal-card-large h3 {
+    font-size: 18px;
+  }
+  .portal-card-large p {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 576px) {
+  .portals-grid {
+    grid-template-columns: 1fr;
+  }
+  .section-header h2 {
+    font-size: 28px;
+  }
+  .finance-btn {
+    padding: 12px 25px;
+    font-size: 14px;
+  }
 }

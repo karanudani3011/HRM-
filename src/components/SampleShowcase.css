@@ -220,6 +220,9 @@
 }
 
 @media (max-width: 768px) {
+  .sample-showcase {
+    padding: 40px 0;
+  }
   .id-card-wrapper {
     max-width: 100%;
   }
@@ -229,16 +232,28 @@
   }
   
   .clinic-image {
-    height: 200px;
+    height: 220px;
+  }
+  .samples-grid {
+    gap: 40px;
   }
 }
 
 @media (max-width: 480px) {
+  .sample-title {
+    font-size: 16px;
+  }
   .id-logo .hrm-text {
-    font-size: 20px;
+    font-size: 18px;
   }
   .id-card-body {
     grid-template-columns: 1fr;
     gap: 10px;
+  }
+  .id-field .val {
+    font-size: 12px;
+  }
+  .clinic-details {
+    padding: 15px;
   }
 }

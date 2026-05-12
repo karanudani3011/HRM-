@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Stethoscope, Users, Building2, HeartPulse } from 'lucide-react';
+import { Stethoscope, Users, Building2, HeartPulse, Handshake } from 'lucide-react';
 import './ServicePortals.css';
 
 const ServicePortals = () => {
@@ -20,7 +20,7 @@ const ServicePortals = () => {
             </div>
             <h3>For Doctors</h3>
             <p>Register your practice, manage patients, video consultations & 5 Cr Finance access</p>
-            <Link to="/portal/doctor" className="access-link">Access Portal &rarr;</Link>
+            <Link to="/portal/doctor/register" className="access-link">Access Portal &rarr;</Link>
           </div>
 
           {/* Card 2 */}
@@ -30,7 +30,7 @@ const ServicePortals = () => {
             </div>
             <h3>For HR Professionals</h3>
             <p>B2B lead extractor, recruitment tools & HRM Partner Clinic registration</p>
-            <Link to="/portal/hr" className="access-link">Access Portal &rarr;</Link>
+            <Link to="/portal/hr/register" className="access-link">Access Portal &rarr;</Link>
           </div>
 
           {/* Card 3 */}
@@ -40,7 +40,7 @@ const ServicePortals = () => {
             </div>
             <h3>For Hospitals</h3>
             <p>HRM Health Partner registration, doctor network & patient management</p>
-            <Link to="/portal/hospital" className="access-link">Access Portal &rarr;</Link>
+            <Link to="/portal/hospital/register" className="access-link">Access Portal &rarr;</Link>
           </div>
 
           {/* Card 4 */}
@@ -52,7 +52,19 @@ const ServicePortals = () => {
             <p>Find specialists in any city, book video consultations & health records</p>
             <Link to="/portal/patient" className="access-link">Access Portal &rarr;</Link>
           </div>
+
+          {/* Card 5 */}
+          <div className="portal-card-large hrm-partner-card">
+            <div className="icon-box partner-bg">
+              <Handshake size={24} color="white" />
+            </div>
+            <h3>Join as HRM Partner</h3>
+            <p>Partner with us to expand healthcare access, grow your network & earn with HRM's partner ecosystem</p>
+            <Link to="/portal/hrm-partner/register" className="access-link partner-link">Become a Partner &rarr;</Link>
+          </div>
         </div>
+
+
 
         <div className="finance-btn-container">
           <button className="finance-btn">Rs 5 Cr Finance - Doctors Only</button>

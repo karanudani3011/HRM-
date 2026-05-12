@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Menu, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { auth } from '../firebase';
 import { signOut } from 'firebase/auth';
@@ -6,10 +8,15 @@ import './Header.css';
 
 const Header = () => {
   const { user } = useAuth();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  const closeMenu = () => setIsMenuOpen(false);
 
   const handleLogout = async () => {
     try {
       await signOut(auth);
+      closeMenu();
     } catch (err) {
       console.error('Logout failed:', err);
     }
@@ -25,17 +32,25 @@ const Header = () => {
             <p>Premium Healthcare Network</p>
           </div>
         </Link>
-        <nav className="nav-menu">
+        <button className="mobile-toggle" onClick={toggleMenu} aria-label="Toggle Menu">
+          {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
+        </button>
+
+        <div className={`nav-overlay ${isMenuOpen ? 'active' : ''}`} onClick={closeMenu}></div>
+
+        <nav className={`nav-menu ${isMenuOpen ? 'active' : ''}`}>
           <ul>
-            <li><a href="/#services">Services</a></li>
-            <li><a href="/#samples">Samples</a></li>
-            <li><a href="/#hr-tools">HR Tools</a></li>
-            <li><a href="/#find-doctor">Find Doctor</a></li>
+            <li><a href="/#services" onClick={closeMenu}>Services</a></li>
+            <li><a href="/#samples" onClick={closeMenu}>Samples</a></li>
+            <li><a href="/#hr-tools" onClick={closeMenu}>HR Tools</a></li>
+            <li><a href="/#find-doctor" onClick={closeMenu}>Find Doctor</a></li>
           </ul>
-          <Link to="/contact" className="btn-contact">Contact Us</Link>
-          {user && (
-            <button onClick={handleLogout} className="btn-logout">Logout</button>
-          )}
+          <div className="nav-actions">
+            <Link to="/contact" className="btn-contact" onClick={closeMenu}>Contact Us</Link>
+            {user && (
+              <button onClick={handleLogout} className="btn-logout">Logout</button>
+            )}
+          </div>
         </nav>
       </div>
     </header>

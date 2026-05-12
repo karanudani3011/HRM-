@@ -10,6 +10,10 @@ import LinkedInCallback from './pages/LinkedInCallback';
 import TermsConditions from './pages/TermsConditions';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import AboutUs from './pages/AboutUs';
+import DoctorRegistration from './pages/DoctorRegistration';
+import HospitalRegistration from './pages/HospitalRegistration';
+import HRRegistration from './pages/HRRegistration';
+import PartnerRegistration from './pages/PartnerRegistration';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -40,6 +44,10 @@ function App() {
         {!isAuthPage && <Header />}
         <Routes>
           <Route path="/portal/:type" element={<PortalLogin />} />
+          <Route path="/portal/doctor/register" element={<DoctorRegistration />} />
+          <Route path="/portal/hospital/register" element={<HospitalRegistration />} />
+          <Route path="/portal/hr/register" element={<HRRegistration />} />
+          <Route path="/portal/hrm-partner/register" element={<PartnerRegistration />} />
           <Route path="/portal/linkedin-callback" element={<LinkedInCallback />} />
           <Route 
             path="/" 

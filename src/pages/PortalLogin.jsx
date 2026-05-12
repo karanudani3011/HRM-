@@ -179,6 +179,12 @@ const PortalLogin = () => {
           <button type="submit" className="login-main-btn" disabled={loading}>
             {loading ? 'Processing...' : 'Continue'}
           </button>
+          
+          {type === 'doctor' && (
+            <div className="register-link-container" style={{ textAlign: 'center', marginTop: '15px', fontSize: '14px' }}>
+              Don't have an account? <Link to="/portal/doctor/register" style={{ color: 'var(--primary-red)', fontWeight: '600' }}>Register as a Doctor</Link>
+            </div>
+          )}
         </form>
 
 

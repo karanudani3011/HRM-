@@ -90,7 +90,15 @@ const UIMockups = () => {
               </div>
               <div className="input-group">
                 <label>Experience</label>
-                <div className="input-box">Any Experience</div>
+                <select className="input-box" style={{ width: '100%', cursor: 'pointer' }} defaultValue="">
+                  <option value="" disabled hidden>Any Experience</option>
+                  <option value="0-5">0-5 yr</option>
+                  <option value="5-10">5-10yr</option>
+                  <option value="10-15">10-15yr</option>
+                  <option value="15-20">15-20yr</option>
+                  <option value="20-25">20-25yr</option>
+                  <option value="above-25">above 25</option>
+                </select>
               </div>
             </div>
             

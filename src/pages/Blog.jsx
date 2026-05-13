@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import UploadPostModal from '../components/UploadPostModal';
-import { Upload } from 'lucide-react';
+import { Upload, Trash2 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import './Blog.css';
 
 const Blog = () => {
   const [posts, setPosts] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     if (!db) return;
@@ -26,6 +28,17 @@ const Blog = () => {
 
     return () => unsubscribe();
   }, []);
+
+  const handleDelete = async (postId) => {
+    if (window.confirm("Are you sure you want to delete this post? This cannot be undone.")) {
+      try {
+        await deleteDoc(doc(db, 'posts', postId));
+      } catch (error) {
+        console.error("Error deleting post:", error);
+        alert("Failed to delete post.");
+      }
+    }
+  };
 
   const formatDate = (timestamp) => {
     if (!timestamp) return '';
@@ -55,6 +68,15 @@ const Blog = () => {
               <div className="blog-content">
                 <div className="blog-meta">
                   <span className="blog-category">{post.category}</span>
+                  {user && post.userId === user.uid && (
+                    <button 
+                      onClick={() => handleDelete(post.id)}
+                      className="delete-btn"
+                      title="Delete Post"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  )}
                 </div>
                 <h3 className="blog-title">{post.title}</h3>
                 <p className="blog-excerpt">{post.excerpt}</p>

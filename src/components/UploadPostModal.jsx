@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { uploadImageToCloudinary } from '../utils/cloudinary';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
+import { useAuth } from '../context/AuthContext';
 import './UploadPostModal.css';
 
 const UploadPostModal = ({ isOpen, onClose }) => {
@@ -12,6 +13,7 @@ const UploadPostModal = ({ isOpen, onClose }) => {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const { user } = useAuth();
 
   if (!isOpen) return null;
 
@@ -36,6 +38,7 @@ const UploadPostModal = ({ isOpen, onClose }) => {
         excerpt,
         author,
         imageUrl,
+        userId: user ? user.uid : null,
         createdAt: serverTimestamp(),
       });
 

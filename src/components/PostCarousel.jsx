@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { collection, query, orderBy, onSnapshot, limit, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
-import UploadPostModal from './UploadPostModal';
-import { ChevronLeft, ChevronRight, Upload, Trash2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
 import './PostCarousel.css';
 
 const PostCarousel = () => {
   const [posts, setPosts] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Fetch posts from Firestore
   useEffect(() => {
@@ -73,10 +71,6 @@ const PostCarousel = () => {
     <section className="post-carousel-section">
       <div className="carousel-header">
         <h2>Latest Posts from Our Clients</h2>
-        <button className="upload-btn" onClick={() => setIsModalOpen(true)}>
-          <Upload size={18} />
-          Upload Post
-        </button>
       </div>
 
       <div className="carousel-container">
@@ -147,11 +141,6 @@ const PostCarousel = () => {
           ))}
         </div>
       )}
-
-      <UploadPostModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-      />
     </section>
   );
 };

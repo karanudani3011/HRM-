@@ -10,6 +10,7 @@ import LinkedInCallback from './pages/LinkedInCallback';
 import TermsConditions from './pages/TermsConditions';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import AboutUs from './pages/AboutUs';
+import Blog from './pages/Blog';
 import DoctorRegistration from './pages/DoctorRegistration';
 import HospitalRegistration from './pages/HospitalRegistration';
 import HRRegistration from './pages/HRRegistration';
@@ -68,6 +69,7 @@ function App() {
           <Route path="/terms" element={<TermsConditions />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/about" element={<AboutUs />} />
+          <Route path="/blog" element={<ProtectedRoute><Blog /></ProtectedRoute>} />
         </Routes>
         {!isAuthPage && <Footer />}
       </div>

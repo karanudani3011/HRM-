@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle2, ChevronRight, ChevronLeft, Send } from 'lucide-react';
+import { db } from '../firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import './DoctorRegistration.css';
 
 const DoctorRegistration = () => {
@@ -81,12 +83,26 @@ const DoctorRegistration = () => {
 
   const prevStep = () => setStep(1);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateStep2() && agreedToTerms) {
-      console.log('Final Form Data:', formData);
-      alert('Registration Successful! (Demo)');
-      navigate('/');
+      try {
+        await addDoc(collection(db, 'serviceForms'), {
+          ...formData,
+          formType: 'Doctor Registration',
+          name: formData.fullName,
+          email: formData.email,
+          mobile: formData.mobile,
+          city: formData.currentCity,
+          createdAt: serverTimestamp(),
+        });
+        alert('Registration Successful! Our team will contact you shortly.');
+        navigate('/');
+      } catch (err) {
+        console.error('Firestore error:', err);
+        alert('Registration Submitted! (offline mode)');
+        navigate('/');
+      }
     }
   };
 

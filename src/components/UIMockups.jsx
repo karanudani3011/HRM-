@@ -1,6 +1,8 @@
 import React from 'react';
 import './UIMockups.css';
 import { Search, MapPin, Briefcase } from 'lucide-react';
+import { db } from '../firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 const UIMockups = () => {
   return (

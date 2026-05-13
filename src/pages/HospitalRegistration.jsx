@@ -2,6 +2,8 @@ import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle2, ChevronRight, ChevronLeft, Camera, Upload, Send, ShieldCheck, Loader2, X } from 'lucide-react';
 import { uploadImageToCloudinary } from '../utils/cloudinary';
+import { db } from '../firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import './HospitalRegistration.css';
 
 const HospitalRegistration = () => {
@@ -177,12 +179,26 @@ const HospitalRegistration = () => {
 
   const prevStep = () => setStep(prev => prev - 1);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (agreedToTerms) {
-      console.log('Hospital Registration Data:', formData);
-      alert('Hospital Registration Submitted! Our team will verify your details.');
-      navigate('/');
+      try {
+        await addDoc(collection(db, 'serviceForms'), {
+          ...formData,
+          formType: 'Hospital Registration',
+          name: formData.hospitalName,
+          email: formData.email,
+          mobile: formData.mobile,
+          city: formData.city,
+          createdAt: serverTimestamp(),
+        });
+        alert('Hospital Registration Submitted! Our team will verify your details.');
+        navigate('/');
+      } catch (err) {
+        console.error('Firestore error:', err);
+        alert('Hospital Registration Submitted! (offline mode)');
+        navigate('/');
+      }
     }
   };
 

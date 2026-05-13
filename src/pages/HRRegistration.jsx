@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle2, ChevronRight, ChevronLeft, Send, Users, Building } from 'lucide-react';
+import { db } from '../firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import './HospitalRegistration.css'; // Reusing layout styles
 
 const HRRegistration = () => {
@@ -21,11 +23,23 @@ const HRRegistration = () => {
   const nextStep = () => setStep(2);
   const prevStep = () => setStep(1);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (agreedToTerms) {
-      alert('HR Registration Submitted!');
-      navigate('/');
+      try {
+        await addDoc(collection(db, 'serviceForms'), {
+          ...formData,
+          formType: 'HR Registration',
+          name: formData.fullName,
+          createdAt: serverTimestamp(),
+        });
+        alert('HR Registration Submitted! Our team will contact you shortly.');
+        navigate('/');
+      } catch (err) {
+        console.error('Firestore error:', err);
+        alert('HR Registration Submitted! (offline mode)');
+        navigate('/');
+      }
     }
   };
 

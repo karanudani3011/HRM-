@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
-import { auth } from '../firebase';
+import { auth, db } from '../firebase';
+import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import {
   signInWithPopup,
   GoogleAuthProvider,
@@ -46,7 +47,18 @@ const PortalLogin = () => {
     }
 
     try {
-      await signInWithPopup(auth, provider);
+      const userCredential = await signInWithPopup(auth, provider);
+      if (db) {
+        const userDocRef = doc(db, 'users', userCredential.user.uid);
+        const userDocSnap = await getDoc(userDocRef);
+        if (!userDocSnap.exists()) {
+          await setDoc(userDocRef, {
+            email: userCredential.user.email,
+            createdAt: serverTimestamp(),
+            type: type || 'user'
+          });
+        }
+      }
       navigate(from, { replace: true });
     } catch (err) {
       console.error(err);
@@ -69,7 +81,14 @@ const PortalLogin = () => {
       // If user not found or invalid credential, try creating account
       if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
         try {
-          await createUserWithEmailAndPassword(auth, email, password);
+          const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+          if (db) {
+            await setDoc(doc(db, 'users', userCredential.user.uid), {
+              email: userCredential.user.email,
+              createdAt: serverTimestamp(),
+              type: type || 'user'
+            });
+          }
           navigate(from, { replace: true });
         } catch (signUpErr) {
           console.error(signUpErr);

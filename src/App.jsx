@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { Routes, Route, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import TopBar from './components/TopBar';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -15,6 +15,9 @@ import DoctorRegistration from './pages/DoctorRegistration';
 import HospitalRegistration from './pages/HospitalRegistration';
 import HRRegistration from './pages/HRRegistration';
 import PartnerRegistration from './pages/PartnerRegistration';
+import AdminLogin from './pages/AdminLogin';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminServiceSubmissions from './pages/AdminServiceSubmissions';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -22,6 +25,7 @@ function App() {
   const location = useLocation();
   const navigate = useNavigate();
   const isAuthPage = location.pathname.startsWith('/portal/');
+  const isAdminPage = location.pathname.startsWith('/admin');
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -41,8 +45,8 @@ function App() {
   return (
     <AuthProvider>
       <div className="app">
-        {!isAuthPage && <TopBar />}
-        {!isAuthPage && <Header />}
+        {!isAuthPage && !isAdminPage && <TopBar />}
+        {!isAuthPage && !isAdminPage && <Header />}
         <Routes>
           <Route path="/portal/:type" element={<PortalLogin />} />
           <Route path="/portal/doctor/register" element={<DoctorRegistration />} />
@@ -70,8 +74,12 @@ function App() {
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/about" element={<AboutUs />} />
           <Route path="/blog" element={<ProtectedRoute><Blog /></ProtectedRoute>} />
+          <Route path="/admin/services" element={<AdminServiceSubmissions />} />
+          <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
         </Routes>
-        {!isAuthPage && <Footer />}
+        {!isAuthPage && !isAdminPage && <Footer />}
       </div>
     </AuthProvider>
   );

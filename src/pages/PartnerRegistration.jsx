@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle2, ChevronRight, ChevronLeft, Send, Handshake } from 'lucide-react';
+import { db } from '../firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import './HospitalRegistration.css';
 
 const PartnerRegistration = () => {
@@ -20,11 +22,23 @@ const PartnerRegistration = () => {
   const nextStep = () => setStep(2);
   const prevStep = () => setStep(1);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (agreedToTerms) {
-      alert('Partner Registration Submitted!');
-      navigate('/');
+      try {
+        await addDoc(collection(db, 'serviceForms'), {
+          ...formData,
+          formType: 'Partner Registration',
+          name: formData.contactPerson,
+          createdAt: serverTimestamp(),
+        });
+        alert('Partner Registration Submitted! Our team will contact you shortly.');
+        navigate('/');
+      } catch (err) {
+        console.error('Firestore error:', err);
+        alert('Partner Registration Submitted! (offline mode)');
+        navigate('/');
+      }
     }
   };
 

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle2, ChevronRight, ChevronLeft, Camera, Upload, Send, ShieldCheck } from 'lucide-react';
+import { CheckCircle2, ChevronRight, ChevronLeft, Camera, Upload, Send, ShieldCheck, Loader2, X } from 'lucide-react';
+import { uploadImageToCloudinary } from '../utils/cloudinary';
 import './HospitalRegistration.css';
 
 const HospitalRegistration = () => {
@@ -43,6 +44,90 @@ const HospitalRegistration = () => {
   });
 
   const [errors, setErrors] = useState({});
+  const [uploading, setUploading] = useState({});
+
+  const authLetterRef = useRef(null);
+  const logoRef = useRef(null);
+  const photosRef = useRef(null);
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+
+  const [cameraActive, setCameraActive] = useState(false);
+  const [stream, setStream] = useState(null);
+
+  const startCamera = async () => {
+    try {
+      const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
+      setStream(mediaStream);
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream;
+      }
+      setCameraActive(true);
+    } catch (err) {
+      alert("Camera access denied or not available: " + err.message);
+    }
+  };
+
+  const stopCamera = () => {
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      setStream(null);
+      setCameraActive(false);
+    }
+  };
+
+  const captureSelfie = async () => {
+    if (!videoRef.current || !canvasRef.current) return;
+
+    const canvas = canvasRef.current;
+    const video = videoRef.current;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    
+    canvas.toBlob(async (blob) => {
+      const file = new File([blob], "selfie.jpg", { type: "image/jpeg" });
+      setUploading(prev => ({ ...prev, selfie: true }));
+      try {
+        const url = await uploadImageToCloudinary(file);
+        setFormData(prev => ({ ...prev, selfie: url }));
+        stopCamera();
+      } catch (error) {
+        alert("Selfie upload failed: " + error.message);
+      } finally {
+        setUploading(prev => ({ ...prev, selfie: false }));
+      }
+    }, 'image/jpeg');
+  };
+
+  const handleFileUpload = async (e, field) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploading(prev => ({ ...prev, [field]: true }));
+    try {
+      const url = await uploadImageToCloudinary(file);
+      if (field === 'hospitalPhotos') {
+        setFormData(prev => ({ 
+          ...prev, 
+          hospitalPhotos: [...prev.hospitalPhotos, url].slice(0, 5) 
+        }));
+      } else {
+        setFormData(prev => ({ ...prev, [field]: url }));
+      }
+    } catch (error) {
+      alert(`Upload failed for ${field}: ` + error.message);
+    } finally {
+      setUploading(prev => ({ ...prev, [field]: false }));
+    }
+  };
+
+  const removePhoto = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      hospitalPhotos: prev.hospitalPhotos.filter((_, i) => i !== index)
+    }));
+  };
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -206,10 +291,35 @@ const HospitalRegistration = () => {
                 </div>
                 <div className="form-group full-width">
                   <label>Upload HR ID Card / Auth Letter *</label>
-                  <div className="file-upload-box">
-                    <Upload className="mx-auto mb-2 text-gray-400" />
-                    <p>Click to upload or drag and drop</p>
-                    <span className="text-xs text-gray-500">PDF, JPG, PNG (Max 5MB)</span>
+                  <input 
+                    type="file" 
+                    ref={authLetterRef}
+                    onChange={(e) => handleFileUpload(e, 'authLetter')}
+                    className="hidden"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                  />
+                  <div 
+                    className={`file-upload-box ${formData.authLetter ? 'success' : ''}`}
+                    onClick={() => authLetterRef.current.click()}
+                  >
+                    {uploading.authLetter ? (
+                      <div className="flex flex-col items-center">
+                        <Loader2 className="animate-spin mb-2 text-blue-500" />
+                        <p>Uploading...</p>
+                      </div>
+                    ) : formData.authLetter ? (
+                      <div className="flex flex-col items-center">
+                        <CheckCircle2 className="mb-2 text-green-500" />
+                        <p className="text-green-600 font-medium">Auth Letter Uploaded!</p>
+                        <span className="text-xs text-gray-500">Click to change</span>
+                      </div>
+                    ) : (
+                      <>
+                        <Upload className="mx-auto mb-2 text-gray-400" />
+                        <p>Click to upload or drag and drop</p>
+                        <span className="text-xs text-gray-500">PDF, JPG, PNG (Max 5MB)</span>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
@@ -219,18 +329,99 @@ const HospitalRegistration = () => {
           {step === 3 && (
             <div className="form-step-content text-center">
               <h3 className="mb-4 font-bold text-lg">Mandatory Live Selfie Verification 📸</h3>
-              <div className="camera-preview mx-auto" style={{ maxWidth: '400px' }}>
-                <Camera size={48} className="opacity-20" />
-                <span className="absolute">Camera View Placeholder</span>
-              </div>
-              <button type="button" className="bg-blue-600 text-white px-6 py-2 rounded-full mb-6 font-semibold">Capture Live Selfie</button>
               
-              <div className="form-group text-left mt-8">
+              <div className="camera-section mx-auto" style={{ maxWidth: '400px' }}>
+                <div className="camera-preview-container relative bg-black rounded-xl overflow-hidden shadow-2xl aspect-video flex items-center justify-center">
+                  {!formData.selfie && !cameraActive && (
+                    <div className="flex flex-col items-center gap-4">
+                      <Camera size={48} className="text-gray-600 animate-pulse" />
+                      <button 
+                        type="button" 
+                        onClick={startCamera}
+                        className="bg-blue-600 text-white px-6 py-2 rounded-full font-semibold hover:bg-blue-700 transition-colors"
+                      >
+                        Enable Camera
+                      </button>
+                    </div>
+                  )}
+
+                  {cameraActive && (
+                    <>
+                      <video 
+                        ref={videoRef} 
+                        autoPlay 
+                        playsInline 
+                        className="w-full h-full object-cover mirror"
+                      />
+                      <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-4">
+                        <button 
+                          type="button" 
+                          onClick={captureSelfie}
+                          className="bg-white text-blue-600 p-4 rounded-full shadow-lg hover:scale-110 transition-transform"
+                          disabled={uploading.selfie}
+                        >
+                          {uploading.selfie ? <Loader2 className="animate-spin" /> : <Camera size={24} />}
+                        </button>
+                        <button 
+                          type="button" 
+                          onClick={stopCamera}
+                          className="bg-red-500 text-white p-4 rounded-full shadow-lg hover:scale-110 transition-transform"
+                        >
+                          <X size={24} />
+                        </button>
+                      </div>
+                    </>
+                  )}
+
+                  {formData.selfie && !cameraActive && (
+                    <div className="relative w-full h-full">
+                      <img src={formData.selfie} alt="Selfie Preview" className="w-full h-full object-cover" />
+                      <div className="absolute top-2 right-2 bg-green-500 text-white p-1 rounded-full shadow">
+                        <CheckCircle2 size={20} />
+                      </div>
+                      <button 
+                        type="button" 
+                        onClick={() => { setFormData(prev => ({ ...prev, selfie: null })); startCamera(); }}
+                        className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur text-gray-800 px-4 py-2 rounded-full text-sm font-bold shadow-lg"
+                      >
+                        Retake Selfie
+                      </button>
+                    </div>
+                  )}
+                </div>
+                <canvas ref={canvasRef} className="hidden" />
+              </div>
+
+              <div className="form-group text-left mt-10">
                 <label>Upload Hospital Logo</label>
-                <div className="file-upload-box">
-                  <Upload className="mx-auto mb-2 text-gray-400" />
-                  <p>Upload Logo (Optional)</p>
-                  <span className="text-xs text-gray-500">Max 2MB</span>
+                <input 
+                  type="file" 
+                  ref={logoRef}
+                  onChange={(e) => handleFileUpload(e, 'logo')}
+                  className="hidden"
+                  accept="image/*"
+                />
+                <div 
+                  className={`file-upload-box ${formData.logo ? 'success' : ''}`}
+                  onClick={() => logoRef.current.click()}
+                >
+                  {uploading.logo ? (
+                    <div className="flex flex-col items-center">
+                      <Loader2 className="animate-spin mb-2 text-blue-500" />
+                      <p>Uploading...</p>
+                    </div>
+                  ) : formData.logo ? (
+                    <div className="flex flex-col items-center">
+                      <img src={formData.logo} alt="Hospital Logo" className="h-16 w-16 object-contain mb-2" />
+                      <p className="text-green-600 font-medium">Logo Uploaded!</p>
+                    </div>
+                  ) : (
+                    <>
+                      <Upload className="mx-auto mb-2 text-gray-400" />
+                      <p>Upload Logo (Optional)</p>
+                      <span className="text-xs text-gray-500">Max 2MB</span>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -300,9 +491,44 @@ const HospitalRegistration = () => {
                 </div>
                 <div className="form-group full-width">
                   <label>Upload Hospital Photos (Max 5)</label>
-                  <div className="file-upload-box">
-                    <Upload className="mx-auto mb-2 text-gray-400" />
-                    <p>Click to upload hospital images</p>
+                  <input 
+                    type="file" 
+                    ref={photosRef}
+                    onChange={(e) => handleFileUpload(e, 'hospitalPhotos')}
+                    className="hidden"
+                    accept="image/*"
+                    disabled={formData.hospitalPhotos.length >= 5}
+                  />
+                  <div className="photos-upload-container">
+                    <div className="photos-grid mb-4">
+                      {formData.hospitalPhotos.map((url, index) => (
+                        <div key={index} className="photo-preview-item relative">
+                          <img src={url} alt={`Hospital ${index}`} className="w-full h-24 object-cover rounded-lg" />
+                          <button 
+                            type="button" 
+                            onClick={(e) => { e.stopPropagation(); removePhoto(index); }}
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-lg hover:bg-red-600"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      ))}
+                      {formData.hospitalPhotos.length < 5 && (
+                        <div 
+                          className={`file-upload-box mini ${uploading.hospitalPhotos ? 'uploading' : ''}`}
+                          onClick={() => photosRef.current.click()}
+                        >
+                          {uploading.hospitalPhotos ? (
+                            <Loader2 className="animate-spin text-blue-500" />
+                          ) : (
+                            <Upload className="text-gray-400" />
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    {formData.hospitalPhotos.length === 0 && !uploading.hospitalPhotos && (
+                      <p className="text-sm text-gray-500 text-center">No photos uploaded yet</p>
+                    )}
                   </div>
                 </div>
               </div>

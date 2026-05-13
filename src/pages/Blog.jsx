@@ -68,7 +68,7 @@ const Blog = () => {
               <div className="blog-content">
                 <div className="blog-meta">
                   <span className="blog-category">{post.category}</span>
-                  {user && post.userId === user.uid && (
+                  {user && (!post.userId || post.userId === user.uid) && (
                     <button 
                       onClick={() => handleDelete(post.id)}
                       className="delete-btn"

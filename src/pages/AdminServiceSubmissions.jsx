@@ -10,6 +10,8 @@ const AdminServiceSubmissions = () => {
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('All');
+  const [selectedSub, setSelectedSub] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const isAuthenticated = localStorage.getItem('adminAuth') === 'true';
@@ -40,33 +42,59 @@ const AdminServiceSubmissions = () => {
   const filtered = filter === 'All' ? submissions : submissions.filter(s => s.formType === filter);
 
   const downloadPDF = () => {
-    const table = document.getElementById('service-table');
-    if (!table) { alert('No data to export'); return; }
+    if (filtered.length === 0) { alert('No data to export'); return; }
     const newWin = window.open('', '_blank');
+    
+    let reportContent = '';
+    filtered.forEach((sub, idx) => {
+      reportContent += `
+        <div class="submission-block" style="page-break-after: always; margin-bottom: 30px; border: 1px solid #e5e7eb; padding: 20px; border-radius: 8px;">
+          <h3 style="color: #1e3a5f; border-bottom: 2px solid #3b82f6; padding-bottom: 10px;">
+            Submission #${idx + 1}: ${sub.formType || 'Registration'}
+          </h3>
+          <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+            ${Object.entries(sub).map(([key, value]) => {
+              if (key === 'id' || key === 'createdAt') return '';
+              if (typeof value === 'object' && value !== null) {
+                if (Array.isArray(value)) value = value.join(', ');
+                else value = JSON.stringify(value);
+              }
+              // Clean up keys for display
+              const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+              return `
+                <tr>
+                  <td style="padding: 8px; border-bottom: 1px solid #f3f4f6; font-weight: 600; width: 30%; color: #4b5563;">${label}</td>
+                  <td style="padding: 8px; border-bottom: 1px solid #f3f4f6; color: #111827;">${value || '—'}</td>
+                </tr>
+              `;
+            }).join('')}
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #f3f4f6; font-weight: 600; color: #4b5563;">Submitted At</td>
+              <td style="padding: 8px; border-bottom: 1px solid #f3f4f6; color: #111827;">${formatDate(sub.createdAt)}</td>
+            </tr>
+          </table>
+        </div>
+      `;
+    });
+
     newWin.document.write(`
-      <html><head><title>HRM Service Submissions</title>
+      <html><head><title>Detailed HRM Service Report</title>
       <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        h2 { color: #1e3a5f; margin-bottom: 4px; }
-        p { color: #666; font-size: 13px; margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        th { background: #1e3a5f; color: white; padding: 10px 12px; text-align: left; }
-        td { padding: 9px 12px; border-bottom: 1px solid #e5e7eb; }
-        tr:nth-child(even) td { background: #f9fafb; }
-        .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; }
-        .badge-doctor { background: #dbeafe; color: #1d4ed8; }
-        .badge-hospital { background: #dcfce7; color: #15803d; }
-        .badge-hr { background: #fef9c3; color: #854d0e; }
-        .badge-partner { background: #f3e8ff; color: #7c3aed; }
+        body { font-family: 'Inter', sans-serif; padding: 40px; color: #333; line-height: 1.5; }
+        h2 { color: #1e3a5f; margin-bottom: 10px; font-size: 24px; }
+        .header { margin-bottom: 30px; text-align: center; border-bottom: 1px solid #eee; padding-bottom: 20px; }
+        .submission-block { background: white; }
       </style>
       </head><body>
-      <h2>HRM Service Form Submissions</h2>
-      <p>Exported on ${new Date().toLocaleString('en-IN')}</p>
-      ${table.outerHTML}
+      <div class="header">
+        <h2>HRM Detailed Service Submissions Report</h2>
+        <p style="color: #666;">Generated on ${new Date().toLocaleString('en-IN')}</p>
+      </div>
+      ${reportContent}
       </body></html>
     `);
     newWin.document.close();
-    newWin.print();
+    setTimeout(() => { newWin.print(); }, 500);
   };
 
   const getBadgeClass = (type) => {
@@ -166,6 +194,7 @@ const AdminServiceSubmissions = () => {
                     <th>Mobile</th>
                     <th>City</th>
                     <th>Submitted At</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -182,10 +211,66 @@ const AdminServiceSubmissions = () => {
                       <td>{sub.mobile || '—'}</td>
                       <td>{sub.city || sub.currentCity || '—'}</td>
                       <td>{formatDate(sub.createdAt)}</td>
+                      <td>
+                        <button 
+                          className="admin-view-btn" 
+                          onClick={() => { setSelectedSub(sub); setIsModalOpen(true); }}
+                        >
+                          👁 View Details
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+            </div>
+          )}
+
+          {/* Details Modal */}
+          {isModalOpen && selectedSub && (
+            <div className="admin-modal-overlay">
+              <div className="admin-modal-content">
+                <div className="admin-modal-header">
+                  <h3>Full Submission Details</h3>
+                  <button onClick={() => setIsModalOpen(false)}>×</button>
+                </div>
+                <div className="admin-modal-body">
+                  <div className="detail-type-badge">
+                    <span className={getBadgeClass(selectedSub.formType)}>
+                      {selectedSub.formType}
+                    </span>
+                  </div>
+                  <table className="details-display-table">
+                    <tbody>
+                      {Object.entries(selectedSub).map(([key, value]) => {
+                        if (key === 'id' || key === 'createdAt') return null;
+                        const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+                        let displayValue = value;
+                        if (Array.isArray(value)) displayValue = value.join(', ');
+                        if (typeof value === 'boolean') displayValue = value ? 'Yes' : 'No';
+                        if (key.toLowerCase().includes('photo') || key.toLowerCase().includes('logo') || key.toLowerCase().includes('selfie')) {
+                          if (value && typeof value === 'string' && value.startsWith('http')) {
+                            displayValue = <a href={value} target="_blank" rel="noreferrer" className="img-link">View Image</a>;
+                          }
+                        }
+                        return (
+                          <tr key={key}>
+                            <td className="label-td">{label}</td>
+                            <td className="value-td">{displayValue || '—'}</td>
+                          </tr>
+                        );
+                      })}
+                      <tr>
+                        <td className="label-td">Submitted At</td>
+                        <td className="value-td">{formatDate(selectedSub.createdAt)}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div className="admin-modal-footer">
+                  <button onClick={() => setIsModalOpen(false)}>Close</button>
+                </div>
+              </div>
             </div>
           )}
         </div>

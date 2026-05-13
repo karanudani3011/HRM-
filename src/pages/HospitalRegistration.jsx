@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle2, ChevronRight, ChevronLeft, Camera, Upload, Send, ShieldCheck, Loader2, X } from 'lucide-react';
 import { uploadImageToCloudinary } from '../utils/cloudinary';
@@ -58,11 +58,16 @@ const HospitalRegistration = () => {
   const [cameraActive, setCameraActive] = useState(false);
   const [stream, setStream] = useState(null);
 
+  useEffect(() => {
+    if (cameraActive && stream && videoRef.current) {
+      videoRef.current.srcObject = stream;
+    }
+  }, [cameraActive, stream]);
+
   const startCamera = async () => {
     try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
+      const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
       setStream(mediaStream);
-      if (videoRef.current) videoRef.current.srcObject = mediaStream;
       setCameraActive(true);
     } catch (err) { alert("Camera access denied: " + err.message); }
   };
@@ -84,7 +89,7 @@ const HospitalRegistration = () => {
     canvas.getContext('2d').drawImage(video, 0, 0);
 
     canvas.toBlob(async (blob) => {
-      const file = new File([blob], "selfie.jpg", { type: "image/jpeg" });
+      const file = new File([blob], "hospital_selfie.jpg", { type: "image/jpeg" });
       setUploading(prev => ({ ...prev, selfie: true }));
       try {
         const url = await uploadImageToCloudinary(file);
@@ -97,14 +102,17 @@ const HospitalRegistration = () => {
   };
 
   const handleFileUpload = async (e, field) => {
-    const file = e.target.files[0];
-    if (!file) return;
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+    
     setUploading(prev => ({ ...prev, [field]: true }));
     try {
-      const url = await uploadImageToCloudinary(file);
       if (field === 'hospitalPhotos') {
-        setFormData(prev => ({ ...prev, hospitalPhotos: [...prev.hospitalPhotos, url].slice(0, 5) }));
+        const uploadPromises = files.slice(0, 5).map(file => uploadImageToCloudinary(file));
+        const urls = await Promise.all(uploadPromises);
+        setFormData(prev => ({ ...prev, hospitalPhotos: [...prev.hospitalPhotos, ...urls].slice(0, 5) }));
       } else {
+        const url = await uploadImageToCloudinary(files[0]);
         setFormData(prev => ({ ...prev, [field]: url }));
       }
     } catch (error) { alert(`Upload failed: ` + error.message); } finally {
@@ -114,12 +122,12 @@ const HospitalRegistration = () => {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    if (type === 'checkbox' && (name === 'neededDoctors' || name === 'jobTypes')) {
-      const currentList = [...formData[name]];
-      if (checked) {
-        setFormData(prev => ({ ...prev, [name]: [...currentList, value] }));
-      } else {
-        setFormData(prev => ({ ...prev, [name]: currentList.filter(item => item !== value) }));
+    if (type === 'checkbox') {
+      if (name === 'neededDoctors' || name === 'jobTypes') {
+        const updatedList = checked 
+          ? [...formData[name], value] 
+          : formData[name].filter(item => item !== value);
+        setFormData(prev => ({ ...prev, [name]: updatedList }));
       }
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
@@ -127,12 +135,13 @@ const HospitalRegistration = () => {
   };
 
   const validateStep = (currentStep) => {
-    let newErrors = {};
+    const newErrors = {};
     if (currentStep === 1) {
       if (!formData.hospitalName) newErrors.hospitalName = 'Required';
       if (!formData.hospitalType) newErrors.hospitalType = 'Required';
       if (!formData.regNumber) newErrors.regNumber = 'Required';
       if (!formData.city) newErrors.city = 'Required';
+      if (!formData.pincode) newErrors.pincode = 'Required';
     } else if (currentStep === 2) {
       if (!formData.adminName) newErrors.adminName = 'Required';
       if (!formData.mobile) newErrors.mobile = 'Required';
@@ -162,7 +171,7 @@ const HospitalRegistration = () => {
         });
         alert('Hospital Registration Submitted!');
         navigate('/');
-      } catch (err) { alert('Submission failed'); }
+      } catch (err) { alert('Submission failed: ' + err.message); }
     }
   };
 
@@ -207,13 +216,30 @@ const HospitalRegistration = () => {
                 {errors.regNumber && <span className="error-msg">{errors.regNumber}</span>}
               </div>
               <div className="form-group">
+                <label>Year of Establishment *</label>
+                <input type="number" name="yearOfEstablishment" value={formData.yearOfEstablishment} onChange={handleInputChange} placeholder="YYYY" />
+              </div>
+              <div className="form-group">
+                <label>Bed Capacity *</label>
+                <input type="number" name="bedCapacity" value={formData.bedCapacity} onChange={handleInputChange} placeholder="Total beds" />
+              </div>
+              <div className="form-group">
                 <label>City *</label>
                 <input type="text" name="city" className={errors.city ? 'error' : ''} value={formData.city} onChange={handleInputChange} />
                 {errors.city && <span className="error-msg">{errors.city}</span>}
               </div>
               <div className="form-group">
+                <label>State *</label>
+                <input type="text" name="state" value={formData.state} onChange={handleInputChange} />
+              </div>
+              <div className="form-group">
                 <label>Pincode *</label>
-                <input type="text" name="pincode" maxLength="6" value={formData.pincode} onChange={handleInputChange} />
+                <input type="text" name="pincode" className={errors.pincode ? 'error' : ''} maxLength="6" value={formData.pincode} onChange={handleInputChange} />
+                {errors.pincode && <span className="error-msg">{errors.pincode}</span>}
+              </div>
+              <div className="form-group">
+                <label>Hospital Website</label>
+                <input type="url" name="website" value={formData.website} onChange={handleInputChange} placeholder="https://..." />
               </div>
               <div className="form-group full-width">
                 <label>Hospital Address *</label>
@@ -222,23 +248,11 @@ const HospitalRegistration = () => {
             </div>
           ) : step === 2 ? (
             <div className="form-grid">
-              <div className="form-group"><label>Admin Name *</label><input type="text" name="adminName" className={errors.adminName ? 'error' : ''} value={formData.adminName} onChange={handleInputChange} />{errors.adminName && <span className="error-msg">{errors.adminName}</span>}</div>
-              <div className="form-group">
-                <label>Mobile Number *</label>
-                <div className="input-with-action">
-                  <input type="tel" name="mobile" maxLength="10" className={errors.mobile ? 'error' : ''} value={formData.mobile} onChange={handleInputChange} />
-                  <button type="button" className="verify-btn">Verify OTP</button>
-                </div>
-                {errors.mobile && <span className="error-msg">{errors.mobile}</span>}
-              </div>
-              <div className="form-group">
-                <label>Email ID *</label>
-                <div className="input-with-action">
-                  <input type="email" name="email" className={errors.email ? 'error' : ''} value={formData.email} onChange={handleInputChange} />
-                  <button type="button" className="verify-btn">Verify OTP</button>
-                </div>
-                {errors.email && <span className="error-msg">{errors.email}</span>}
-              </div>
+              <div className="form-group"><label>HR/Admin Name *</label><input type="text" name="adminName" className={errors.adminName ? 'error' : ''} value={formData.adminName} onChange={handleInputChange} />{errors.adminName && <span className="error-msg">{errors.adminName}</span>}</div>
+              <div className="form-group"><label>Designation *</label><input type="text" name="designation" value={formData.designation} onChange={handleInputChange} /></div>
+              <div className="form-group"><label>Mobile Number *</label><input type="tel" name="mobile" maxLength="10" className={errors.mobile ? 'error' : ''} value={formData.mobile} onChange={handleInputChange} />{errors.mobile && <span className="error-msg">{errors.mobile}</span>}</div>
+              <div className="form-group"><label>WhatsApp Number</label><input type="tel" name="whatsapp" maxLength="10" value={formData.whatsapp} onChange={handleInputChange} /></div>
+              <div className="form-group"><label>Email ID *</label><input type="email" name="email" className={errors.email ? 'error' : ''} value={formData.email} onChange={handleInputChange} />{errors.email && <span className="error-msg">{errors.email}</span>}</div>
               <div className="form-group full-width">
                 <label>Upload HR ID Card / Auth Letter *</label>
                 <input type="file" ref={authLetterRef} onChange={(e) => handleFileUpload(e, 'authLetter')} className="hidden" accept=".pdf,.jpg,.jpeg,.png" />
@@ -249,24 +263,45 @@ const HospitalRegistration = () => {
             </div>
           ) : step === 3 ? (
             <div className="verification-step">
-              <h3 className="text-center mb-6">Live Selfie Verification 📸</h3>
-              <div className="flex flex-col md:flex-row gap-6 items-center justify-center">
-                <div className="relative w-64 h-48 bg-black rounded-xl overflow-hidden shadow-2xl border-2 border-blue-500">
-                  {!formData.selfie && !cameraActive && <div className="w-full h-full flex items-center justify-center text-gray-500"><Camera size={48} /></div>}
-                  {cameraActive && <video ref={videoRef} autoPlay playsInline onClick={captureSelfie} className="w-full h-full object-cover mirror cursor-pointer" />}
-                  {formData.selfie && !cameraActive && <img src={formData.selfie} className="w-full h-full object-cover" alt="Selfie" />}
+              <h3 style={{ textAlign: 'center', marginBottom: '20px', color: '#1e293b' }}>Live Selfie Verification 📸</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
+                <div className={`camera-preview-box ${formData.selfie ? 'has-image' : ''}`}>
+                  {!formData.selfie && !cameraActive && <Camera size={48} color="#94a3b8" />}
+                  {cameraActive && <video ref={videoRef} autoPlay playsInline className="video-element mirror" />}
+                  {formData.selfie && !cameraActive && <img src={formData.selfie} alt="Selfie" className="preview-image" />}
                 </div>
-                <div className="flex flex-col gap-3">
-                  {!cameraActive && !formData.selfie && <button type="button" onClick={startCamera} className="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold">Start Camera</button>}
-                  {cameraActive && (
-                    <>
-                      <button type="button" onClick={captureSelfie} className="bg-green-600 text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2">
-                        {uploading.selfie ? <Loader2 className="animate-spin" /> : <><Camera size={20} /> Capture Photo</>}
-                      </button>
-                      <button type="button" onClick={stopCamera} className="bg-red-500 text-white px-6 py-2 rounded-lg font-bold">Cancel</button>
-                    </>
+                
+                <div className="camera-controls">
+                  {!cameraActive && !formData.selfie && (
+                    <button type="button" onClick={startCamera} className="btn-camera start">
+                      Start Camera
+                    </button>
                   )}
-                  {formData.selfie && <button type="button" onClick={() => { setFormData(prev => ({...prev, selfie: null})); startCamera(); }} className="bg-orange-500 text-white px-4 py-2 rounded-lg font-bold">Retake Selfie</button>}
+                  
+                  {cameraActive && (
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <button type="button" onClick={captureSelfie} className="btn-camera capture" disabled={uploading.selfie}>
+                        {uploading.selfie ? <Loader2 className="animate-spin" /> : 'Capture Photo'}
+                      </button>
+                      <button type="button" onClick={stopCamera} className="btn-camera cancel">
+                        Cancel
+                      </button>
+                    </div>
+                  )}
+                  
+                  {formData.selfie && !cameraActive && (
+                    <button type="button" onClick={() => { setFormData(prev => ({...prev, selfie: null})); startCamera(); }} className="btn-camera retake">
+                      Retake Selfie
+                    </button>
+                  )}
+                </div>
+
+                <div className="mt-8 w-full">
+                  <label className="block mb-2 font-medium">Upload Hospital Logo</label>
+                  <input type="file" ref={logoRef} onChange={(e) => handleFileUpload(e, 'logo')} className="hidden" accept="image/*" />
+                  <div className={`file-upload-box ${formData.logo ? 'success' : ''}`} onClick={() => logoRef.current.click()}>
+                    {uploading.logo ? <Loader2 className="animate-spin" /> : formData.logo ? "Logo Uploaded ✓" : "Click to upload Logo"}
+                  </div>
                 </div>
               </div>
             </div>
@@ -275,7 +310,7 @@ const HospitalRegistration = () => {
               <div className="form-group full-width">
                 <label>Doctors Needed *</label>
                 <div className="checkbox-group mt-2">
-                  {['MS Obs & Gynae', 'MD Medicine', 'MD Anesthesia', 'MS Ortho'].map(doc => (
+                  {['MS Obs & Gynae', 'MD Medicine', 'MD Anesthesia', 'MS Ortho', 'Pediatrics', 'Radiology', 'Pathology'].map(doc => (
                     <label key={doc} className="checkbox-item">
                       <input type="checkbox" name="neededDoctors" value={doc} checked={formData.neededDoctors.includes(doc)} onChange={handleInputChange} />
                       {doc}
@@ -283,26 +318,49 @@ const HospitalRegistration = () => {
                   ))}
                 </div>
               </div>
-              <div className="form-group">
-                <label>Joining Urgency *</label>
-                <select name="urgency" className={errors.urgency ? 'error' : ''} value={formData.urgency} onChange={handleInputChange}>
-                  <option value="">Select Urgency</option>
-                  <option value="Immediate">Immediate</option>
-                  <option value="15 Days">15 Days</option>
-                </select>
-                {errors.urgency && <span className="error-msg">{errors.urgency}</span>}
-              </div>
               <div className="form-group full-width">
-                <label>Facility Highlights</label>
-                <textarea name="facilityHighlights" value={formData.facilityHighlights} onChange={handleInputChange} placeholder="OT, ICU, NICU, etc." rows="3"></textarea>
+                <label>Job Types *</label>
+                <div className="checkbox-group mt-2">
+                  {['Full-Time', 'Part-Time', 'Visiting', 'Locum'].map(type => (
+                    <label key={type} className="checkbox-item">
+                      <input type="checkbox" name="jobTypes" value={type} checked={formData.jobTypes.includes(type)} onChange={handleInputChange} />
+                      {type}
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div className="form-group"><label>Experience Range *</label><select name="expRange" value={formData.expRange} onChange={handleInputChange}><option value="">Select Range</option><option value="Fresher">Fresher</option><option value="0-3 Yr">0-3 Yr</option><option value="3-8 Yr">3-8 Yr</option><option value="8+ Yr">8+ Yr</option></select></div>
+              <div className="form-group"><label>Salary Range</label><input type="text" name="salaryRange" value={formData.salaryRange} onChange={handleInputChange} placeholder="Ex: 50k - 80k" /></div>
+              <div className="form-group"><label>Joining Urgency *</label><select name="urgency" className={errors.urgency ? 'error' : ''} value={formData.urgency} onChange={handleInputChange}><option value="">Select Urgency</option><option value="Immediate">Immediate</option><option value="Within 15 Days">Within 15 Days</option><option value="1 Month">1 Month</option></select>{errors.urgency && <span className="error-msg">{errors.urgency}</span>}</div>
+              <div className="form-group full-width"><label>Facility Highlights</label><textarea name="facilityHighlights" value={formData.facilityHighlights} onChange={handleInputChange} placeholder="OT, ICU, NICU, etc." rows="3"></textarea></div>
+              <div className="form-group full-width">
+                <label>Hospital Photos (Optional)</label>
+                <input type="file" multiple ref={photosRef} onChange={(e) => handleFileUpload(e, 'hospitalPhotos')} className="hidden" accept="image/*" />
+                <div className="file-upload-box" onClick={() => photosRef.current.click()}>
+                  {uploading.hospitalPhotos ? <Loader2 className="animate-spin" /> : formData.hospitalPhotos.length > 0 ? `${formData.hospitalPhotos.length} Photos Uploaded ✓` : "Upload Hospital Photos"}
+                </div>
               </div>
             </div>
           ) : (
-            <div className="terms-section p-4 bg-blue-50 rounded-lg border border-blue-100">
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input type="checkbox" checked={agreedToTerms} onChange={(e) => setAgreedToTerms(e.target.checked)} className="mt-1" />
-                <span className="text-sm font-medium">I authorize HRM Consultancy to verify my hospital details. All provided information is correct.</span>
-              </label>
+            <div className="form-grid">
+              <div className="form-group full-width">
+                <label>GST Number (Optional)</label>
+                <input type="text" name="gstNumber" value={formData.gstNumber} onChange={handleInputChange} placeholder="GSTIN" />
+              </div>
+              <div className="form-group full-width">
+                <label>Selection Plan</label>
+                <select name="plan" value={formData.plan} onChange={handleInputChange}>
+                  {['Free', 'Premium', 'Enterprise'].map(p => (
+                    <option key={p} value={p}>{p} Plan</option>
+                  ))}
+                </select>
+              </div>
+              <div className="terms-section full-width mt-4 p-4 bg-blue-50 rounded-lg border border-blue-100">
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input type="checkbox" checked={agreedToTerms} onChange={(e) => setAgreedToTerms(e.target.checked)} className="mt-1" />
+                  <span className="text-sm font-medium">I authorize HRM Consultancy to verify my hospital details. All provided information is correct.</span>
+                </label>
+              </div>
             </div>
           )}
         </form>

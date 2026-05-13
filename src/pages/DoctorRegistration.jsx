@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle2, ChevronRight, ChevronLeft, Send } from 'lucide-react';
 import { db } from '../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { uploadImageToCloudinary } from '../utils/cloudinary';
-import { Upload, Loader2, FileText } from 'lucide-react';
+import { CheckCircle2, ChevronRight, ChevronLeft, Send, Upload, Loader2, FileText, Camera } from 'lucide-react';
 import './DoctorRegistration.css';
 
 const DoctorRegistration = () => {
@@ -25,12 +24,61 @@ const DoctorRegistration = () => {
     superSpeciality: '',
     yearOfPassing: '',
     college: '',
-    regNo: '',
     regState: '',
     totalExperience: '',
-    authLetterUrl: ''
+    authLetterUrl: '',
+    selfie: null
   });
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({});
+
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const [cameraActive, setCameraActive] = useState(false);
+  const [stream, setStream] = useState(null);
+
+  useEffect(() => {
+    if (cameraActive && stream && videoRef.current) {
+      videoRef.current.srcObject = stream;
+    }
+  }, [cameraActive, stream]);
+
+  const startCamera = async () => {
+    try {
+      const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+      setStream(mediaStream);
+      setCameraActive(true);
+    } catch (err) { alert("Camera access denied: " + err.message); }
+  };
+
+  const stopCamera = () => {
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      setStream(null);
+      setCameraActive(false);
+    }
+  };
+
+  const captureSelfie = async () => {
+    if (!videoRef.current || !canvasRef.current) return;
+    const canvas = canvasRef.current;
+    const video = videoRef.current;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+
+    canvas.toBlob(async (blob) => {
+      const file = new File([blob], "doctor_selfie.jpg", { type: "image/jpeg" });
+      setUploadProgress(prev => ({ ...prev, selfie: true }));
+      try {
+        const url = await uploadImageToCloudinary(file);
+        setFormData(prev => ({ ...prev, selfie: url }));
+        stopCamera();
+      } catch (err) { alert('Submission failed: ' + err.message); } finally {
+        setUploadProgress(prev => ({ ...prev, selfie: false }));
+      }
+    }, 'image/jpeg');
+  };
 
   const [errors, setErrors] = useState({});
 
@@ -113,16 +161,21 @@ const DoctorRegistration = () => {
   };
 
   const nextStep = () => {
-    if (validateStep1()) setStep(2);
+    if (step === 1 && validateStep1()) setStep(2);
+    else if (step === 2 && validateStep2()) setStep(3);
   };
 
-  const prevStep = () => setStep(1);
+  const prevStep = () => setStep(step - 1);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validateStep2() && agreedToTerms) {
-      if (uploading) {
-        alert('Please wait for the document to finish uploading.');
+    if (!formData.selfie) {
+      alert('Please capture a live selfie for verification.');
+      return;
+    }
+    if (agreedToTerms) {
+      if (uploading || uploadProgress.selfie) {
+        alert('Please wait for files to finish uploading.');
         return;
       }
       try {
@@ -134,14 +187,14 @@ const DoctorRegistration = () => {
           mobile: formData.mobile,
           city: formData.currentCity,
           authLetter: formData.authLetterUrl,
+          selfie: formData.selfie,
           createdAt: serverTimestamp(),
         });
         alert('Registration Successful! Our team will contact you shortly.');
         navigate('/');
       } catch (err) {
         console.error('Firestore error:', err);
-        alert('Registration Submitted! (offline mode)');
-        navigate('/');
+        alert('Submission failed: ' + err.message);
       }
     }
   };
@@ -162,6 +215,10 @@ const DoctorRegistration = () => {
           <div className={`progress-step ${step >= 2 ? 'active' : ''}`}>
             <div className="step-number">{step > 2 ? <CheckCircle2 size={16} /> : '2'}</div>
             <span>Qualification</span>
+          </div>
+          <div className={`progress-step ${step >= 3 ? 'active' : ''}`}>
+            <div className="step-number">{step > 3 ? <CheckCircle2 size={16} /> : '3'}</div>
+            <span>Verification</span>
           </div>
         </div>
 
@@ -406,10 +463,64 @@ const DoctorRegistration = () => {
               </div>
             </div>
           )}
+
+          {step === 3 && (
+            <div className="form-step-content">
+              <div className="verification-step">
+                <h3 style={{ textAlign: 'center', marginBottom: '20px', color: '#1e293b' }}>Live Selfie Verification 📸</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
+                  <div className={`camera-preview-box ${formData.selfie ? 'has-image' : ''}`}>
+                    {!formData.selfie && !cameraActive && <Camera size={48} color="#94a3b8" />}
+                    {cameraActive && <video ref={videoRef} autoPlay playsInline className="video-element mirror" />}
+                    {formData.selfie && !cameraActive && <img src={formData.selfie} alt="Selfie" className="preview-image" />}
+                  </div>
+                  
+                  <div className="camera-controls">
+                    {!cameraActive && !formData.selfie && (
+                      <button type="button" onClick={startCamera} className="btn-camera start">
+                        Start Camera
+                      </button>
+                    )}
+                    
+                    {cameraActive && (
+                      <div style={{ display: 'flex', gap: '10px' }}>
+                        <button type="button" onClick={captureSelfie} className="btn-camera capture" disabled={uploadProgress.selfie}>
+                          {uploadProgress.selfie ? <Loader2 className="animate-spin" /> : 'Capture Photo'}
+                        </button>
+                        <button type="button" onClick={stopCamera} className="btn-camera cancel">
+                          Cancel
+                        </button>
+                      </div>
+                    )}
+                    
+                    {formData.selfie && !cameraActive && (
+                      <button type="button" onClick={() => { setFormData(prev => ({...prev, selfie: null})); startCamera(); }} className="btn-camera retake">
+                        Retake Selfie
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+              
+              <div className="terms-section" style={{ marginTop: '30px', padding: '20px', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                <label style={{ display: 'flex', alignItems: 'start', gap: '12px', cursor: 'pointer' }}>
+                  <input 
+                    type="checkbox" 
+                    style={{ marginTop: '4px' }}
+                    checked={agreedToTerms}
+                    onChange={(e) => setAgreedToTerms(e.target.checked)}
+                  />
+                  <span style={{ fontSize: '14px', color: '#475569', lineHeight: '1.5' }}>
+                    <strong>Terms & Conditions Agreement:</strong> I confirm that I am a registered medical professional and all the details provided are accurate to the best of my knowledge. I authorize HRM Consultancy to verify my credentials with the respective medical councils.
+                  </span>
+                </label>
+              </div>
+            </div>
+          )}
         </form>
 
         <div className="reg-form-footer">
-          {step === 2 && (
+          {step > 1 && (
             <button type="button" className="btn-prev" onClick={prevStep}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <ChevronLeft size={20} /> Back
@@ -417,7 +528,7 @@ const DoctorRegistration = () => {
             </button>
           )}
           
-          {step === 1 ? (
+          {step < 3 ? (
             <button type="button" className="btn-next" onClick={nextStep}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 Next <ChevronRight size={20} />
@@ -428,8 +539,8 @@ const DoctorRegistration = () => {
               type="submit" 
               className="btn-submit" 
               onClick={handleSubmit}
-              disabled={!agreedToTerms}
-              style={!agreedToTerms ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
+              disabled={!agreedToTerms || uploadProgress.selfie}
+              style={!agreedToTerms || uploadProgress.selfie ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 Complete Registration <Send size={20} />
@@ -438,6 +549,7 @@ const DoctorRegistration = () => {
           )}
         </div>
       </div>
+      <canvas ref={canvasRef} style={{ display: 'none' }} />
     </div>
   );
 };

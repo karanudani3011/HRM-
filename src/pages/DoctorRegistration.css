@@ -281,3 +281,85 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+.verification-step {
+  padding: 20px 0;
+}
+
+.camera-preview-box {
+  width: 100%;
+  max-width: 400px;
+  aspect-ratio: 4/3;
+  background: #f1f5f9;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.camera-preview-box.has-image {
+  border-color: #10b981;
+}
+
+.video-element {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mirror {
+  transform: scaleX(-1);
+}
+
+.camera-controls {
+  margin-top: 10px;
+}
+
+.btn-camera {
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  font-size: 14px;
+}
+
+.btn-camera.start {
+  background: #3b82f6;
+  color: white;
+}
+
+.btn-camera.capture {
+  background: #10b981;
+  color: white;
+}
+
+.btn-camera.cancel {
+  background: #ef4444;
+  color: white;
+}
+
+.btn-camera.retake {
+  background: #f59e0b;
+  color: white;
+}
+
+.btn-camera:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.btn-camera:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

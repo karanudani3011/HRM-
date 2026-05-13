@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle2, ChevronRight, ChevronLeft, Send } from 'lucide-react';
 import { db } from '../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { uploadImageToCloudinary } from '../utils/cloudinary';
+import { CheckCircle2, ChevronRight, ChevronLeft, Send, Camera, Loader2 } from 'lucide-react';
 import './DoctorRegistration.css';
 
 const PartnerRegistration = () => {
@@ -17,7 +18,57 @@ const PartnerRegistration = () => {
     mobile: '',
     email: '',
     interestReason: '',
+    selfie: null
   });
+  const [uploading, setUploading] = useState({});
+
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const [cameraActive, setCameraActive] = useState(false);
+  const [stream, setStream] = useState(null);
+
+  useEffect(() => {
+    if (cameraActive && stream && videoRef.current) {
+      videoRef.current.srcObject = stream;
+    }
+  }, [cameraActive, stream]);
+
+  const startCamera = async () => {
+    try {
+      const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+      setStream(mediaStream);
+      setCameraActive(true);
+    } catch (err) { alert("Camera access denied: " + err.message); }
+  };
+
+  const stopCamera = () => {
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      setStream(null);
+      setCameraActive(false);
+    }
+  };
+
+  const captureSelfie = async () => {
+    if (!videoRef.current || !canvasRef.current) return;
+    const canvas = canvasRef.current;
+    const video = videoRef.current;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+
+    canvas.toBlob(async (blob) => {
+      const file = new File([blob], "partner_selfie.jpg", { type: "image/jpeg" });
+      setUploading(prev => ({ ...prev, selfie: true }));
+      try {
+        const url = await uploadImageToCloudinary(file);
+        setFormData(prev => ({ ...prev, selfie: url }));
+        stopCamera();
+      } catch (error) { alert("Selfie upload failed: " + error.message); } finally {
+        setUploading(prev => ({ ...prev, selfie: false }));
+      }
+    }, 'image/jpeg');
+  };
 
   const validate = () => {
     const newErrors = {};
@@ -29,6 +80,8 @@ const PartnerRegistration = () => {
       if (!formData.email) newErrors.email = 'Required';
     } else if (step === 2) {
       if (!formData.interestReason) newErrors.interestReason = 'Required';
+    } else if (step === 3) {
+      if (!formData.selfie) { alert("Please capture a live selfie"); return false; }
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -49,11 +102,12 @@ const PartnerRegistration = () => {
           ...formData,
           formType: 'Partner Registration',
           name: formData.partnerName,
+          selfie: formData.selfie,
           createdAt: serverTimestamp(),
         });
         alert('Registration Successful!');
         navigate('/');
-      } catch (err) { alert('Submission failed'); }
+      } catch (err) { alert('Submission failed: ' + err.message); }
     }
   };
 
@@ -66,10 +120,10 @@ const PartnerRegistration = () => {
         </div>
 
         <div className="reg-progress">
-          {[1, 2].map(num => (
+          {[1, 2, 3].map(num => (
             <div key={num} className={`progress-step ${step >= num ? 'active' : ''}`}>
               <div className="step-number">{step > num ? <CheckCircle2 size={18} /> : num}</div>
-              <span className="step-label">{['Business', 'Partnership'][num-1]}</span>
+              <span className="step-label">{['Business', 'Partnership', 'Verify'][num-1]}</span>
             </div>
           ))}
         </div>
@@ -115,7 +169,7 @@ const PartnerRegistration = () => {
                 {errors.email && <span className="error-msg">{errors.email}</span>}
               </div>
             </div>
-          ) : (
+          ) : step === 2 ? (
             <div className="form-grid">
               <div className="form-group full-width">
                 <label>Why do you want to partner with HRM? *</label>
@@ -129,18 +183,55 @@ const PartnerRegistration = () => {
                 </label>
               </div>
             </div>
+          ) : (
+            <div className="verification-step">
+              <h3 style={{ textAlign: 'center', marginBottom: '20px', color: '#1e293b' }}>Live Selfie Verification 📸</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
+                <div className={`camera-preview-box ${formData.selfie ? 'has-image' : ''}`}>
+                  {!formData.selfie && !cameraActive && <Camera size={48} color="#94a3b8" />}
+                  {cameraActive && <video ref={videoRef} autoPlay playsInline className="video-element mirror" />}
+                  {formData.selfie && !cameraActive && <img src={formData.selfie} alt="Selfie" className="preview-image" />}
+                </div>
+                
+                <div className="camera-controls">
+                  {!cameraActive && !formData.selfie && (
+                    <button type="button" onClick={startCamera} className="btn-camera start">
+                      Start Camera
+                    </button>
+                  )}
+                  
+                  {cameraActive && (
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <button type="button" onClick={captureSelfie} className="btn-camera capture" disabled={uploading.selfie}>
+                        {uploading.selfie ? <Loader2 className="animate-spin" /> : 'Capture Photo'}
+                      </button>
+                      <button type="button" onClick={stopCamera} className="btn-camera cancel">
+                        Cancel
+                      </button>
+                    </div>
+                  )}
+                  
+                  {formData.selfie && !cameraActive && (
+                    <button type="button" onClick={() => { setFormData(prev => ({...prev, selfie: null})); startCamera(); }} className="btn-camera retake">
+                      Retake Selfie
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
           )}
         </form>
 
         <div className="reg-form-footer">
           {step > 1 && <button type="button" className="btn-prev" onClick={prevStep}>Back</button>}
-          {step < 2 ? (
+          {step < 3 ? (
             <button type="button" className="btn-next ml-auto" onClick={nextStep}>Next <ChevronRight size={18} /></button>
           ) : (
-            <button type="submit" className="btn-submit ml-auto" onClick={handleSubmit} disabled={!agreedToTerms}>Apply for Partnership <Send size={18} /></button>
+            <button type="submit" className="btn-submit ml-auto" onClick={handleSubmit} disabled={!agreedToTerms || uploading.selfie}>Apply for Partnership <Send size={18} /></button>
           )}
         </div>
       </div>
+      <canvas ref={canvasRef} style={{ display: 'none' }} />
     </div>
   );
 };

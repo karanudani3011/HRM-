@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
-import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
+import { collection, onSnapshot, orderBy, query, doc, deleteDoc } from 'firebase/firestore';
+import { Trash2, Eye, Download, Info } from 'lucide-react';
 import './AdminDashboard.css';
 import './AdminServiceSubmissions.css';
 
@@ -41,6 +42,23 @@ const AdminServiceSubmissions = () => {
 
   const filtered = filter === 'All' ? submissions : submissions.filter(s => s.formType === filter);
 
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this submission? This action cannot be undone.')) {
+      try {
+        await deleteDoc(doc(db, 'serviceForms', id));
+      } catch (err) {
+        alert('Error deleting submission: ' + err.message);
+      }
+    }
+  };
+
+  const isImageUrl = (key, value) => {
+    if (!value || typeof value !== 'string') return false;
+    const k = key.toLowerCase();
+    const isImageField = k.includes('photo') || k.includes('logo') || k.includes('selfie') || k.includes('letter') || k.includes('certificate') || k.includes('url');
+    return isImageField && (value.startsWith('http') || value.startsWith('https'));
+  };
+
   const downloadPDF = () => {
     if (filtered.length === 0) { alert('No data to export'); return; }
     const newWin = window.open('', '_blank');
@@ -61,10 +79,16 @@ const AdminServiceSubmissions = () => {
               }
               // Clean up keys for display
               const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+              
+              let displayContent = value || '—';
+              if (isImageUrl(key, value)) {
+                displayContent = `<img src="${value}" style="max-width: 200px; max-height: 150px; border-radius: 4px; display: block; margin-top: 5px;" />`;
+              }
+
               return `
                 <tr>
                   <td style="padding: 8px; border-bottom: 1px solid #f3f4f6; font-weight: 600; width: 30%; color: #4b5563;">${label}</td>
-                  <td style="padding: 8px; border-bottom: 1px solid #f3f4f6; color: #111827;">${value || '—'}</td>
+                  <td style="padding: 8px; border-bottom: 1px solid #f3f4f6; color: #111827;">${displayContent}</td>
                 </tr>
               `;
             }).join('')}
@@ -155,7 +179,9 @@ const AdminServiceSubmissions = () => {
           <h1>Service Submissions</h1>
           <div className="admin-topbar-right">
             <span className="admin-topbar-badge">● {filtered.length} Records</span>
-            <button className="admin-download-btn" onClick={downloadPDF}>⬇ Download PDF</button>
+            <button className="admin-download-btn" onClick={downloadPDF}>
+              <Download size={18} /> Download PDF
+            </button>
           </div>
         </header>
 
@@ -212,12 +238,22 @@ const AdminServiceSubmissions = () => {
                       <td>{sub.city || sub.currentCity || '—'}</td>
                       <td>{formatDate(sub.createdAt)}</td>
                       <td>
-                        <button 
-                          className="admin-view-btn" 
-                          onClick={() => { setSelectedSub(sub); setIsModalOpen(true); }}
-                        >
-                          👁 View Details
-                        </button>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button 
+                            className="admin-view-btn" 
+                            title="View Details"
+                            onClick={() => { setSelectedSub(sub); setIsModalOpen(true); }}
+                          >
+                            <Eye size={16} />
+                          </button>
+                          <button 
+                            className="admin-delete-btn" 
+                            title="Delete Submission"
+                            onClick={() => handleDelete(sub.id)}
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

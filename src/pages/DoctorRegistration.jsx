@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { CheckCircle2, ChevronRight, ChevronLeft, Send } from 'lucide-react';
 import { db } from '../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { uploadImageToCloudinary } from '../utils/cloudinary';
+import { Upload, Loader2, FileText } from 'lucide-react';
 import './DoctorRegistration.css';
 
 const DoctorRegistration = () => {
@@ -25,8 +27,10 @@ const DoctorRegistration = () => {
     college: '',
     regNo: '',
     regState: '',
-    totalExperience: ''
+    totalExperience: '',
+    authLetterUrl: ''
   });
+  const [uploading, setUploading] = useState(false);
 
   const [errors, setErrors] = useState({});
 
@@ -36,6 +40,36 @@ const DoctorRegistration = () => {
     // Clear error when user types
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setErrors(prev => ({ ...prev, authLetterUrl: 'Please upload an image file (PNG, JPG)' }));
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setErrors(prev => ({ ...prev, authLetterUrl: 'File size should be less than 5MB' }));
+      return;
+    }
+
+    setUploading(true);
+    setErrors(prev => ({ ...prev, authLetterUrl: '' }));
+
+    try {
+      const url = await uploadImageToCloudinary(file);
+      setFormData(prev => ({ ...prev, authLetterUrl: url }));
+      setUploading(false);
+    } catch (err) {
+      console.error('Upload error:', err);
+      setErrors(prev => ({ ...prev, authLetterUrl: 'Failed to upload image. Please try again.' }));
+      setUploading(false);
     }
   };
 
@@ -72,6 +106,7 @@ const DoctorRegistration = () => {
     if (!formData.regNo) newErrors.regNo = 'Required';
     if (!formData.regState) newErrors.regState = 'Required';
     if (formData.totalExperience === '') newErrors.totalExperience = 'Required';
+    if (!formData.authLetterUrl) newErrors.authLetterUrl = 'Authorization Letter / Degree Certificate is required';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -86,6 +121,10 @@ const DoctorRegistration = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateStep2() && agreedToTerms) {
+      if (uploading) {
+        alert('Please wait for the document to finish uploading.');
+        return;
+      }
       try {
         await addDoc(collection(db, 'serviceForms'), {
           ...formData,
@@ -94,6 +133,7 @@ const DoctorRegistration = () => {
           email: formData.email,
           mobile: formData.mobile,
           city: formData.currentCity,
+          authLetter: formData.authLetterUrl,
           createdAt: serverTimestamp(),
         });
         alert('Registration Successful! Our team will contact you shortly.');
@@ -314,6 +354,40 @@ const DoctorRegistration = () => {
                     placeholder="In years" 
                   />
                   {errors.totalExperience && <span className="error-msg">{errors.totalExperience}</span>}
+                </div>
+
+                <div className="form-group full-width">
+                  <label>Authorization Letter / Degree Certificate (Image) *</label>
+                  <div className={`file-upload-box ${formData.authLetterUrl ? 'has-file' : ''} ${errors.authLetterUrl ? 'has-error' : ''}`}>
+                    <input 
+                      type="file" 
+                      id="authLetter"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className="hidden-file-input"
+                    />
+                    <label htmlFor="authLetter" className="file-upload-label">
+                      {uploading ? (
+                        <div className="upload-status">
+                          <Loader2 className="animate-spin" size={24} />
+                          <span>Uploading Document...</span>
+                        </div>
+                      ) : formData.authLetterUrl ? (
+                        <div className="upload-status success">
+                          <CheckCircle2 size={24} color="#10b981" />
+                          <span>Document Uploaded Successfully!</span>
+                          <img src={formData.authLetterUrl} alt="Preview" className="upload-preview-tiny" />
+                        </div>
+                      ) : (
+                        <div className="upload-status placeholder">
+                          <Upload size={24} />
+                          <span>Click to upload Authorization Letter or Degree Certificate</span>
+                          <span className="file-hint">Max size: 5MB (PNG, JPG)</span>
+                        </div>
+                      )}
+                    </label>
+                  </div>
+                  {errors.authLetterUrl && <span className="error-msg">{errors.authLetterUrl}</span>}
                 </div>
               </div>
               

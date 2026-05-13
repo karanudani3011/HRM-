@@ -202,3 +202,82 @@
     display: none;
   }
 }
+
+.file-upload-box {
+  border: 2px dashed #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.file-upload-box:hover {
+  border-color: var(--primary-red);
+  background: #fff5f5;
+}
+
+.file-upload-box.has-file {
+  border-color: #10b981;
+  background: #ecfdf5;
+  border-style: solid;
+}
+
+.file-upload-box.has-error {
+  border-color: #ef4444;
+  background: #fef2f2;
+}
+
+.hidden-file-input {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+}
+
+.file-upload-label {
+  display: block;
+  padding: 30px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.upload-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: #64748b;
+}
+
+.upload-status.success {
+  color: #059669;
+}
+
+.upload-status.placeholder {
+  color: #64748b;
+}
+
+.file-hint {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.upload-preview-tiny {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-top: 10px;
+  border: 2px solid white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

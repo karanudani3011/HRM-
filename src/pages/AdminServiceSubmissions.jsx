@@ -248,9 +248,23 @@ const AdminServiceSubmissions = () => {
                         let displayValue = value;
                         if (Array.isArray(value)) displayValue = value.join(', ');
                         if (typeof value === 'boolean') displayValue = value ? 'Yes' : 'No';
-                        if (key.toLowerCase().includes('photo') || key.toLowerCase().includes('logo') || key.toLowerCase().includes('selfie')) {
-                          if (value && typeof value === 'string' && value.startsWith('http')) {
-                            displayValue = <a href={value} target="_blank" rel="noreferrer" className="img-link">View Image</a>;
+                        if (
+                          key.toLowerCase().includes('photo') || 
+                          key.toLowerCase().includes('logo') || 
+                          key.toLowerCase().includes('selfie') || 
+                          key.toLowerCase().includes('letter') || 
+                          key.toLowerCase().includes('certificate') ||
+                          key.toLowerCase().includes('url')
+                        ) {
+                          if (value && typeof value === 'string' && (value.startsWith('http') || value.startsWith('https'))) {
+                            displayValue = (
+                              <div className="admin-img-preview-container">
+                                <img src={value} alt={label} className="admin-detail-img" />
+                                <a href={value} target="_blank" rel="noreferrer" className="img-link">
+                                  🔍 View Full Size
+                                </a>
+                              </div>
+                            );
                           }
                         }
                         return (

@@ -264,3 +264,24 @@
   color: rgba(255,255,255,0.4);
   padding: 60px;
 }
+
+.admin-img-preview-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.admin-detail-img {
+  max-width: 200px;
+  max-height: 200px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  object-fit: cover;
+  transition: transform 0.2s;
+}
+
+.admin-detail-img:hover {
+  transform: scale(1.05);
+  cursor: zoom-in;
+}

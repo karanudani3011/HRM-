@@ -61,7 +61,7 @@ const AdminLeads = () => {
       }
       
       if (location.trim()) {
-        extractionQuery = extractionQuery.or(`city.ilike.%${location.trim()}%,state.ilike.%${location.trim()}%`);
+        extractionQuery = extractionQuery.ilike('city', `%${location.trim()}%`);
       }
 
       setProgress(40);
@@ -98,7 +98,6 @@ const AdminLeads = () => {
       'Email': l.email,
       'Phone': l.phone,
       'City': l.city,
-      'State': l.state,
       'Medical Registration': l.medical_registration_no,
       'Verification Status': isVerified ? 'Verified' : 'Unverified'
     }));
@@ -237,9 +236,9 @@ const AdminLeads = () => {
                 <table className="admin-service-table">
                   <thead>
                     <tr>
-                      <th>Doctor / Entity</th>
-                      <th>Category</th>
-                      <th>Contact Info</th>
+                      <th>Company/Name</th>
+                      <th>Specialty</th>
+                      <th>Contact</th>
                       <th>Location</th>
                       <th>Status</th>
                     </tr>
@@ -247,10 +246,10 @@ const AdminLeads = () => {
                   <tbody>
                     {leads.map((lead) => (
                       <tr key={lead.id}>
-                        <td><strong>Dr. {lead.full_name}</strong><br/><small>{lead.medical_registration_no}</small></td>
+                        <td><strong>{lead.full_name}</strong><br/><small>{lead.medical_registration_no}</small></td>
                         <td><span className="badge badge-specialty">{lead.specialization}</span></td>
-                        <td>{lead.email}<br/>{lead.phone}</td>
-                        <td>{lead.city}, {lead.state}</td>
+                        <td>{lead.phone}<br/>{lead.email}</td>
+                        <td>{lead.city}</td>
                         <td>{isVerified ? '✅ Verified' : '⏳ Pending'}</td>
                       </tr>
                     ))}

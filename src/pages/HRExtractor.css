@@ -4,6 +4,12 @@
   padding-bottom: 80px;
 }
 
+.content-blur {
+  filter: blur(15px);
+  pointer-events: none;
+  user-select: none;
+}
+
 .hr-tool-header-section {
   background: linear-gradient(135deg, #bb2a3a 0%, #8b1c28 100%);
   padding: 80px 0;

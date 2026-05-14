@@ -89,6 +89,7 @@
 .badge-hospital { background: rgba(16,185,129,0.15);  color: #34d399; border: 1px solid rgba(16,185,129,0.25); }
 .badge-hr       { background: rgba(245,158,11,0.15);  color: #fbbf24; border: 1px solid rgba(245,158,11,0.25); }
 .badge-partner  { background: rgba(139,92,246,0.15);  color: #a78bfa; border: 1px solid rgba(139,92,246,0.25); }
+.badge-contact  { background: rgba(236,72,153,0.15);   color: #f472b6; border: 1px solid rgba(236,72,153,0.25); }
 
 /* Download Button in topbar */
 .admin-download-btn {

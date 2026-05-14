@@ -38,7 +38,7 @@ const AdminServiceSubmissions = () => {
     return () => unsubscribe();
   }, []);
 
-  const formTypes = ['All', 'Doctor Registration', 'Hospital Registration', 'HR Registration', 'Partner Registration'];
+  const formTypes = ['All', 'Doctor Registration', 'Hospital Registration', 'HR Registration', 'Partner Registration', 'Contact Inquiry'];
 
   const filtered = filter === 'All' ? submissions : submissions.filter(s => s.formType === filter);
 
@@ -127,6 +127,7 @@ const AdminServiceSubmissions = () => {
     if (type.includes('Hospital')) return 'badge badge-hospital';
     if (type.includes('HR')) return 'badge badge-hr';
     if (type.includes('Partner')) return 'badge badge-partner';
+    if (type.includes('Contact')) return 'badge badge-contact';
     return 'badge';
   };
 

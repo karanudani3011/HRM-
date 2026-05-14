@@ -1,11 +1,58 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
+import { db } from '../firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import './ContactUs.css';
 
 const ContactUs = () => {
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    subject: '',
+    message: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState('');
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      await addDoc(collection(db, 'serviceForms'), {
+        ...formData,
+        name: `${formData.firstName} ${formData.lastName}`, // For admin display
+        formType: 'Contact Inquiry',
+        createdAt: serverTimestamp()
+      });
+      
+      setSubmitted(true);
+      setFormData({
+        firstName: '',
+        lastName: '',
+        email: '',
+        subject: '',
+        message: ''
+      });
+    } catch (err) {
+      console.error('Error submitting contact form:', err);
+      setError('Failed to send message. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="contact-page">
@@ -51,47 +98,93 @@ const ContactUs = () => {
 
         <div className="contact-form-section">
           <div className="form-content-wrap">
-            <h2>Send us a Message</h2>
-            <p className="form-subtitle">Fill out the form below and our team will get back to you as soon as possible.</p>
-            
-            <form className="contact-form">
-              <div className="form-row">
-                <div className="form-group">
-                  <label>First Name</label>
-                  <input type="text" placeholder="Enter your first name" />
-                </div>
-                <div className="form-group">
-                  <label>Last Name</label>
-                  <input type="text" placeholder="Enter your last name" />
-                </div>
+            {submitted ? (
+              <div className="submission-success">
+                <div className="success-icon">✓</div>
+                <h2>Message Sent!</h2>
+                <p>Thank you for contacting us. Our team will get back to you shortly.</p>
+                <button onClick={() => setSubmitted(false)} className="submit-message-btn">Send Another Message</button>
               </div>
+            ) : (
+              <>
+                <h2>Send us a Message</h2>
+                <p className="form-subtitle">Fill out the form below and our team will get back to you as soon as possible.</p>
+                
+                <form className="contact-form" onSubmit={handleSubmit}>
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>First Name</label>
+                      <input 
+                        type="text" 
+                        name="firstName"
+                        value={formData.firstName}
+                        onChange={handleChange}
+                        placeholder="Enter your first name" 
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Last Name</label>
+                      <input 
+                        type="text" 
+                        name="lastName"
+                        value={formData.lastName}
+                        onChange={handleChange}
+                        placeholder="Enter your last name" 
+                        required
+                      />
+                    </div>
+                  </div>
 
-              <div className="form-group">
-                <label>Email Address</label>
-                <input type="email" placeholder="Enter your email address" />
-              </div>
+                  <div className="form-group">
+                    <label>Email Address</label>
+                    <input 
+                      type="email" 
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      placeholder="Enter your email address" 
+                      required
+                    />
+                  </div>
 
-              <div className="form-group">
-                <label>Subject</label>
-                <select>
-                  <option value="">Select a topic</option>
-                  <option value="doctor">Doctor Registration</option>
-                  <option value="hr">HR Tools Inquiry</option>
-                  <option value="hospital">Hospital Partner Program</option>
-                  <option value="patient">Patient Support</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
+                  <div className="form-group">
+                    <label>Subject</label>
+                    <select 
+                      name="subject"
+                      value={formData.subject}
+                      onChange={handleChange}
+                      required
+                    >
+                      <option value="">Select a topic</option>
+                      <option value="doctor">Doctor Registration</option>
+                      <option value="hr">HR Tools Inquiry</option>
+                      <option value="hospital">Hospital Partner Program</option>
+                      <option value="patient">Patient Support</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
 
-              <div className="form-group">
-                <label>Message</label>
-                <textarea rows="5" placeholder="How can we help you?"></textarea>
-              </div>
+                  <div className="form-group">
+                    <label>Message</label>
+                    <textarea 
+                      name="message"
+                      value={formData.message}
+                      onChange={handleChange}
+                      rows="5" 
+                      placeholder="How can we help you?"
+                      required
+                    ></textarea>
+                  </div>
 
-              <button type="button" className="submit-message-btn">
-                <Send size={18} /> Send Message
-              </button>
-            </form>
+                  {error && <div className="error-message">{error}</div>}
+
+                  <button type="submit" className="submit-message-btn" disabled={loading}>
+                    <Send size={18} /> {loading ? 'Sending...' : 'Send Message'}
+                  </button>
+                </form>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -100,3 +193,4 @@ const ContactUs = () => {
 };
 
 export default ContactUs;
+

@@ -35,7 +35,7 @@ function App() {
     if (window.performance) {
       const navEntries = window.performance.getEntriesByType('navigation');
       if (navEntries.length > 0 && navEntries[0].type === 'reload') {
-        if (location.pathname !== '/' && !location.pathname.startsWith('/portal/')) {
+        if (location.pathname !== '/' && !location.pathname.startsWith('/portal/') && !location.pathname.startsWith('/admin')) {
           navigate('/', { replace: true });
         }
       }

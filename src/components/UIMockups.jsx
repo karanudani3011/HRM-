@@ -1,15 +1,109 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './UIMockups.css';
-import { Search, MapPin, Briefcase } from 'lucide-react';
-import { db } from '../firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { Search, MapPin, Briefcase, Database, Download, CheckCircle2, AlertCircle, Stethoscope, Navigation, Building2, Globe, ShieldCheck, ChevronRight, Award, Phone, Mail } from 'lucide-react';
+import { supabase } from '../lib/supabase';
+import * as XLSX from 'xlsx';
 
 const UIMockups = () => {
+  // --- HR Extractor Logic ---
+  const [keyword, setKeyword] = useState('');
+  const [location, setLocation] = useState('');
+  const [leads, setLeads] = useState([]);
+  const [extracting, setExtracting] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
+  const [localSearch, setLocalSearch] = useState('');
+
+  const handleStartExtraction = async () => {
+    setExtracting(true);
+    try {
+      let query = supabase.from('doctors_data').select('*');
+      
+      const kw = keyword.trim();
+      const loc = location.trim();
+
+      if (kw) {
+        query = query.or(`doctor_name_simple_english.ilike.%${kw}%,qualification_specialty.ilike.%${kw}%`);
+      }
+      
+      if (loc) {
+        query = query.or(`city.ilike.%${loc}%,state.ilike.%${loc}%`);
+      }
+
+      const { data, error } = await query.limit(100);
+      if (error) throw error;
+      setLeads(data || []);
+    } catch (err) {
+      console.error('Full Extraction Error:', err);
+      alert(`Extraction failed: ${err.message || 'Check your internet or Supabase configuration.'}`);
+    } finally {
+      setExtracting(false);
+    }
+  };
+
+  const handleExport = () => {
+    if (leads.length === 0) return;
+    const worksheet = XLSX.utils.json_to_sheet(leads.map(l => ({
+      'Name': l.doctor_name_simple_english, 'Specialty': l.qualification_specialty, 'Email': l.email, 'Phone': l.phone_numbers, 'City': l.city, 'Verified': isVerified ? 'Yes' : 'No'
+    })));
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Leads");
+    XLSX.writeFile(workbook, `HRM_Leads_${Date.now()}.xlsx`);
+  };
+
+  const filteredLeads = leads.filter(l => 
+    l.doctor_name_simple_english?.toLowerCase().includes(localSearch.toLowerCase()) ||
+    l.qualification_specialty?.toLowerCase().includes(localSearch.toLowerCase())
+  );
+
+  // --- Doctor Search Logic ---
+  const [docKeyword, setDocKeyword] = useState('');
+  const [docLocation, setDocLocation] = useState('');
+  const [doctors, setDoctors] = useState([]);
+  const [docLoading, setDocLoading] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+
+  const handleDocSearch = async (e) => {
+    e?.preventDefault();
+    setDocLoading(true);
+    setHasSearched(true);
+    try {
+      let query = supabase.from('doctors_data').select('*');
+      
+      const kw = docKeyword.trim();
+      const loc = docLocation.trim();
+
+      // If both are empty, just show latest 6
+      if (!kw && !loc) {
+        const { data, error } = await query.limit(6);
+        if (error) throw error;
+        setDoctors(data || []);
+        return;
+      }
+
+      // Flexible matching using the CORRECT column names
+      if (kw) {
+        query = query.or(`doctor_name_simple_english.ilike.%${kw}%,qualification_specialty.ilike.%${kw}%`);
+      }
+      
+      if (loc) {
+        query = query.ilike('city', `%${loc}%`);
+      }
+
+      const { data, error } = await query.limit(20);
+      if (error) throw error;
+      setDoctors(data || []);
+    } catch (err) {
+      console.error('Doctor Search Error:', err);
+    } finally {
+      setDocLoading(false);
+    }
+  };
+
   return (
     <section className="ui-mockups">
       <div className="container">
         
-        {/* Mockup 1: HR B2B Leads Extractor */}
+        {/* Real Tool 1: HR B2B Leads Extractor */}
         <div className="mockup-section" id="hr-tools">
           <div className="section-header">
             <h2>HR <span>B2B Leads Extractor</span></h2>
@@ -20,60 +114,84 @@ const UIMockups = () => {
             <div className="mockup-form">
               <div className="input-group">
                 <label>Keyword/Specialty</label>
-                <div className="input-box">e.g., Cardiology, Hospitals, Diagnostic Center</div>
+                <input 
+                  className="input-box-active" 
+                  placeholder="e.g., Cardiology, Hospitals, Diagnostic Center"
+                  value={keyword}
+                  onChange={(e) => setKeyword(e.target.value)}
+                />
               </div>
               <div className="input-group">
                 <label>City / Location</label>
-                <div className="input-box">e.g., Mumbai, Delhi, Bangalore</div>
+                <input 
+                  className="input-box-active" 
+                  placeholder="e.g., Mumbai, Delhi, Bangalore"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                />
               </div>
             </div>
             
-            <div className="mockup-alert">
-              <strong>Premium Feature:</strong> Auto-verify contact numbers & email IDs before export.
+            <div className="mockup-alert" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span><strong>Premium Feature:</strong> Auto-verify contact numbers & email IDs before export.</span>
+              <label className="hr-switch-small">
+                <input type="checkbox" checked={isVerified} onChange={(e) => setIsVerified(e.target.checked)} />
+                <span className="hr-slider-small"></span>
+              </label>
             </div>
             
             <div className="mockup-actions">
-              <button className="action-btn red-btn"><Search size={16}/> START EXTRACTION</button>
-              <button className="action-btn dark-btn">EXPORT CSV</button>
+              <button className="action-btn red-btn" onClick={handleStartExtraction} disabled={extracting}>
+                <Search size={16}/> {extracting ? 'EXTRACTING...' : 'START EXTRACTION'}
+              </button>
+              <button className="action-btn dark-btn" onClick={handleExport} disabled={leads.length === 0}>
+                <Download size={16}/> EXPORT CSV
+              </button>
             </div>
             
             <div className="mockup-table-container">
               <div className="table-header">
                 <h3>Master Lead Database</h3>
-                <div className="search-small">Search leads...</div>
+                <div className="search-small-active">
+                  <input 
+                    type="text" 
+                    placeholder="Search leads..." 
+                    value={localSearch}
+                    onChange={(e) => setLocalSearch(e.target.value)}
+                  />
+                </div>
               </div>
               <table className="mockup-table">
                 <thead>
                   <tr>
-                    <th>Company</th>
+                    <th>Company/Name</th>
                     <th>Location</th>
                     <th>Specialty</th>
                     <th>Contact</th>
-                    <th>Action</th>
+                    <th>Status</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>Apollo Hospitals</td>
-                    <td>Mumbai</td>
-                    <td>Multi-Specialty</td>
-                    <td>+91 98234 xxxxx</td>
-                    <td className="action-link">Initiate Call</td>
-                  </tr>
-                  <tr>
-                    <td>Fortis Healthcare</td>
-                    <td>Delhi</td>
-                    <td>Cardiology</td>
-                    <td>+91 98765 xxxxx</td>
-                    <td className="action-link">Initiate Call</td>
-                  </tr>
+                  {leads.length === 0 ? (
+                    <tr><td colSpan="5" style={{ textAlign: 'center', padding: '40px', color: '#999' }}>No data. Enter keyword & click Start Extraction.</td></tr>
+                  ) : (
+                    filteredLeads.map(l => (
+                      <tr key={l.id}>
+                        <td><strong>{l.doctor_name_simple_english}</strong></td>
+                        <td>{l.city}</td>
+                        <td>{l.qualification_specialty}</td>
+                        <td>{l.phone_numbers}</td>
+                        <td style={{ color: isVerified ? '#059669' : '#f59e0b', fontWeight: 'bold' }}>{isVerified ? 'Verified' : 'Pending'}</td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
           </div>
         </div>
 
-        {/* Mockup 2: Find Your Doctor Anywhere */}
+        {/* Real Tool 2: Find Your Doctor Anywhere */}
         <div className="mockup-section" id="find-doctor">
           <div className="section-header">
             <h2>Find Your <span>Doctor Anywhere</span></h2>
@@ -81,72 +199,58 @@ const UIMockups = () => {
           </div>
           
           <div className="mockup-card">
-            <div className="mockup-form-3col">
+            <form className="mockup-form-3col" onSubmit={handleDocSearch}>
               <div className="input-group">
-                <label>City</label>
-                <div className="input-box">Any city in India</div>
+                <label>Keyword</label>
+                <input 
+                  className="input-box-active" 
+                  placeholder="Cardiology, etc."
+                  value={docKeyword}
+                  onChange={(e) => setDocKeyword(e.target.value)}
+                />
               </div>
               <div className="input-group">
-                <label>Specialty</label>
-                <div className="input-box">Any Specialty</div>
+                <label>Location</label>
+                <input 
+                  className="input-box-active" 
+                  placeholder="Mumbai, etc."
+                  value={docLocation}
+                  onChange={(e) => setDocLocation(e.target.value)}
+                />
               </div>
               <div className="input-group">
-                <label>Experience</label>
-                <select className="input-box" style={{ width: '100%', cursor: 'pointer' }} defaultValue="">
-                  <option value="" disabled hidden>Any Experience</option>
-                  <option value="0-5">0-5 yr</option>
-                  <option value="5-10">5-10yr</option>
-                  <option value="10-15">10-15yr</option>
-                  <option value="15-20">15-20yr</option>
-                  <option value="20-25">20-25yr</option>
-                  <option value="above-25">above 25</option>
-                </select>
+                <label>Action</label>
+                <button type="submit" className="search-inline-btn" disabled={docLoading}>
+                  {docLoading ? '...' : <><Search size={16} /> SEARCH</>}
+                </button>
               </div>
-            </div>
-            
-            <button className="search-full-btn"><Search size={16} /> SEARCH DOCTORS</button>
+            </form>
             
             <div className="doctor-results">
-              <div className="doc-card">
-                <div className="doc-info">
-                  <div className="doc-avatar"></div>
-                  <div>
-                    <h4>Dr. Priya Sharma</h4>
-                    <p>Cardiologist - 15 Years</p>
+              {doctors.length === 0 && hasSearched ? (
+                <div style={{ padding: '40px', textAlign: 'center', width: '100%' }}>No doctors found for this search.</div>
+              ) : doctors.length === 0 ? (
+                <div style={{ padding: '40px', textAlign: 'center', width: '100%', opacity: 0.5 }}>Search results will appear here.</div>
+              ) : (
+                doctors.map(doc => (
+                  <div key={doc.id} className="doc-card">
+                    <div className="doc-info">
+                      <div className="doc-avatar-small">{doc.doctor_name_simple_english?.charAt(0)}</div>
+                      <div>
+                        <h4>Dr. {doc.doctor_name_simple_english}</h4>
+                        <p>{doc.qualification_specialty} - {doc.city}</p>
+                      </div>
+                    </div>
+                    <div className="doc-status">Verified</div>
+                    <button className="book-btn" onClick={() => window.location.href='/contact'}>Consult</button>
                   </div>
-                </div>
-                <div className="doc-status">Available on Request</div>
-                <button className="book-btn">Book Video Consult</button>
-              </div>
-              
-              <div className="doc-card">
-                <div className="doc-info">
-                  <div className="doc-avatar"></div>
-                  <div>
-                    <h4>Dr. Amit Patel</h4>
-                    <p>Dermatologist - 8 Years</p>
-                  </div>
-                </div>
-                <div className="doc-status">Available on Request</div>
-                <button className="book-btn">Book Video Consult</button>
-              </div>
-              
-              <div className="doc-card">
-                <div className="doc-info">
-                  <div className="doc-avatar"></div>
-                  <div>
-                    <h4>Dr. Sarah Khan</h4>
-                    <p>Pediatrician - 12 Years</p>
-                  </div>
-                </div>
-                <div className="doc-status">Available on Request</div>
-                <button className="book-btn">Book Video Consult</button>
-              </div>
+                ))
+              )}
             </div>
           </div>
         </div>
 
-        {/* Mockup 3: Global Career Hub */}
+        {/* Mockup 3: Global Career Hub (Keeping static as requested) */}
         <div className="mockup-section">
           <div className="section-header">
             <h2>Global <span>Career Hub</span></h2>

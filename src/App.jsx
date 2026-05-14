@@ -18,6 +18,8 @@ import PartnerRegistration from './pages/PartnerRegistration';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminServiceSubmissions from './pages/AdminServiceSubmissions';
+import AdminLeads from './pages/AdminLeads';
+import HRExtractor from './pages/HRExtractor';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -78,6 +80,8 @@ function App() {
           <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/leads" element={<AdminLeads />} />
+          <Route path="/hr-extractor" element={<HRExtractor />} />
         </Routes>
         {!isAuthPage && !isAdminPage && <Footer />}
       </div>

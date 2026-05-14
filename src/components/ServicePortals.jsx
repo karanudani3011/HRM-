@@ -30,7 +30,7 @@ const ServicePortals = () => {
             </div>
             <h3>For HR Professionals</h3>
             <p>B2B lead extractor, recruitment tools & HRM Partner Clinic registration</p>
-            <Link to="/portal/hr/register" className="access-link">Access Portal &rarr;</Link>
+            <Link to="/hr-extractor" className="access-link">Access B2B Leads Tool &rarr;</Link>
           </div>
 
           {/* Card 3 */}

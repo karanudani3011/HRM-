@@ -1,0 +1,356 @@
+.hr-tool-page {
+  background-color: #f9f9f9;
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+.hr-tool-header-section {
+  background: linear-gradient(135deg, #bb2a3a 0%, #8b1c28 100%);
+  padding: 80px 0;
+  color: white;
+  text-align: center;
+  margin-bottom: -50px;
+}
+
+.hr-badge {
+  display: inline-block;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 30px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 20px;
+}
+
+.hr-tool-header-section h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 42px;
+  margin-bottom: 15px;
+}
+
+.hr-tool-header-section h1 span {
+  font-weight: 400;
+  font-style: italic;
+}
+
+.hr-tool-header-section p {
+  font-size: 18px;
+  opacity: 0.9;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.hr-tool-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+
+/* Extraction Panel */
+.extraction-panel {
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+  margin-bottom: 40px;
+}
+
+.extraction-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+}
+
+.extraction-field {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.extraction-field label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #666;
+  text-transform: uppercase;
+}
+
+.input-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  padding: 14px 18px;
+  border-radius: 12px;
+  transition: all 0.3s;
+}
+
+.input-box:focus-within {
+  border-color: #bb2a3a;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(187, 42, 58, 0.1);
+}
+
+.input-box input {
+  border: none;
+  background: transparent;
+  width: 100%;
+  font-size: 15px;
+  outline: none;
+}
+
+.premium-verify-box {
+  grid-column: span 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f0f7ff;
+  border: 1px solid #cce3ff;
+  padding: 15px 20px;
+  border-radius: 12px;
+}
+
+.premium-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #1e40af;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.blue-icon { color: #3b82f6; }
+
+/* HR Switch */
+.hr-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 26px;
+}
+
+.hr-switch input { opacity: 0; width: 0; height: 0; }
+
+.hr-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #cbd5e1;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.hr-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px; width: 18px;
+  left: 4px; bottom: 4px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .hr-slider { background-color: #3b82f6; }
+input:checked + .hr-slider:before { transform: translateX(24px); }
+
+/* Actions */
+.extraction-footer {
+  display: flex;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.btn-extract {
+  flex: 1;
+  background-color: #bb2a3a;
+  color: white;
+  border: none;
+  padding: 16px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-extract:hover:not(:disabled) {
+  background-color: #8b1c28;
+  transform: translateY(-2px);
+}
+
+.btn-export {
+  padding: 0 30px;
+  background-color: #111827;
+  color: white;
+  border-radius: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-export:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Progress */
+.hr-progress-container {
+  margin-top: 25px;
+}
+
+.hr-progress-bar {
+  height: 8px;
+  background: #f1f5f9;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.hr-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #bb2a3a, #ff4d4d);
+  transition: width 0.3s ease;
+}
+
+.hr-progress-text {
+  font-size: 12px;
+  color: #666;
+  display: block;
+  text-align: center;
+}
+
+/* Database Section */
+.database-section {
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+.database-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 25px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-left h2 {
+  font-size: 20px;
+  color: #333;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.local-search-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  padding: 8px 15px;
+  border-radius: 8px;
+  width: 250px;
+}
+
+.local-search-box input {
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  outline: none;
+  width: 100%;
+}
+
+.leads-count {
+  font-size: 13px;
+  font-weight: 600;
+  color: #bb2a3a;
+  background: rgba(187, 42, 58, 0.1);
+  padding: 5px 12px;
+  border-radius: 20px;
+}
+
+/* Table */
+.leads-table-wrapper {
+  overflow-x: auto;
+}
+
+.hr-leads-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.hr-leads-table th {
+  text-align: left;
+  padding: 15px;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #94a3b8;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+.hr-leads-table td {
+  padding: 15px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 14px;
+  color: #475569;
+}
+
+.tag-spec {
+  background: #f1f5f9;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 12px;
+  color: #1e293b;
+}
+
+.contact-info-small {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.status-verified {
+  color: #059669;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.status-pending {
+  color: #d97706;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.hr-empty-state {
+  padding: 60px 0;
+  text-align: center;
+  color: #94a3b8;
+}
+
+.empty-icon { opacity: 0.2; margin-bottom: 15px; }
+
+@media (max-width: 768px) {
+  .hr-tool-header-section h1 { font-size: 32px; }
+  .extraction-grid { grid-template-columns: 1fr; }
+  .premium-verify-box { grid-column: span 1; }
+  .header-right { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .local-search-box { width: 100%; }
+}

@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { uploadImageToCloudinary } from '../utils/cloudinary';
-import { CheckCircle2, ChevronRight, ChevronLeft, Send, Upload, Loader2, FileText, Camera } from 'lucide-react';
+import { CheckCircle2, ChevronRight, ChevronLeft, Send, Upload, Loader2, FileText, Camera, ShieldCheck, Mail } from 'lucide-react';
+import emailjs from '@emailjs/browser';
 import './DoctorRegistration.css';
 
 const DoctorRegistration = () => {
@@ -31,6 +32,13 @@ const DoctorRegistration = () => {
   });
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({});
+  
+  // OTP Verification States
+  const [emailOtpSent, setEmailOtpSent] = useState(false);
+  const [generatedEmailOtp, setGeneratedEmailOtp] = useState(null);
+  const [userEmailOtp, setUserEmailOtp] = useState('');
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [sendingEmailOtp, setSendingEmailOtp] = useState(false);
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -139,8 +147,54 @@ const DoctorRegistration = () => {
     if (!formData.currentCity) newErrors.currentCity = 'Required';
     if (!formData.willingToRelocate) newErrors.willingToRelocate = 'Required';
 
+    if (!isEmailVerified) {
+      alert('Please verify your email address via OTP first.');
+      return false;
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSendEmailOtp = async () => {
+    if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email)) {
+      alert("Please enter a valid email address first.");
+      return;
+    }
+
+    setSendingEmailOtp(true);
+    const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    setGeneratedEmailOtp(newOtp);
+
+    const templateParams = {
+      to_email: formData.email,
+      otp: newOtp,
+    };
+
+    try {
+      await emailjs.send(
+        import.meta.env.VITE_EMAILJS_SERVICE_ID,
+        import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+        templateParams,
+        import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+      );
+      setEmailOtpSent(true);
+      alert("OTP sent to " + formData.email);
+    } catch (error) {
+      console.error('EmailJS Error:', error);
+      alert("Failed to send OTP. Check your .env configuration.");
+    } finally {
+      setSendingEmailOtp(false);
+    }
+  };
+
+  const handleVerifyEmailOtp = () => {
+    if (userEmailOtp === generatedEmailOtp) {
+      setIsEmailVerified(true);
+      alert("Email verified successfully!");
+    } else {
+      alert("Invalid OTP! Please try again.");
+    }
   };
 
   const validateStep2 = () => {
@@ -263,9 +317,32 @@ const DoctorRegistration = () => {
                       value={formData.email}
                       onChange={handleInputChange}
                       placeholder="doctor@example.com" 
+                      disabled={isEmailVerified}
                     />
-                    <button type="button" className="verify-btn">Verify OTP</button>
+                    {!isEmailVerified ? (
+                      <button 
+                        type="button" 
+                        className="verify-btn" 
+                        onClick={handleSendEmailOtp}
+                        disabled={sendingEmailOtp}
+                      >
+                        {sendingEmailOtp ? '...' : 'Verify OTP'}
+                      </button>
+                    ) : (
+                      <div className="verified-badge"><ShieldCheck size={16} /> Verified</div>
+                    )}
                   </div>
+                  {emailOtpSent && !isEmailVerified && (
+                    <div className="otp-input-small">
+                      <input 
+                        type="text" 
+                        placeholder="Enter 6-digit OTP" 
+                        value={userEmailOtp}
+                        onChange={(e) => setUserEmailOtp(e.target.value)}
+                      />
+                      <button type="button" onClick={handleVerifyEmailOtp}>Check</button>
+                    </div>
+                  )}
                   {errors.email && <span className="error-msg">{errors.email}</span>}
                 </div>
 

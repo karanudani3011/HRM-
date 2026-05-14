@@ -15,6 +15,7 @@ import {
   UserCheck
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
+import EmailOTP from '../components/EmailOTP';
 import './HRExtractor.css';
 
 const HRExtractor = () => {
@@ -27,6 +28,7 @@ const HRExtractor = () => {
   const [progress, setProgress] = useState(0);
   const [localSearch, setLocalSearch] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+  const [isVerifiedUser, setIsVerifiedUser] = useState(false);
 
   const handleStartExtraction = async (e) => {
     e?.preventDefault();
@@ -78,12 +80,11 @@ const HRExtractor = () => {
   const handleExport = () => {
     if (leads.length === 0) return;
     const exportData = leads.map(l => ({
-      'Full Name': l.doctor_name_simple_english,
+      'Company/Name': l.doctor_name_simple_english,
       'Specialization': l.qualification_specialty,
       'Email': l.email,
       'Phone': l.phone_numbers,
       'City': l.city,
-      'State': l.state,
       'Verified': isVerified ? 'Yes' : 'No'
     }));
     const worksheet = XLSX.utils.json_to_sheet(exportData);
@@ -99,7 +100,12 @@ const HRExtractor = () => {
 
   return (
     <div className="hr-tool-page">
-      <div className="hr-tool-header-section">
+      {!isVerifiedUser && (
+        <EmailOTP onVerified={() => setIsVerifiedUser(true)} />
+      )}
+
+      <div className={isVerifiedUser ? "" : "content-blur"}>
+        <div className="hr-tool-header-section">
         <div className="container">
           <div className="hr-badge">HR Recruitment Suite</div>
           <h1>HR B2B <span>Leads Extractor</span></h1>
@@ -208,7 +214,7 @@ const HRExtractor = () => {
                 <table className="hr-leads-table">
                   <thead>
                     <tr>
-                      <th>Full Name</th>
+                      <th>Company/Name</th>
                       <th>Specialty</th>
                       <th>Location</th>
                       <th>Contact</th>
@@ -220,7 +226,7 @@ const HRExtractor = () => {
                       <tr key={lead.id}>
                         <td><strong>{lead.doctor_name_simple_english}</strong></td>
                         <td><span className="tag-spec">{lead.qualification_specialty}</span></td>
-                        <td>{lead.city}, {lead.state || 'India'}</td>
+                        <td>{lead.city}</td>
                         <td>
                           <div className="contact-info-small">
                             <span>📱 {lead.phone_numbers}</span>
@@ -241,6 +247,7 @@ const HRExtractor = () => {
               )}
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>

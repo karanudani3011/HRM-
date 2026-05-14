@@ -26,7 +26,7 @@ const UIMockups = () => {
       }
       
       if (loc) {
-        query = query.or(`city.ilike.%${loc}%,state.ilike.%${loc}%`);
+        query = query.ilike('city', `%${loc}%`);
       }
 
       const { data, error } = await query.limit(100);

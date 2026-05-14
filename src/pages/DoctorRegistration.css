@@ -146,6 +146,50 @@
   white-space: nowrap;
 }
 
+.verify-btn:disabled {
+  background: #cbd5e1;
+  cursor: not-allowed;
+}
+
+.verified-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #10b981;
+  font-weight: 700;
+  font-size: 13px;
+  background: #ecfdf5;
+  padding: 8px 12px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+.otp-input-small {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  animation: fadeIn 0.3s ease;
+}
+
+.otp-input-small input {
+  flex: 1;
+  padding: 8px 12px !important;
+  font-size: 14px !important;
+  text-align: center;
+  letter-spacing: 2px;
+}
+
+.otp-input-small button {
+  background: #1e293b;
+  color: white;
+  border: none;
+  padding: 0 15px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 .reg-form-footer {
   display: flex;
   justify-content: space-between;

@@ -71,7 +71,7 @@ const DoctorSearch = () => {
 
         <div className="main-search-card">
           <form className="unified-search-form" onSubmit={handleSearch}>
-            <div className="search-field keyword-field">
+            <div className="search-field">
               <div className="field-icon-wrapper">
                 <Search size={20} className="red-icon" />
               </div>
@@ -88,7 +88,7 @@ const DoctorSearch = () => {
 
             <div className="search-divider"></div>
 
-            <div className="search-field location-field">
+            <div className="search-field">
               <div className="field-icon-wrapper">
                 <MapPin size={20} className="red-icon" />
               </div>

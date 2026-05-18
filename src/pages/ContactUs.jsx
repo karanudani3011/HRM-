@@ -37,7 +37,7 @@ const ContactUs = () => {
         formType: 'Contact Inquiry',
         createdAt: serverTimestamp()
       });
-      
+
       setSubmitted(true);
       setFormData({
         firstName: '',
@@ -71,7 +71,7 @@ const ContactUs = () => {
             </div>
             <h3>Phone Number</h3>
             <p>Call us directly for immediate assistance.</p>
-            <a href="tel:9879450072" className="contact-link">9879450072</a>
+            <a href="tel:9879450072" className="contact-link" style={{ display: 'block', textAlign: 'center' }}>9879450072</a>
           </div>
 
           <div className="contact-card">
@@ -91,7 +91,7 @@ const ContactUs = () => {
             <p>Visit our headquarters.</p>
             <address>
               HRM Consultancy<br />
-              New Delhi, India 110001
+              Rajkot Gujarat
             </address>
           </div>
         </div>
@@ -109,28 +109,28 @@ const ContactUs = () => {
               <>
                 <h2>Send us a Message</h2>
                 <p className="form-subtitle">Fill out the form below and our team will get back to you as soon as possible.</p>
-                
+
                 <form className="contact-form" onSubmit={handleSubmit}>
                   <div className="form-row">
                     <div className="form-group">
                       <label>First Name</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         name="firstName"
                         value={formData.firstName}
                         onChange={handleChange}
-                        placeholder="Enter your first name" 
+                        placeholder="Enter your first name"
                         required
                       />
                     </div>
                     <div className="form-group">
                       <label>Last Name</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         name="lastName"
                         value={formData.lastName}
                         onChange={handleChange}
-                        placeholder="Enter your last name" 
+                        placeholder="Enter your last name"
                         required
                       />
                     </div>
@@ -138,19 +138,19 @@ const ContactUs = () => {
 
                   <div className="form-group">
                     <label>Email Address</label>
-                    <input 
-                      type="email" 
+                    <input
+                      type="email"
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
-                      placeholder="Enter your email address" 
+                      placeholder="Enter your email address"
                       required
                     />
                   </div>
 
                   <div className="form-group">
                     <label>Subject</label>
-                    <select 
+                    <select
                       name="subject"
                       value={formData.subject}
                       onChange={handleChange}
@@ -167,11 +167,11 @@ const ContactUs = () => {
 
                   <div className="form-group">
                     <label>Message</label>
-                    <textarea 
+                    <textarea
                       name="message"
                       value={formData.message}
                       onChange={handleChange}
-                      rows="5" 
+                      rows="5"
                       placeholder="How can we help you?"
                       required
                     ></textarea>

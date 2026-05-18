@@ -160,6 +160,9 @@ const AdminServiceSubmissions = () => {
           <a href="/admin/leads" className="admin-nav-item">
             <span className="admin-nav-icon">👥</span> Users
           </a>
+          <a href="/admin/blogs" className="admin-nav-item">
+            <span className="admin-nav-icon">📝</span> Blog Manager
+          </a>
           <a href="#" className="admin-nav-item">
             <span className="admin-nav-icon">⚙️</span> Settings
           </a>

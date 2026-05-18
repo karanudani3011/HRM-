@@ -20,6 +20,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import AdminServiceSubmissions from './pages/AdminServiceSubmissions';
 import AdminLeads from './pages/AdminLeads';
 import HRExtractor from './pages/HRExtractor';
+import AdminBlogs from './pages/AdminBlogs';
 import Services from './pages/Services';
 import Samples from './pages/Samples';
 import FindDoctor from './pages/FindDoctor';
@@ -87,6 +88,7 @@ function App() {
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/leads" element={<AdminLeads />} />
+          <Route path="/admin/blogs" element={<AdminBlogs />} />
           <Route path="/hr-extractor" element={<ProtectedRoute><HRExtractor /></ProtectedRoute>} />
         </Routes>
         {!isAuthPage && !isAdminPage && <Footer />}

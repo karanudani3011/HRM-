@@ -161,6 +161,9 @@ const AdminLeads = () => {
           <a href="/admin/leads" className="admin-nav-item active">
             <span className="admin-nav-icon">👥</span> Users
           </a>
+          <a href="/admin/blogs" className="admin-nav-item">
+            <span className="admin-nav-icon">📝</span> Blog Manager
+          </a>
         </nav>
 
         <div className="admin-sidebar-footer">

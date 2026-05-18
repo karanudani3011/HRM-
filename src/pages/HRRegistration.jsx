@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { uploadImageToCloudinary } from '../utils/cloudinary';
-import { CheckCircle2, ChevronRight, ChevronLeft, Send, Camera, Loader2 } from 'lucide-react';
+import { CheckCircle2, ChevronRight, ChevronLeft, Send, Camera, Loader2, ShieldCheck } from 'lucide-react';
+import emailjs from '@emailjs/browser';
 import './DoctorRegistration.css';
 
 const HRRegistration = () => {
@@ -21,6 +22,13 @@ const HRRegistration = () => {
     selfie: null
   });
   const [uploading, setUploading] = useState({});
+
+  // OTP Verification States
+  const [emailOtpSent, setEmailOtpSent] = useState(false);
+  const [generatedEmailOtp, setGeneratedEmailOtp] = useState(null);
+  const [userEmailOtp, setUserEmailOtp] = useState('');
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [sendingEmailOtp, setSendingEmailOtp] = useState(false);
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -70,6 +78,47 @@ const HRRegistration = () => {
     }, 'image/jpeg');
   };
 
+  const handleSendEmailOtp = async () => {
+    if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email)) {
+      alert("Please enter a valid email address first.");
+      return;
+    }
+
+    setSendingEmailOtp(true);
+    const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    setGeneratedEmailOtp(newOtp);
+
+    const templateParams = {
+      to_email: formData.email,
+      otp: newOtp,
+    };
+
+    try {
+      await emailjs.send(
+        import.meta.env.VITE_EMAILJS_SERVICE_ID,
+        import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+        templateParams,
+        import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+      );
+      setEmailOtpSent(true);
+      alert("OTP sent to " + formData.email);
+    } catch (error) {
+      console.error('EmailJS Error:', error);
+      alert("Failed to send OTP. Check your .env configuration.");
+    } finally {
+      setSendingEmailOtp(false);
+    }
+  };
+
+  const handleVerifyEmailOtp = () => {
+    if (userEmailOtp === generatedEmailOtp) {
+      setIsEmailVerified(true);
+      alert("Email verified successfully!");
+    } else {
+      alert("Invalid OTP! Please try again.");
+    }
+  };
+
   const validate = () => {
     const newErrors = {};
     if (step === 1) {
@@ -78,6 +127,11 @@ const HRRegistration = () => {
       if (!formData.designation) newErrors.designation = 'Required';
       if (!formData.mobile) newErrors.mobile = 'Required';
       if (!formData.email) newErrors.email = 'Required';
+      
+      if (!isEmailVerified) {
+        alert('Please verify your email address via OTP first.');
+        return false;
+      }
     } else if (step === 2) {
       if (!formData.hiringNeeds) newErrors.hiringNeeds = 'Required';
     } else if (step === 3) {
@@ -148,18 +202,44 @@ const HRRegistration = () => {
               </div>
               <div className="form-group">
                 <label>Mobile Number *</label>
-                <div className="input-with-action">
-                  <input type="tel" className={errors.mobile ? 'error' : ''} placeholder="10-digit number" value={formData.mobile} onChange={e => setFormData({...formData, mobile: e.target.value})} />
-                  <button type="button" className="verify-btn">Verify OTP</button>
-                </div>
+                <input type="tel" className={errors.mobile ? 'error' : ''} placeholder="10-digit number" value={formData.mobile} onChange={e => setFormData({...formData, mobile: e.target.value})} />
                 {errors.mobile && <span className="error-msg">{errors.mobile}</span>}
               </div>
               <div className="form-group">
                 <label>Email ID *</label>
                 <div className="input-with-action">
-                  <input type="email" className={errors.email ? 'error' : ''} placeholder="Official Email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
-                  <button type="button" className="verify-btn">Verify OTP</button>
+                  <input 
+                    type="email" 
+                    className={errors.email ? 'error' : ''} 
+                    placeholder="Official Email" 
+                    value={formData.email} 
+                    onChange={e => setFormData({...formData, email: e.target.value})} 
+                    disabled={isEmailVerified}
+                  />
+                  {!isEmailVerified ? (
+                    <button 
+                      type="button" 
+                      className="verify-btn" 
+                      onClick={handleSendEmailOtp}
+                      disabled={sendingEmailOtp}
+                    >
+                      {sendingEmailOtp ? '...' : 'Verify OTP'}
+                    </button>
+                  ) : (
+                    <div className="verified-badge"><ShieldCheck size={16} /> Verified</div>
+                  )}
                 </div>
+                {emailOtpSent && !isEmailVerified && (
+                  <div className="otp-input-small">
+                    <input 
+                      type="text" 
+                      placeholder="Enter 6-digit OTP" 
+                      value={userEmailOtp}
+                      onChange={(e) => setUserEmailOtp(e.target.value)}
+                    />
+                    <button type="button" onClick={handleVerifyEmailOtp}>Check</button>
+                  </div>
+                )}
                 {errors.email && <span className="error-msg">{errors.email}</span>}
               </div>
             </div>

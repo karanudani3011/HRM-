@@ -4,6 +4,7 @@ import { CheckCircle2, ChevronRight, ChevronLeft, Camera, Upload, Send, ShieldCh
 import { uploadImageToCloudinary } from '../utils/cloudinary';
 import { db } from '../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import emailjs from '@emailjs/browser';
 import './HospitalRegistration.css';
 
 const HospitalRegistration = () => {
@@ -48,6 +49,13 @@ const HospitalRegistration = () => {
   });
 
   const [uploading, setUploading] = useState({});
+
+  // OTP Verification States
+  const [emailOtpSent, setEmailOtpSent] = useState(false);
+  const [generatedEmailOtp, setGeneratedEmailOtp] = useState(null);
+  const [userEmailOtp, setUserEmailOtp] = useState('');
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [sendingEmailOtp, setSendingEmailOtp] = useState(false);
 
   const authLetterRef = useRef(null);
   const logoRef = useRef(null);
@@ -134,6 +142,47 @@ const HospitalRegistration = () => {
     }
   };
 
+  const handleSendEmailOtp = async () => {
+    if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email)) {
+      alert("Please enter a valid email address first.");
+      return;
+    }
+
+    setSendingEmailOtp(true);
+    const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    setGeneratedEmailOtp(newOtp);
+
+    const templateParams = {
+      to_email: formData.email,
+      otp: newOtp,
+    };
+
+    try {
+      await emailjs.send(
+        import.meta.env.VITE_EMAILJS_SERVICE_ID,
+        import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+        templateParams,
+        import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+      );
+      setEmailOtpSent(true);
+      alert("OTP sent to " + formData.email);
+    } catch (error) {
+      console.error('EmailJS Error:', error);
+      alert("Failed to send OTP. Check your .env configuration.");
+    } finally {
+      setSendingEmailOtp(false);
+    }
+  };
+
+  const handleVerifyEmailOtp = () => {
+    if (userEmailOtp === generatedEmailOtp) {
+      setIsEmailVerified(true);
+      alert("Email verified successfully!");
+    } else {
+      alert("Invalid OTP! Please try again.");
+    }
+  };
+
   const validateStep = (currentStep) => {
     const newErrors = {};
     if (currentStep === 1) {
@@ -146,6 +195,11 @@ const HospitalRegistration = () => {
       if (!formData.adminName) newErrors.adminName = 'Required';
       if (!formData.mobile) newErrors.mobile = 'Required';
       if (!formData.email) newErrors.email = 'Required';
+      
+      if (!isEmailVerified) {
+        alert('Please verify your email address via OTP first.');
+        return false;
+      }
       if (!formData.authLetter) { alert('Please upload Authorization Letter'); return false; }
     } else if (currentStep === 3) {
       if (!formData.selfie) { alert('Please capture a live selfie'); return false; }
@@ -252,7 +306,43 @@ const HospitalRegistration = () => {
               <div className="form-group"><label>Designation *</label><input type="text" name="designation" value={formData.designation} onChange={handleInputChange} /></div>
               <div className="form-group"><label>Mobile Number *</label><input type="tel" name="mobile" maxLength="10" className={errors.mobile ? 'error' : ''} value={formData.mobile} onChange={handleInputChange} />{errors.mobile && <span className="error-msg">{errors.mobile}</span>}</div>
               <div className="form-group"><label>WhatsApp Number</label><input type="tel" name="whatsapp" maxLength="10" value={formData.whatsapp} onChange={handleInputChange} /></div>
-              <div className="form-group"><label>Email ID *</label><input type="email" name="email" className={errors.email ? 'error' : ''} value={formData.email} onChange={handleInputChange} />{errors.email && <span className="error-msg">{errors.email}</span>}</div>
+              <div className="form-group">
+                <label>Email ID *</label>
+                <div className="input-with-action">
+                  <input 
+                    type="email" 
+                    name="email"
+                    className={errors.email ? 'error' : ''} 
+                    value={formData.email} 
+                    onChange={handleInputChange} 
+                    disabled={isEmailVerified}
+                  />
+                  {!isEmailVerified ? (
+                    <button 
+                      type="button" 
+                      className="verify-btn" 
+                      onClick={handleSendEmailOtp}
+                      disabled={sendingEmailOtp}
+                    >
+                      {sendingEmailOtp ? '...' : 'Verify OTP'}
+                    </button>
+                  ) : (
+                    <div className="verified-badge"><ShieldCheck size={16} /> Verified</div>
+                  )}
+                </div>
+                {emailOtpSent && !isEmailVerified && (
+                  <div className="otp-input-small">
+                    <input 
+                      type="text" 
+                      placeholder="Enter 6-digit OTP" 
+                      value={userEmailOtp}
+                      onChange={(e) => setUserEmailOtp(e.target.value)}
+                    />
+                    <button type="button" onClick={handleVerifyEmailOtp}>Check</button>
+                  </div>
+                )}
+                {errors.email && <span className="error-msg">{errors.email}</span>}
+              </div>
               <div className="form-group full-width">
                 <label>Upload HR ID Card / Auth Letter *</label>
                 <input type="file" ref={authLetterRef} onChange={(e) => handleFileUpload(e, 'authLetter')} className="hidden" accept=".pdf,.jpg,.jpeg,.png" />

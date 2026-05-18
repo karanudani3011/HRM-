@@ -10,15 +10,31 @@ const DoctorSearch = () => {
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
 
+  // Automatically clear the database if the keyword field is emptied
+  useEffect(() => {
+    if (!keyword.trim()) {
+      setDoctors([]);
+      setHasSearched(false);
+    }
+  }, [keyword]);
+
   const handleSearch = async (e) => {
     e?.preventDefault();
+
+    const kw = keyword.trim();
+    const loc = location.trim();
+
+    if (!kw) {
+      alert('Please enter a Keyword/Specialty to search.');
+      setDoctors([]);
+      setHasSearched(false);
+      return;
+    }
+
     setLoading(true);
     setHasSearched(true);
     try {
       let query = supabase.from('doctors_data').select('*');
-      
-      const kw = keyword.trim();
-      const loc = location.trim();
 
       if (kw) {
         query = query.or(`doctor_name_simple_english.ilike.%${kw}%,qualification_specialty.ilike.%${kw}%`);

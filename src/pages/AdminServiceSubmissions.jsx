@@ -157,7 +157,7 @@ const AdminServiceSubmissions = () => {
             <span className="admin-nav-icon">📋</span> Service Submissions
           </a>
           <div className="admin-nav-section-label">Manage</div>
-          <a href="#" className="admin-nav-item">
+          <a href="/admin/leads" className="admin-nav-item">
             <span className="admin-nav-icon">👥</span> Users
           </a>
           <a href="#" className="admin-nav-item">

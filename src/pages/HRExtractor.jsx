@@ -16,9 +16,12 @@ import {
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import EmailOTP from '../components/EmailOTP';
+import PaymentModal from '../components/PaymentModal';
+import { useAuth } from '../context/AuthContext';
 import './HRExtractor.css';
 
 const HRExtractor = () => {
+  const { user } = useAuth();
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(false);
   const [extracting, setExtracting] = useState(false);
@@ -28,19 +31,87 @@ const HRExtractor = () => {
   const [progress, setProgress] = useState(0);
   const [localSearch, setLocalSearch] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
-  const [isVerifiedUser, setIsVerifiedUser] = useState(false);
+  const [verifiedEmail, setVerifiedEmail] = useState('');
+
+  // Sync Google/LinkedIn/Email authenticated user's email automatically
+  useEffect(() => {
+    if (user?.email) {
+      setVerifiedEmail(user.email);
+    }
+  }, [user]);
+
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [searchesRemaining, setSearchesRemaining] = useState(3);
+
+  // Load from Supabase when verifiedEmail changes
+  useEffect(() => {
+    const fetchUserCredits = async () => {
+      if (!verifiedEmail) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('user_search_credits')
+          .select('searches_remaining')
+          .eq('email', verifiedEmail.toLowerCase())
+          .single();
+
+        if (error) {
+          if (error.code === 'PGRST116') {
+            // User does not exist, initialize them with 3 free searches
+            const { error: insertError } = await supabase
+              .from('user_search_credits')
+              .insert([{ email: verifiedEmail.toLowerCase(), searches_remaining: 3, plan_level: 'free' }]);
+            
+            if (insertError) throw insertError;
+            setSearchesRemaining(3);
+          } else {
+            throw error;
+          }
+        } else {
+          setSearchesRemaining(data.searches_remaining);
+        }
+      } catch (err) {
+        console.error('Error fetching user credits:', err);
+        // Fallback to local storage if table doesn't exist
+        const saved = localStorage.getItem(`hr_search_count_${verifiedEmail}`);
+        setSearchesRemaining(saved !== null ? parseInt(saved, 10) : 3);
+      }
+    };
+
+    fetchUserCredits();
+  }, [verifiedEmail]);
+
+  // Automatically clear the database if the keyword field is emptied
+  useEffect(() => {
+    if (!keyword.trim()) {
+      setLeads([]);
+      setErrorMsg('');
+    }
+  }, [keyword]);
 
   const handleStartExtraction = async (e) => {
     e?.preventDefault();
+
+    const kw = keyword.trim();
+    const loc = location.trim();
+
+    if (!kw) {
+      setErrorMsg('Please enter a Keyword/Specialty to search.');
+      setLeads([]);
+      return;
+    }
+
+    if (searchesRemaining <= 0) {
+      setShowPaymentModal(true);
+      return;
+    }
+
     setExtracting(true);
     setErrorMsg('');
     setProgress(10);
     
     try {
       let query = supabase.from('doctors_data').select('*');
-
-      const kw = keyword.trim();
-      const loc = location.trim();
 
       if (kw) {
         query = query.or(`doctor_name_simple_english.ilike.%${kw}%,qualification_specialty.ilike.%${kw}%`);
@@ -54,6 +125,26 @@ const HRExtractor = () => {
       const { data, error } = await query.limit(100);
 
       if (error) throw error;
+
+      // Decrement balance in Supabase
+      const newBalance = Math.max(0, searchesRemaining - 1);
+      try {
+        const { error: updateError } = await supabase
+          .from('user_search_credits')
+          .update({ searches_remaining: newBalance })
+          .eq('email', verifiedEmail.toLowerCase());
+        
+        if (updateError) throw updateError;
+        setSearchesRemaining(newBalance);
+      } catch (err) {
+        console.error('Error updating user credits in DB:', err);
+        // Fallback to local storage
+        setSearchesRemaining(prev => {
+          const fallback = Math.max(0, prev - 1);
+          localStorage.setItem(`hr_search_count_${verifiedEmail}`, fallback.toString());
+          return fallback;
+        });
+      }
 
       setProgress(80);
       if (isVerified && data && data.length > 0) {
@@ -100,13 +191,21 @@ const HRExtractor = () => {
 
   return (
     <div className="hr-tool-page">
-      {!isVerifiedUser && (
-        <EmailOTP onVerified={() => setIsVerifiedUser(true)} />
+      {!verifiedEmail && (
+        <EmailOTP onVerified={(email) => setVerifiedEmail(email)} />
       )}
 
-      <div className={isVerifiedUser ? "" : "content-blur"}>
+      <div className={verifiedEmail ? "" : "content-blur"}>
         <div className="hr-tool-header-section">
-        <div className="container">
+        <div className="container" style={{ position: 'relative' }}>
+          {verifiedEmail && (
+            <button 
+              onClick={() => { setVerifiedEmail(''); setLeads([]); }}
+              style={{ position: 'absolute', top: 0, right: 0, background: 'none', border: '1px solid #bb2a3a', color: '#bb2a3a', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}
+            >
+              Logout ({verifiedEmail})
+            </button>
+          )}
           <div className="hr-badge">HR Recruitment Suite</div>
           <h1>HR B2B <span>Leads Extractor</span></h1>
           <p>Powerful lead generation for healthcare recruitment and business expansion.</p>
@@ -168,6 +267,9 @@ const HRExtractor = () => {
                 <button type="button" className="btn-export" onClick={handleExport} disabled={leads.length === 0 || extracting}>
                   <Download size={18} /> EXPORT CSV
                 </button>
+              </div>
+              <div style={{ textAlign: 'center', marginTop: '12px', fontSize: '0.9rem', color: '#a0a0b0' }}>
+                Free searches remaining: <strong style={{color: '#bb2a3a'}}>{searchesRemaining}</strong> / 3
               </div>
 
               {extracting && (
@@ -250,6 +352,8 @@ const HRExtractor = () => {
         </div>
         </div>
       </div>
+      
+      {showPaymentModal && <PaymentModal onClose={() => setShowPaymentModal(false)} />}
     </div>
   );
 };

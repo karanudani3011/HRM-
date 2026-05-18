@@ -46,7 +46,7 @@ const EmailOTP = ({ onVerified }) => {
   const verifyOTP = (e) => {
     e.preventDefault();
     if (otp === generatedOtp) {
-      onVerified(true);
+      onVerified(email);
     } else {
       alert('Invalid verification code. Please try again.');
     }

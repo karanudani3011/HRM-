@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './UIMockups.css';
 import { Search, MapPin, Briefcase, Database, Download, CheckCircle2, AlertCircle, Stethoscope, Navigation, Building2, Globe, ShieldCheck, ChevronRight, Award, Phone, Mail } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import * as XLSX from 'xlsx';
+import PaymentModal from './PaymentModal';
+import { useAuth } from '../context/AuthContext';
 
 const UIMockups = () => {
   // --- HR Extractor Logic ---
@@ -13,14 +15,78 @@ const UIMockups = () => {
   const [isVerified, setIsVerified] = useState(false);
   const [localSearch, setLocalSearch] = useState('');
 
+  const { user } = useAuth();
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [searchesRemaining, setSearchesRemaining] = useState(3);
+
+  // Load search limit from Supabase when user.email changes
+  useEffect(() => {
+    const fetchUserCredits = async () => {
+      if (!user?.email) {
+        // Fallback to local storage or default 3 for guest users
+        const localCount = localStorage.getItem('hr_search_count_guest');
+        if (localCount !== null) {
+          setSearchesRemaining(parseInt(localCount) || 0);
+        } else {
+          setSearchesRemaining(3);
+        }
+        return;
+      }
+      
+      try {
+        const { data, error } = await supabase
+          .from('user_search_credits')
+          .select('searches_remaining')
+          .eq('email', user.email.toLowerCase())
+          .single();
+
+        if (error) {
+          if (error.code === 'PGRST116') {
+            // Initialize in Supabase if missing
+            await supabase
+              .from('user_search_credits')
+              .insert([{ email: user.email.toLowerCase(), searches_remaining: 3, plan_level: 'free' }]);
+            setSearchesRemaining(3);
+          } else {
+            throw error;
+          }
+        } else {
+          setSearchesRemaining(data.searches_remaining);
+        }
+      } catch (err) {
+        console.error('Error fetching user credits on home:', err);
+      }
+    };
+
+    fetchUserCredits();
+  }, [user]);
+
+  // Automatically clear HR Extractor database if keyword is emptied
+  useEffect(() => {
+    if (!keyword.trim()) {
+      setLeads([]);
+    }
+  }, [keyword]);
+
   const handleStartExtraction = async () => {
+    const kw = keyword.trim();
+    const loc = location.trim();
+
+    if (!kw) {
+      alert('Please enter a Keyword/Specialty to search.');
+      setLeads([]);
+      return;
+    }
+
+    if (searchesRemaining <= 0) {
+      setShowPaymentModal(true);
+      return;
+    }
+
     setExtracting(true);
     try {
       let query = supabase.from('doctors_data').select('*');
       
-      const kw = keyword.trim();
-      const loc = location.trim();
-
       if (kw) {
         query = query.or(`doctor_name_simple_english.ilike.%${kw}%,qualification_specialty.ilike.%${kw}%`);
       }
@@ -31,6 +97,29 @@ const UIMockups = () => {
 
       const { data, error } = await query.limit(100);
       if (error) throw error;
+      
+      // Decrement searches remaining
+      const newBalance = Math.max(0, searchesRemaining - 1);
+      
+      if (user?.email) {
+        try {
+          const { error: updateError } = await supabase
+            .from('user_search_credits')
+            .update({ searches_remaining: newBalance })
+            .eq('email', user.email.toLowerCase());
+          
+          if (updateError) throw updateError;
+          setSearchesRemaining(newBalance);
+        } catch (err) {
+          console.error('Error updating credits in DB:', err);
+          setSearchesRemaining(newBalance);
+        }
+      } else {
+        // Guest user local storage fallback
+        localStorage.setItem('hr_search_count_guest', newBalance.toString());
+        setSearchesRemaining(newBalance);
+      }
+      
       setLeads(data || []);
     } catch (err) {
       console.error('Full Extraction Error:', err);
@@ -62,24 +151,32 @@ const UIMockups = () => {
   const [docLoading, setDocLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
 
+  // Automatically clear Doctor Search results if keyword is emptied
+  useEffect(() => {
+    if (!docKeyword.trim()) {
+      setDoctors([]);
+      setHasSearched(false);
+    }
+  }, [docKeyword]);
+
   const handleDocSearch = async (e) => {
     e?.preventDefault();
+    
+    const kw = docKeyword.trim();
+    const loc = docLocation.trim();
+
+    if (!kw) {
+      alert('Please enter a Keyword/Specialty to search.');
+      setDoctors([]);
+      setHasSearched(false);
+      return;
+    }
+
     setDocLoading(true);
     setHasSearched(true);
     try {
       let query = supabase.from('doctors_data').select('*');
       
-      const kw = docKeyword.trim();
-      const loc = docLocation.trim();
-
-      // If both are empty, just show latest 6
-      if (!kw && !loc) {
-        const { data, error } = await query.limit(6);
-        if (error) throw error;
-        setDoctors(data || []);
-        return;
-      }
-
       // Flexible matching using the CORRECT column names
       if (kw) {
         query = query.or(`doctor_name_simple_english.ilike.%${kw}%,qualification_specialty.ilike.%${kw}%`);
@@ -147,6 +244,9 @@ const UIMockups = () => {
               <button className="action-btn dark-btn" onClick={handleExport} disabled={leads.length === 0}>
                 <Download size={16}/> EXPORT CSV
               </button>
+            </div>
+            <div style={{ textAlign: 'center', marginBottom: '16px', fontSize: '0.9rem', color: '#a0a0b0' }}>
+              Free searches remaining: <strong style={{color: '#bb2a3a'}}>{searchesRemaining}</strong> / 3
             </div>
             
             <div className="mockup-table-container">
@@ -295,6 +395,8 @@ const UIMockups = () => {
         </div>
 
       </div>
+      
+      {showPaymentModal && <PaymentModal onClose={() => setShowPaymentModal(false)} />}
     </section>
   );
 };

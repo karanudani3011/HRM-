@@ -91,7 +91,7 @@ const AdminDashboard = () => {
             <span className="admin-nav-icon">📋</span> Service Submissions
           </a>
           <div className="admin-nav-section-label">Manage</div>
-          <a href="#" className="admin-nav-item">
+          <a href="/admin/leads" className="admin-nav-item">
             <span className="admin-nav-icon">👥</span> Users
           </a>
           <a href="#" className="admin-nav-item">
@@ -164,7 +164,7 @@ const AdminDashboard = () => {
                 <p>View & export client data</p>
               </div>
             </a>
-            <a href="#" className="admin-action-card">
+            <a href="/admin/leads" className="admin-action-card">
               <div className="admin-action-icon green">👥</div>
               <div className="admin-action-text">
                 <h4>Manage Users</h4>

@@ -294,17 +294,14 @@ const DoctorRegistration = () => {
 
                 <div className="form-group">
                   <label>Mobile Number *</label>
-                  <div className="input-with-action">
-                    <input 
-                      type="tel" 
-                      name="mobile"
-                      maxLength="10"
-                      value={formData.mobile}
-                      onChange={handleInputChange}
-                      placeholder="10-digit number" 
-                    />
-                    <button type="button" className="verify-btn">Verify OTP</button>
-                  </div>
+                  <input 
+                    type="tel" 
+                    name="mobile"
+                    maxLength="10"
+                    value={formData.mobile}
+                    onChange={handleInputChange}
+                    placeholder="10-digit number" 
+                  />
                   {errors.mobile && <span className="error-msg">{errors.mobile}</span>}
                 </div>
 

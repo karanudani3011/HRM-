@@ -80,6 +80,29 @@ const Blog = () => {
                 </div>
                 <h3 className="blog-title">{post.title}</h3>
                 <p className="blog-excerpt">{post.excerpt}</p>
+                {post.externalUrl && (
+                  <a 
+                    href={post.externalUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="blog-more-link"
+                    style={{ 
+                      display: 'inline-flex', 
+                      alignItems: 'center', 
+                      gap: '4px',
+                      color: '#4f46e5', 
+                      fontSize: '0.85rem', 
+                      fontWeight: '600', 
+                      textDecoration: 'none',
+                      marginTop: '8px',
+                      transition: 'color 0.2s' 
+                    }}
+                    onMouseEnter={(e) => e.target.style.color = '#3730a3'}
+                    onMouseLeave={(e) => e.target.style.color = '#4f46e5'}
+                  >
+                    Read More ↗
+                  </a>
+                )}
                 
                 <div className="blog-footer">
                   <div className="blog-author">

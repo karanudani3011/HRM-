@@ -150,6 +150,12 @@ const AdminBlogs = () => {
                       <span className="meta-item"><Calendar size={14} /> {formatDate(post.createdAt)}</span>
                     </div>
 
+                    {post.externalUrl && (
+                      <p style={{ margin: '0 0 16px 0', fontSize: '0.825rem', color: '#60a5fa', wordBreak: 'break-all' }}>
+                        🔗 <strong>Reference URL:</strong> <a href={post.externalUrl} target="_blank" rel="noreferrer" style={{ color: '#93c5fd', textDecoration: 'underline', fontWeight: '500' }}>{post.externalUrl}</a>
+                      </p>
+                    )}
+
                     <div className="admin-blog-actions">
                       <button 
                         onClick={() => window.open('/blog', '_blank')} 

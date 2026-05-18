@@ -10,6 +10,7 @@ const UploadPostModal = ({ isOpen, onClose }) => {
   const [category, setCategory] = useState('');
   const [excerpt, setExcerpt] = useState('');
   const [author, setAuthor] = useState('');
+  const [externalUrl, setExternalUrl] = useState('');
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -38,6 +39,7 @@ const UploadPostModal = ({ isOpen, onClose }) => {
         excerpt,
         author,
         imageUrl,
+        externalUrl: externalUrl || '',
         userId: user ? user.uid : null,
         createdAt: serverTimestamp(),
       });
@@ -47,6 +49,7 @@ const UploadPostModal = ({ isOpen, onClose }) => {
       setCategory('');
       setExcerpt('');
       setAuthor('');
+      setExternalUrl('');
       setFile(null);
       onClose();
     } catch (err) {
@@ -117,6 +120,16 @@ const UploadPostModal = ({ isOpen, onClose }) => {
               onChange={(e) => setAuthor(e.target.value)} 
               placeholder="HealthyLife Clinic"
               required 
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Post URL / Reference Link (Optional)</label>
+            <input 
+              type="url" 
+              value={externalUrl} 
+              onChange={(e) => setExternalUrl(e.target.value)} 
+              placeholder="https://example.com/blog-details"
             />
           </div>
 

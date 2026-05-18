@@ -41,10 +41,10 @@ const Header = () => {
         <nav className={`nav-menu ${isMenuOpen ? 'active' : ''}`}>
           <ul>
             <li><Link to="/blog" onClick={closeMenu}>Blog</Link></li>
-            <li><a href="/#services" onClick={closeMenu}>Services</a></li>
-            <li><a href="/#samples" onClick={closeMenu}>Samples</a></li>
-            <li><a href="/#hr-tools" onClick={closeMenu}>HR Tools</a></li>
-            <li><a href="/#find-doctor" onClick={closeMenu}>Find Doctor</a></li>
+            <li><Link to="/services" onClick={closeMenu}>Services</Link></li>
+            <li><Link to="/samples" onClick={closeMenu}>Samples</Link></li>
+            <li><Link to="/hr-extractor" onClick={closeMenu}>HR Tools</Link></li>
+            <li><Link to="/find-doctor" onClick={closeMenu}>Find Doctor</Link></li>
           </ul>
           <div className="nav-actions">
             <Link to="/contact" className="btn-contact" onClick={closeMenu}>Contact Us</Link>

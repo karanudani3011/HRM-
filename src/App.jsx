@@ -20,6 +20,9 @@ import AdminDashboard from './pages/AdminDashboard';
 import AdminServiceSubmissions from './pages/AdminServiceSubmissions';
 import AdminLeads from './pages/AdminLeads';
 import HRExtractor from './pages/HRExtractor';
+import Services from './pages/Services';
+import Samples from './pages/Samples';
+import FindDoctor from './pages/FindDoctor';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -76,12 +79,15 @@ function App() {
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/about" element={<AboutUs />} />
           <Route path="/blog" element={<ProtectedRoute><Blog /></ProtectedRoute>} />
+          <Route path="/services" element={<ProtectedRoute><Services /></ProtectedRoute>} />
+          <Route path="/samples" element={<ProtectedRoute><Samples /></ProtectedRoute>} />
+          <Route path="/find-doctor" element={<ProtectedRoute><FindDoctor /></ProtectedRoute>} />
           <Route path="/admin/services" element={<AdminServiceSubmissions />} />
           <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/leads" element={<AdminLeads />} />
-          <Route path="/hr-extractor" element={<HRExtractor />} />
+          <Route path="/hr-extractor" element={<ProtectedRoute><HRExtractor /></ProtectedRoute>} />
         </Routes>
         {!isAuthPage && !isAdminPage && <Footer />}
       </div>

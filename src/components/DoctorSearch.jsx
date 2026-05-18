@@ -57,20 +57,26 @@ const DoctorSearch = () => {
 
   return (
     <section className="doctor-search-section" id="find-doctor">
+      {/* Premium Decorative Glow Spheres */}
+      <div className="bg-blur-sphere sphere-1"></div>
+      <div className="bg-blur-sphere sphere-2"></div>
+      <div className="bg-blur-sphere sphere-3"></div>
+
       <div className="container">
         <div className="section-header">
-          <h2>Find Your <span>Doctor Anywhere</span></h2>
+          <span className="section-badge">✨ Premium Healthcare Network</span>
+          <h2>Find Your <span className="gradient-text">Doctor Anywhere</span></h2>
           <p>Instantly connect with India's top specialists, hospitals, and diagnostic centers</p>
         </div>
 
         <div className="main-search-card">
           <form className="unified-search-form" onSubmit={handleSearch}>
-            <div className="search-field">
+            <div className="search-field keyword-field">
               <div className="field-icon-wrapper">
                 <Search size={20} className="red-icon" />
               </div>
               <div className="field-content">
-                <label>Keyword/Specialty</label>
+                <label>Keyword / Specialty</label>
                 <input 
                   type="text" 
                   placeholder="Cardiology, Hospitals, Diagnostic Center..."
@@ -82,7 +88,7 @@ const DoctorSearch = () => {
 
             <div className="search-divider"></div>
 
-            <div className="search-field">
+            <div className="search-field location-field">
               <div className="field-icon-wrapper">
                 <MapPin size={20} className="red-icon" />
               </div>
@@ -110,25 +116,31 @@ const DoctorSearch = () => {
         <div className="search-results-area">
           {loading ? (
             <div className="search-loading-state">
-              <div className="btn-spinner" style={{borderColor: '#bb2a3a', borderTopColor: 'transparent', width: '40px', height: '40px'}}></div>
+              <div className="loading-glowing-ring"></div>
               <p>Scanning HRM Healthcare Network...</p>
             </div>
           ) : hasSearched && doctors.length === 0 ? (
             <div className="no-results-state">
-              <Building2 size={64} className="red-icon" style={{opacity: 0.2}} />
+              <div className="no-results-icon-box">
+                <Building2 size={48} className="red-icon" />
+              </div>
               <h3>No matched providers found</h3>
               <p>Try searching for a different city or specialty like "Cardiology".</p>
             </div>
           ) : (
             <div className="doctor-grid-modern">
-              {doctors.map((doc) => (
+              {doctors.map((doc, idx) => (
                 <div key={doc.id} className="modern-doc-card">
                   <div className="card-top">
-                    <div className="doc-avatar-box">
+                    {/* Dynamic gradient-colored avatar based on index */}
+                    <div className={`doc-avatar-box avatar-grad-${(idx % 4) + 1}`}>
                       {doc.doctor_name_simple_english?.charAt(0)}
                     </div>
                     <div className="doc-prime-info">
-                      <h3>Dr. {doc.doctor_name_simple_english}</h3>
+                      <h3 className="doc-name">
+                        Dr. {doc.doctor_name_simple_english}
+                        <ShieldCheck className="verified-badge-icon" size={16} title="Verified Practitioner" />
+                      </h3>
                       <span className="spec-tag">{doc.qualification_specialty}</span>
                     </div>
                   </div>
@@ -146,11 +158,21 @@ const DoctorSearch = () => {
 
                   <div className="card-bottom">
                     <div className="contact-summary">
-                      <span><Phone size={12} /> {doc.phone_numbers}</span>
-                      <span><Mail size={12} /> {doc.email || 'Contact on Phone'}</span>
+                      <a href={`tel:${doc.phone_numbers}`} className="contact-link phone-link" title="Call Doctor">
+                        <Phone size={12} /> {doc.phone_numbers}
+                      </a>
+                      {doc.email ? (
+                        <a href={`mailto:${doc.email}`} className="contact-link email-link" title="Email Doctor">
+                          <Mail size={12} /> {doc.email}
+                        </a>
+                      ) : (
+                        <span className="contact-link no-email">
+                          <Mail size={12} /> Contact via Phone
+                        </span>
+                      )}
                     </div>
                     <button className="modern-book-btn" onClick={() => window.location.href = '/contact'}>
-                      Profile
+                      Consult Now
                     </button>
                   </div>
                 </div>
@@ -162,19 +184,25 @@ const DoctorSearch = () => {
         {!hasSearched && (
           <div className="search-features-grid">
             <div className="feat-item">
-              <Globe size={24} className="red-icon" />
+              <div className="feat-icon-box">
+                <Globe size={24} className="red-icon" />
+              </div>
               <h4>Pan-India Network</h4>
-              <p>Access doctors across 100+ cities</p>
+              <p>Access verified doctors across 100+ cities</p>
             </div>
             <div className="feat-item">
-              <ShieldCheck size={24} className="red-icon" />
+              <div className="feat-icon-box">
+                <ShieldCheck size={24} className="red-icon" />
+              </div>
               <h4>Verified Database</h4>
-              <p>100% Medical Reg verified</p>
+              <p>100% Medical Registration verified providers</p>
             </div>
             <div className="feat-item">
-              <Stethoscope size={24} className="red-icon" />
+              <div className="feat-icon-box">
+                <Stethoscope size={24} className="red-icon" />
+              </div>
               <h4>Instant Booking</h4>
-              <p>Book consultations in seconds</p>
+              <p>Schedule your online consultations in seconds</p>
             </div>
           </div>
         )}

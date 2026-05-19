@@ -1,0 +1,353 @@
+.consultation-page {
+  background-color: #0b0f19;
+  height: 100vh;
+  padding: 20px;
+  color: #f1f5f9;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+/* Premium Glow backdrops */
+.glow-sphere {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  z-index: 1;
+  opacity: 0.15;
+}
+
+.sphere-top-right {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, #bb2a3a 0%, transparent 70%);
+  top: -100px;
+  right: -100px;
+}
+
+.sphere-bottom-left {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, #1e40af 0%, transparent 70%);
+  bottom: -150px;
+  left: -150px;
+}
+
+.consultation-container {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 20px;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  position: relative;
+}
+
+/* Sidebar Styling */
+.consultation-sidebar {
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 30px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 20px;
+}
+
+.sidebar-logo-icon {
+  color: #ff4d4d;
+}
+
+.sidebar-header h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.5px;
+}
+
+.session-status-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 2px 8px;
+  border-radius: 20px;
+  display: inline-block;
+  margin: 0;
+}
+
+.sidebar-info-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.info-item label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748b;
+  letter-spacing: 0.5px;
+}
+
+.info-item h4 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+  color: #f8fafc;
+}
+
+.spec-role-tag {
+  font-size: 12px;
+  font-weight: 600;
+  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
+  padding: 4px 10px;
+  border-radius: 6px;
+  align-self: flex-start;
+}
+
+.patient-user-tag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #cbd5e1;
+  font-size: 13px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 6px 12px;
+  border-radius: 8px;
+  width: fit-content;
+}
+
+.sidebar-security-note {
+  background: rgba(16, 185, 129, 0.03);
+  border: 1px solid rgba(16, 185, 129, 0.1);
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 24px;
+}
+
+.security-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #10b981;
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.sidebar-security-note p {
+  font-size: 11px;
+  color: #94a3b8;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.sidebar-guide {
+  margin-bottom: auto;
+}
+
+.guide-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #cbd5e1;
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+.sidebar-guide ul {
+  padding-left: 18px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebar-guide li {
+  font-size: 11px;
+  color: #94a3b8;
+  line-height: 1.5;
+}
+
+.leave-consult-btn {
+  margin-top: 30px;
+  background: #bb2a3a;
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 10px 20px rgba(187, 42, 58, 0.2);
+}
+
+.leave-consult-btn:hover {
+  background: #8b1c28;
+  transform: translateY(-2px);
+  box-shadow: 0 15px 25px rgba(187, 42, 58, 0.3);
+}
+
+/* Video workspace */
+.video-workspace {
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 24px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+}
+
+/* Loader style */
+.workspace-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px;
+  z-index: 10;
+  position: absolute;
+}
+
+.telehealth-spinner {
+  width: 60px;
+  height: 60px;
+  border: 4px solid rgba(255, 255, 255, 0.03);
+  border-top: 4px solid #ff4d4d;
+  border-radius: 50%;
+  animation: spinner-rotate 1.2s cubic-bezier(0.5, 0.1, 0.1, 0.9) infinite;
+  margin-bottom: 30px;
+  box-shadow: 0 0 20px rgba(255, 77, 77, 0.2);
+}
+
+.loader-texts h3 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 10px 0;
+  color: #f8fafc;
+}
+
+.loader-texts p {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+}
+
+.connection-badges {
+  display: flex;
+  gap: 10px;
+  margin-top: 25px;
+}
+
+.connection-badges span {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: #94a3b8;
+}
+
+/* Jitsi Frame Box */
+.jitsi-video-frame-box {
+  width: 100%;
+  height: 100%;
+  border-radius: 24px;
+  overflow: hidden;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.jitsi-video-frame-box.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.jitsi-video-frame-box.ready {
+  opacity: 1;
+}
+
+@keyframes spinner-rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+  .consultation-container {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: auto;
+  }
+  
+  .consultation-sidebar {
+    height: auto;
+  }
+  
+  .video-workspace {
+    height: 500px;
+  }
+}
+
+@media (max-width: 768px) {
+  .consultation-page {
+    padding: 20px 10px;
+  }
+  
+  .video-workspace {
+    height: 400px;
+  }
+  
+  .sidebar-header {
+    margin-bottom: 20px;
+  }
+  
+  .sidebar-info-card {
+    gap: 12px;
+    padding: 15px;
+  }
+}

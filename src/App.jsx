@@ -24,6 +24,7 @@ import AdminBlogs from './pages/AdminBlogs';
 import Services from './pages/Services';
 import Samples from './pages/Samples';
 import FindDoctor from './pages/FindDoctor';
+import VideoConsultation from './pages/VideoConsultation';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -32,6 +33,7 @@ function App() {
   const navigate = useNavigate();
   const isAuthPage = location.pathname.startsWith('/portal/');
   const isAdminPage = location.pathname.startsWith('/admin');
+  const isConsultPage = location.pathname.startsWith('/consultation/');
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -51,8 +53,8 @@ function App() {
   return (
     <AuthProvider>
       <div className="app">
-        {!isAuthPage && !isAdminPage && <TopBar />}
-        {!isAuthPage && !isAdminPage && <Header />}
+        {!isAuthPage && !isAdminPage && !isConsultPage && <TopBar />}
+        {!isAuthPage && !isAdminPage && !isConsultPage && <Header />}
         <Routes>
           <Route path="/portal/:type" element={<PortalLogin />} />
           <Route path="/portal/doctor/register" element={<DoctorRegistration />} />
@@ -90,8 +92,9 @@ function App() {
           <Route path="/admin/leads" element={<AdminLeads />} />
           <Route path="/admin/blogs" element={<AdminBlogs />} />
           <Route path="/hr-extractor" element={<ProtectedRoute><HRExtractor /></ProtectedRoute>} />
+          <Route path="/consultation/:roomId" element={<ProtectedRoute><VideoConsultation /></ProtectedRoute>} />
         </Routes>
-        {!isAuthPage && !isAdminPage && <Footer />}
+        {!isAuthPage && !isAdminPage && !isConsultPage && <Footer />}
       </div>
     </AuthProvider>
   );

@@ -367,7 +367,15 @@ const UIMockups = () => {
                       </div>
                     </div>
                     <div className="doc-status">Verified</div>
-                    <button className="book-btn" onClick={() => window.location.href='/contact'}>Consult</button>
+                    <button 
+                      className="book-btn" 
+                      onClick={() => {
+                        const nameSlug = doc.doctor_name_simple_english ? doc.doctor_name_simple_english.toLowerCase().replace(/[^a-z0-9]+/g, '-') : 'practitioner';
+                        window.location.href = `/consultation/dr-${nameSlug}`;
+                      }}
+                    >
+                      Consult
+                    </button>
                   </div>
                 ))
               )}

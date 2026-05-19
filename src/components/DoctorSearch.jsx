@@ -178,7 +178,13 @@ const DoctorSearch = () => {
                         </span>
                       )}
                     </div>
-                    <button className="modern-book-btn" onClick={() => window.location.href = '/contact'}>
+                    <button 
+                      className="modern-book-btn" 
+                      onClick={() => {
+                        const nameSlug = doc.doctor_name_simple_english ? doc.doctor_name_simple_english.toLowerCase().replace(/[^a-z0-9]+/g, '-') : 'practitioner';
+                        window.location.href = `/consultation/dr-${nameSlug}`;
+                      }}
+                    >
                       Consult Now
                     </button>
                   </div>

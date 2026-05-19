@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
@@ -253,7 +254,11 @@ const HRRegistration = () => {
               <div className="terms-section full-width mt-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
                 <label className="flex items-start gap-3 cursor-pointer">
                   <input type="checkbox" checked={agreedToTerms} onChange={e => setAgreedToTerms(e.target.checked)} className="mt-1" />
-                  <span className="text-sm font-medium">I agree to the HRM Consultancy Terms &amp; Conditions for HR Professionals.</span>
+                  <span className="text-sm font-medium">
+                    I agree to the HRM Consultancy{' '}
+                    <Link to="/terms" target="_blank" rel="noopener noreferrer" style={{ color: '#2563eb', textDecoration: 'underline', fontWeight: '600' }}>Terms &amp; Conditions</Link>
+                    {' '}for HR Professionals.
+                  </span>
                 </label>
                 <div style={{ display: 'flex', gap: '10px', marginTop: '12px', flexWrap: 'wrap' }}>
                   <a

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle2, ChevronRight, ChevronLeft, Camera, Upload, Send, ShieldCheck, Loader2, X } from 'lucide-react';
 import { uploadImageToCloudinary } from '../utils/cloudinary';
@@ -448,7 +449,11 @@ const HospitalRegistration = () => {
               <div className="terms-section full-width mt-4 p-4 bg-blue-50 rounded-lg border border-blue-100">
                 <label className="flex items-start gap-3 cursor-pointer">
                   <input type="checkbox" checked={agreedToTerms} onChange={(e) => setAgreedToTerms(e.target.checked)} className="mt-1" />
-                  <span className="text-sm font-medium">I authorize HRM Consultancy to verify my hospital details and agree to the Terms &amp; Conditions. All provided information is correct.</span>
+                  <span className="text-sm font-medium">
+                    I authorize HRM Consultancy to verify my hospital details and agree to the{' '}
+                    <Link to="/terms" target="_blank" rel="noopener noreferrer" style={{ color: '#2563eb', textDecoration: 'underline', fontWeight: '600' }}>Terms &amp; Conditions</Link>.
+                    {' '}All provided information is correct.
+                  </span>
                 </label>
                 <div style={{ display: 'flex', gap: '10px', marginTop: '12px', flexWrap: 'wrap' }}>
                   <a

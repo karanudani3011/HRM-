@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
@@ -259,7 +260,10 @@ const PartnerRegistration = () => {
               <div className="terms-section full-width mt-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
                 <label className="flex items-start gap-3 cursor-pointer">
                   <input type="checkbox" checked={agreedToTerms} onChange={e => setAgreedToTerms(e.target.checked)} className="mt-1" />
-                  <span className="text-sm font-medium">I agree to the HRM Partner Program Terms and Conditions.</span>
+                  <span className="text-sm font-medium">
+                    I agree to the HRM Partner Program{' '}
+                    <Link to="/terms" target="_blank" rel="noopener noreferrer" style={{ color: '#2563eb', textDecoration: 'underline', fontWeight: '600' }}>Terms and Conditions</Link>.
+                  </span>
                 </label>
               </div>
             </div>

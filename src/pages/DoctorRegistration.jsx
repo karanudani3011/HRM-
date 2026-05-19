@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
@@ -531,7 +532,7 @@ const DoctorRegistration = () => {
                     onChange={(e) => setAgreedToTerms(e.target.checked)}
                   />
                   <span style={{ fontSize: '14px', color: '#475569', lineHeight: '1.5' }}>
-                    <strong>Terms & Conditions Agreement:</strong> I confirm that I am a registered medical professional and all the details provided are accurate to the best of my knowledge. I authorize HRM Consultancy to verify my credentials with the respective medical councils.
+                    <strong><Link to="/terms" target="_blank" rel="noopener noreferrer" style={{ color: '#2563eb', textDecoration: 'underline' }}>Terms &amp; Conditions Agreement:</Link></strong> I confirm that I am a registered medical professional and all the details provided are accurate to the best of my knowledge. I authorize HRM Consultancy to verify my credentials with the respective medical councils.
                   </span>
                 </label>
               </div>
@@ -585,7 +586,7 @@ const DoctorRegistration = () => {
                     onChange={(e) => setAgreedToTerms(e.target.checked)}
                   />
                   <span style={{ fontSize: '14px', color: '#475569', lineHeight: '1.5' }}>
-                    <strong>Terms & Conditions Agreement:</strong> I confirm that I am a registered medical professional and all the details provided are accurate to the best of my knowledge. I authorize HRM Consultancy to verify my credentials with the respective medical councils.
+                    <strong><Link to="/terms" target="_blank" rel="noopener noreferrer" style={{ color: '#2563eb', textDecoration: 'underline' }}>Terms &amp; Conditions Agreement:</Link></strong> I confirm that I am a registered medical professional and all the details provided are accurate to the best of my knowledge. I authorize HRM Consultancy to verify my credentials with the respective medical councils.
                   </span>
                 </label>
               </div>

@@ -6,6 +6,13 @@ import * as XLSX from 'xlsx';
 import PaymentModal from './PaymentModal';
 import { useAuth } from '../context/AuthContext';
 
+const maskPhoneNumber = (phone) => {
+  if (!phone) return '—';
+  const str = String(phone).trim();
+  if (str.length <= 5) return 'xxxxx';
+  return str.slice(0, -5) + 'xxxxx';
+};
+
 const UIMockups = () => {
   // --- HR Extractor Logic ---
   const [keyword, setKeyword] = useState('');
@@ -280,7 +287,7 @@ const UIMockups = () => {
                         <td><strong>{l.doctor_name_simple_english}</strong></td>
                         <td>{l.city}</td>
                         <td>{l.qualification_specialty}</td>
-                        <td>{l.phone_numbers}</td>
+                        <td>{maskPhoneNumber(l.phone_numbers)}</td>
                         <td style={{ color: isVerified ? '#059669' : '#f59e0b', fontWeight: 'bold' }}>{isVerified ? 'Verified' : 'Pending'}</td>
                       </tr>
                     ))

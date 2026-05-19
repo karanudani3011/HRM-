@@ -3,6 +3,13 @@ import { supabase } from '../lib/supabase';
 import { Search, MapPin, Stethoscope, Phone, Mail, Award, Globe, Navigation, Building2, ShieldCheck, ChevronRight } from 'lucide-react';
 import './DoctorSearch.css';
 
+const maskPhoneNumber = (phone) => {
+  if (!phone) return '—';
+  const str = String(phone).trim();
+  if (str.length <= 5) return 'xxxxx';
+  return str.slice(0, -5) + 'xxxxx';
+};
+
 const DoctorSearch = () => {
   const [keyword, setKeyword] = useState('');
   const [location, setLocation] = useState('');
@@ -158,8 +165,8 @@ const DoctorSearch = () => {
 
                   <div className="card-bottom">
                     <div className="contact-summary">
-                      <a href={`tel:${doc.phone_numbers}`} className="contact-link phone-link" title="Call Doctor">
-                        <Phone size={12} /> {doc.phone_numbers}
+                      <a href={`tel:${maskPhoneNumber(doc.phone_numbers)}`} className="contact-link phone-link" title="Call Doctor">
+                        <Phone size={12} /> {maskPhoneNumber(doc.phone_numbers)}
                       </a>
                       {doc.email ? (
                         <a href={`mailto:${doc.email}`} className="contact-link email-link" title="Email Doctor">

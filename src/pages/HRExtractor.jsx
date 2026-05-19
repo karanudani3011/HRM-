@@ -20,6 +20,13 @@ import PaymentModal from '../components/PaymentModal';
 import { useAuth } from '../context/AuthContext';
 import './HRExtractor.css';
 
+const maskPhoneNumber = (phone) => {
+  if (!phone) return '—';
+  const str = String(phone).trim();
+  if (str.length <= 5) return 'xxxxx';
+  return str.slice(0, -5) + 'xxxxx';
+};
+
 const HRExtractor = () => {
   const { user } = useAuth();
   const [leads, setLeads] = useState([]);
@@ -331,8 +338,7 @@ const HRExtractor = () => {
                         <td>{lead.city}</td>
                         <td>
                           <div className="contact-info-small">
-                            <span>📱 {lead.phone_numbers}</span>
-                            <span>📧 {lead.email || '—'}</span>
+                            <span>📱 {maskPhoneNumber(lead.phone_numbers)}</span>
                           </div>
                         </td>
                         <td>

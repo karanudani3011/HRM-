@@ -12,7 +12,8 @@ import {
   Stethoscope,
   ChevronRight,
   Filter,
-  UserCheck
+  UserCheck,
+  Briefcase
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import EmailOTP from '../components/EmailOTP';
@@ -34,6 +35,7 @@ const HRExtractor = () => {
   const [extracting, setExtracting] = useState(false);
   const [keyword, setKeyword] = useState('');
   const [location, setLocation] = useState('');
+  const [experience, setExperience] = useState('');
   const [isVerified, setIsVerified] = useState(false);
   const [progress, setProgress] = useState(0);
   const [localSearch, setLocalSearch] = useState('');
@@ -251,16 +253,44 @@ const HRExtractor = () => {
                   </div>
                 </div>
 
+                <div className="extraction-field">
+                  <label>Experience Range</label>
+                  <div className="input-box">
+                    <Briefcase size={18} className="red-icon" />
+                    <select 
+                      value={experience}
+                      onChange={(e) => setExperience(e.target.value)}
+                      style={{
+                        border: 'none',
+                        background: 'transparent',
+                        width: '100%',
+                        fontSize: '15px',
+                        outline: 'none',
+                        color: '#374151',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      <option value="">Select Experience...</option>
+                      <option value="0-5">0-5 Year</option>
+                      <option value="5-10">5-10 Year</option>
+                      <option value="10-15">10-15 Year</option>
+                      <option value="15-20">15-20 Year</option>
+                      <option value="20-25">20-25 Year</option>
+                      <option value="25-30">25-30 Year</option>
+                    </select>
+                  </div>
+                </div>
+
                 <div className="premium-verify-box">
                   <div className="premium-info">
                     <UserCheck size={18} className="blue-icon" />
                     <span>Premium Feature: Auto-verify contact numbers & email IDs before export.</span>
                   </div>
-                  <label className="hr-switch">
+                  <label className="hr-switch" style={{ opacity: 0.6, cursor: 'not-allowed' }}>
                     <input 
                       type="checkbox" 
-                      checked={isVerified}
-                      onChange={(e) => setIsVerified(e.target.checked)}
+                      checked={false}
+                      disabled
                     />
                     <span className="hr-slider"></span>
                   </label>

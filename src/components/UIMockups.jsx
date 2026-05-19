@@ -17,6 +17,7 @@ const UIMockups = () => {
   // --- HR Extractor Logic ---
   const [keyword, setKeyword] = useState('');
   const [location, setLocation] = useState('');
+  const [experience, setExperience] = useState('');
   const [leads, setLeads] = useState([]);
   const [extracting, setExtracting] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
@@ -234,12 +235,29 @@ const UIMockups = () => {
                   onChange={(e) => setLocation(e.target.value)}
                 />
               </div>
+              <div className="input-group">
+                <label>Experience Range</label>
+                <select 
+                  className="input-box-active"
+                  value={experience}
+                  onChange={(e) => setExperience(e.target.value)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <option value="">Select Experience...</option>
+                  <option value="0-5">0-5 Year</option>
+                  <option value="5-10">5-10 Year</option>
+                  <option value="10-15">10-15 Year</option>
+                  <option value="15-20">15-20 Year</option>
+                  <option value="20-25">20-25 Year</option>
+                  <option value="25-30">25-30 Year</option>
+                </select>
+              </div>
             </div>
             
             <div className="mockup-alert" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <span><strong>Premium Feature:</strong> Auto-verify contact numbers & email IDs before export.</span>
-              <label className="hr-switch-small">
-                <input type="checkbox" checked={isVerified} onChange={(e) => setIsVerified(e.target.checked)} />
+              <label className="hr-switch-small" style={{ opacity: 0.6, cursor: 'not-allowed' }}>
+                <input type="checkbox" checked={false} disabled />
                 <span className="hr-slider-small"></span>
               </label>
             </div>

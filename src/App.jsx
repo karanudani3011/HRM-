@@ -58,7 +58,7 @@ function App() {
           <Route path="/portal/doctor/register" element={<DoctorRegistration />} />
           <Route path="/portal/hospital/register" element={<HospitalRegistration />} />
           <Route path="/portal/hr/register" element={<HRRegistration />} />
-          <Route path="/portal/hrm-partner/register" element={<PartnerRegistration />} />
+          <Route path="/portal/hrm-partner/register" element={<Navigate to="/" replace />} />
           <Route path="/portal/linkedin-callback" element={<LinkedInCallback />} />
           <Route 
             path="/" 

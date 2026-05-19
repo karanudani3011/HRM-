@@ -50,7 +50,7 @@ const ServicePortals = () => {
             </div>
             <h3>For Patients</h3>
             <p>Find specialists in any city, book video consultations & health records</p>
-            <Link to="/portal/patient" className="access-link">Access Portal &rarr;</Link>
+            <span className="access-link" style={{ opacity: 0.6, cursor: 'not-allowed' }}>Access Portal &rarr;</span>
           </div>
 
           {/* Card 5 */}
@@ -60,7 +60,7 @@ const ServicePortals = () => {
             </div>
             <h3>Join as HRM Partner</h3>
             <p>Partner with us to expand healthcare access, grow your network & earn with HRM's partner ecosystem</p>
-            <Link to="/portal/hrm-partner/register" className="access-link partner-link">Become a Partner &rarr;</Link>
+            <span className="access-link partner-link" style={{ opacity: 0.6, cursor: 'not-allowed' }}>Access Portal &rarr;</span>
           </div>
         </div>
 

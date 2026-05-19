@@ -253,8 +253,41 @@ const HRRegistration = () => {
               <div className="terms-section full-width mt-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
                 <label className="flex items-start gap-3 cursor-pointer">
                   <input type="checkbox" checked={agreedToTerms} onChange={e => setAgreedToTerms(e.target.checked)} className="mt-1" />
-                  <span className="text-sm font-medium">I agree to the HRM Consultancy Terms for HR Professionals.</span>
+                  <span className="text-sm font-medium">I agree to the HRM Consultancy Terms &amp; Conditions for HR Professionals.</span>
                 </label>
+                <div style={{ display: 'flex', gap: '10px', marginTop: '12px', flexWrap: 'wrap' }}>
+                  <a
+                    href="/terms-and-conditions.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: '6px',
+                      padding: '8px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: '600',
+                      background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                      color: '#fff', textDecoration: 'none', boxShadow: '0 2px 8px rgba(59,130,246,0.3)',
+                      transition: 'opacity 0.2s'
+                    }}
+                    onMouseOver={e => e.currentTarget.style.opacity = '0.85'}
+                    onMouseOut={e => e.currentTarget.style.opacity = '1'}
+                  >
+                    📄 Read Terms &amp; Conditions
+                  </a>
+                  <a
+                    href="/terms-and-conditions.pdf"
+                    download="HRM-Terms-and-Conditions.pdf"
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: '6px',
+                      padding: '8px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: '600',
+                      background: 'linear-gradient(135deg, #10b981, #059669)',
+                      color: '#fff', textDecoration: 'none', boxShadow: '0 2px 8px rgba(16,185,129,0.3)',
+                      transition: 'opacity 0.2s'
+                    }}
+                    onMouseOver={e => e.currentTarget.style.opacity = '0.85'}
+                    onMouseOut={e => e.currentTarget.style.opacity = '1'}
+                  >
+                    ⬇ Download PDF
+                  </a>
+                </div>
               </div>
             </div>
           ) : (

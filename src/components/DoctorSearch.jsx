@@ -41,14 +41,14 @@ const DoctorSearch = () => {
     setLoading(true);
     setHasSearched(true);
     try {
-      let query = supabase.from('doctors_data').select('*');
+      let query = supabase.from('hrm_contacts').select('*');
 
       if (kw) {
-        query = query.or(`doctor_name_simple_english.ilike.%${kw}%,qualification_specialty.ilike.%${kw}%`);
+        query = query.or(`name.ilike.%${kw}%,role.ilike.%${kw}%`);
       }
       
       if (loc) {
-        query = query.ilike('city', `%${loc}%`);
+        query = query.ilike('location_or_note', `%${loc}%`);
       }
 
       const { data, error } = await query.limit(20);
@@ -137,36 +137,36 @@ const DoctorSearch = () => {
           ) : (
             <div className="doctor-grid-modern">
               {doctors.map((doc, idx) => (
-                <div key={doc.id} className="modern-doc-card">
+                <div key={doc.row_id || doc.id} className="modern-doc-card">
                   <div className="card-top">
                     {/* Dynamic gradient-colored avatar based on index */}
                     <div className={`doc-avatar-box avatar-grad-${(idx % 4) + 1}`}>
-                      {doc.doctor_name_simple_english?.charAt(0)}
+                      {doc.name?.charAt(0)}
                     </div>
                     <div className="doc-prime-info">
                       <h3 className="doc-name">
-                        Dr. {doc.doctor_name_simple_english}
+                        {doc.name?.startsWith('Dr') ? doc.name : `Dr. ${doc.name}`}
                         <ShieldCheck className="verified-badge-icon" size={16} title="Verified Practitioner" />
                       </h3>
-                      <span className="spec-tag">{doc.qualification_specialty}</span>
+                      <span className="spec-tag">{doc.role || 'General Practitioner'}</span>
                     </div>
                   </div>
                   
                   <div className="card-mid">
                     <div className="info-row">
                       <Award size={14} className="red-icon" />
-                      <span>{doc.qualification_specialty || 'Verified Specialist'}</span>
+                      <span>{doc.role || 'Verified Specialist'}</span>
                     </div>
                     <div className="info-row">
                       <MapPin size={14} className="red-icon" />
-                      <span>{doc.city}, {doc.state || 'India'}</span>
+                      <span>{doc.location_or_note || 'India'}</span>
                     </div>
                   </div>
 
                   <div className="card-bottom">
                     <div className="contact-summary">
-                      <a href={`tel:${maskPhoneNumber(doc.phone_numbers)}`} className="contact-link phone-link" title="Call Doctor">
-                        <Phone size={12} /> {maskPhoneNumber(doc.phone_numbers)}
+                      <a href={`tel:${maskPhoneNumber(doc.phone)}`} className="contact-link phone-link" title="Call Doctor">
+                        <Phone size={12} /> {maskPhoneNumber(doc.phone)}
                       </a>
                       {doc.email ? (
                         <a href={`mailto:${doc.email}`} className="contact-link email-link" title="Email Doctor">
@@ -181,8 +181,7 @@ const DoctorSearch = () => {
                     <button 
                       className="modern-book-btn" 
                       onClick={() => {
-                        const nameSlug = doc.doctor_name_simple_english ? doc.doctor_name_simple_english.toLowerCase().replace(/[^a-z0-9]+/g, '-') : 'practitioner';
-                        window.location.href = `/consultation/dr-${nameSlug}`;
+                        alert("🔒 Premium Consultation Locked\n\nDirect doctor consultation booking is locked. Please contact our premium support desk or upgrade your plan to consult with specialists.");
                       }}
                     >
                       Consult Now

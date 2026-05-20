@@ -93,14 +93,14 @@ const UIMockups = () => {
 
     setExtracting(true);
     try {
-      let query = supabase.from('doctors_data').select('*');
+      let query = supabase.from('hrm_contacts').select('*');
       
       if (kw) {
-        query = query.or(`doctor_name_simple_english.ilike.%${kw}%,qualification_specialty.ilike.%${kw}%`);
+        query = query.or(`name.ilike.%${kw}%,role.ilike.%${kw}%`);
       }
       
       if (loc) {
-        query = query.ilike('city', `%${loc}%`);
+        query = query.ilike('location_or_note', `%${loc}%`);
       }
 
       const { data, error } = await query.limit(100);
@@ -140,7 +140,7 @@ const UIMockups = () => {
   const handleExport = () => {
     if (leads.length === 0) return;
     const worksheet = XLSX.utils.json_to_sheet(leads.map(l => ({
-      'Name': l.doctor_name_simple_english, 'Specialty': l.qualification_specialty, 'Email': l.email, 'Phone': l.phone_numbers, 'City': l.city, 'Verified': isVerified ? 'Yes' : 'No'
+      'Name': l.name, 'Specialty': l.role, 'Email': '—', 'Phone': l.phone, 'City': l.location_or_note || '—', 'Verified': isVerified ? 'Yes' : 'No'
     })));
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Leads");
@@ -148,8 +148,8 @@ const UIMockups = () => {
   };
 
   const filteredLeads = leads.filter(l => 
-    l.doctor_name_simple_english?.toLowerCase().includes(localSearch.toLowerCase()) ||
-    l.qualification_specialty?.toLowerCase().includes(localSearch.toLowerCase())
+    l.name?.toLowerCase().includes(localSearch.toLowerCase()) ||
+    l.role?.toLowerCase().includes(localSearch.toLowerCase())
   );
 
   // --- Doctor Search Logic ---
@@ -183,15 +183,15 @@ const UIMockups = () => {
     setDocLoading(true);
     setHasSearched(true);
     try {
-      let query = supabase.from('doctors_data').select('*');
+      let query = supabase.from('hrm_contacts').select('*');
       
       // Flexible matching using the CORRECT column names
       if (kw) {
-        query = query.or(`doctor_name_simple_english.ilike.%${kw}%,qualification_specialty.ilike.%${kw}%`);
+        query = query.or(`name.ilike.%${kw}%,role.ilike.%${kw}%`);
       }
       
       if (loc) {
-        query = query.ilike('city', `%${loc}%`);
+        query = query.ilike('location_or_note', `%${loc}%`);
       }
 
       const { data, error } = await query.limit(20);
@@ -301,11 +301,11 @@ const UIMockups = () => {
                     <tr><td colSpan="5" style={{ textAlign: 'center', padding: '40px', color: '#999' }}>No data. Enter keyword & click Start Extraction.</td></tr>
                   ) : (
                     filteredLeads.map(l => (
-                      <tr key={l.id}>
-                        <td><strong>{l.doctor_name_simple_english}</strong></td>
-                        <td>{l.city}</td>
-                        <td>{l.qualification_specialty}</td>
-                        <td>{maskPhoneNumber(l.phone_numbers)}</td>
+                      <tr key={l.row_id || l.id}>
+                        <td><strong>{l.name}</strong></td>
+                        <td>{l.location_or_note || '—'}</td>
+                        <td>{l.role}</td>
+                        <td>{maskPhoneNumber(l.phone)}</td>
                         <td style={{ color: isVerified ? '#059669' : '#f59e0b', fontWeight: 'bold' }}>{isVerified ? 'Verified' : 'Pending'}</td>
                       </tr>
                     ))
@@ -358,20 +358,19 @@ const UIMockups = () => {
                 <div style={{ padding: '40px', textAlign: 'center', width: '100%', opacity: 0.5 }}>Search results will appear here.</div>
               ) : (
                 doctors.map(doc => (
-                  <div key={doc.id} className="doc-card">
+                  <div key={doc.row_id || doc.id} className="doc-card">
                     <div className="doc-info">
-                      <div className="doc-avatar-small">{doc.doctor_name_simple_english?.charAt(0)}</div>
+                      <div className="doc-avatar-small">{doc.name?.charAt(0)}</div>
                       <div>
-                        <h4>Dr. {doc.doctor_name_simple_english}</h4>
-                        <p>{doc.qualification_specialty} - {doc.city}</p>
+                        <h4>{doc.name?.startsWith('Dr') ? doc.name : `Dr. ${doc.name}`}</h4>
+                        <p>{doc.role || 'Practitioner'} - {doc.location_or_note || 'India'}</p>
                       </div>
                     </div>
                     <div className="doc-status">Verified</div>
                     <button 
                       className="book-btn" 
                       onClick={() => {
-                        const nameSlug = doc.doctor_name_simple_english ? doc.doctor_name_simple_english.toLowerCase().replace(/[^a-z0-9]+/g, '-') : 'practitioner';
-                        window.location.href = `/consultation/dr-${nameSlug}`;
+                        alert("🔒 Premium Consultation Locked\n\nDirect doctor consultation booking is locked. Please contact our premium support desk or upgrade your plan to consult with specialists.");
                       }}
                     >
                       Consult

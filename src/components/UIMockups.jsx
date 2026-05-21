@@ -183,15 +183,15 @@ const UIMockups = () => {
     setDocLoading(true);
     setHasSearched(true);
     try {
-      let query = supabase.from('hrm_contacts').select('*');
+      let query = supabase.from('doctors_mbbs').select('*');
       
       // Flexible matching using the CORRECT column names
       if (kw) {
-        query = query.or(`name.ilike.%${kw}%,role.ilike.%${kw}%`);
+        query = query.or(`Name.ilike.%${kw}%,"Course(Highest Education)".ilike.%${kw}%`);
       }
       
       if (loc) {
-        query = query.ilike('location_or_note', `%${loc}%`);
+        query = query.ilike('Current Location', `%${loc}%`);
       }
 
       const { data, error } = await query.limit(20);
@@ -358,12 +358,12 @@ const UIMockups = () => {
                 <div style={{ padding: '40px', textAlign: 'center', width: '100%', opacity: 0.5 }}>Search results will appear here.</div>
               ) : (
                 doctors.map(doc => (
-                  <div key={doc.row_id || doc.id} className="doc-card">
+                  <div key={doc.row_id || doc.Name} className="doc-card">
                     <div className="doc-info">
-                      <div className="doc-avatar-small">{doc.name?.charAt(0)}</div>
+                      <div className="doc-avatar-small">{doc.Name?.charAt(0)}</div>
                       <div>
-                        <h4>{doc.name?.startsWith('Dr') ? doc.name : `Dr. ${doc.name}`}</h4>
-                        <p>{doc.role || 'Practitioner'} - {doc.location_or_note || 'India'}</p>
+                        <h4>{doc.Name?.startsWith('Dr') ? doc.Name : `Dr. ${doc.Name}`}</h4>
+                        <p>{doc["Course(Highest Education)"] || 'Practitioner'} - {doc["Current Location"] || 'India'}</p>
                       </div>
                     </div>
                     <div className="doc-status">Verified</div>

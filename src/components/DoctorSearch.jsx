@@ -41,14 +41,14 @@ const DoctorSearch = () => {
     setLoading(true);
     setHasSearched(true);
     try {
-      let query = supabase.from('hrm_contacts').select('*');
+      let query = supabase.from('doctors_mbbs').select('*');
 
       if (kw) {
-        query = query.or(`name.ilike.%${kw}%,role.ilike.%${kw}%`);
+        query = query.or(`Name.ilike.%${kw}%,"Course(Highest Education)".ilike.%${kw}%`);
       }
       
       if (loc) {
-        query = query.ilike('location_or_note', `%${loc}%`);
+        query = query.ilike('Current Location', `%${loc}%`);
       }
 
       const { data, error } = await query.limit(20);
@@ -137,36 +137,36 @@ const DoctorSearch = () => {
           ) : (
             <div className="doctor-grid-modern">
               {doctors.map((doc, idx) => (
-                <div key={doc.row_id || doc.id} className="modern-doc-card">
+                <div key={doc.row_id || doc.Name} className="modern-doc-card">
                   <div className="card-top">
                     {/* Dynamic gradient-colored avatar based on index */}
                     <div className={`doc-avatar-box avatar-grad-${(idx % 4) + 1}`}>
-                      {doc.name?.charAt(0)}
+                      {doc.Name?.charAt(0)}
                     </div>
                     <div className="doc-prime-info">
                       <h3 className="doc-name">
-                        {doc.name?.startsWith('Dr') ? doc.name : `Dr. ${doc.name}`}
+                        {doc.Name?.startsWith('Dr') ? doc.Name : `Dr. ${doc.Name}`}
                         <ShieldCheck className="verified-badge-icon" size={16} title="Verified Practitioner" />
                       </h3>
-                      <span className="spec-tag">{doc.role || 'General Practitioner'}</span>
+                      <span className="spec-tag">{doc["Course(Highest Education)"] || 'MBBS Practitioner'}</span>
                     </div>
                   </div>
                   
                   <div className="card-mid">
                     <div className="info-row">
                       <Award size={14} className="red-icon" />
-                      <span>{doc.role || 'Verified Specialist'}</span>
+                      <span>{doc["Course(Highest Education)"] || 'Verified Specialist'}</span>
                     </div>
                     <div className="info-row">
                       <MapPin size={14} className="red-icon" />
-                      <span>{doc.location_or_note || 'India'}</span>
+                      <span>{doc["Current Location"] || 'India'}</span>
                     </div>
                   </div>
 
                   <div className="card-bottom">
                     <div className="contact-summary">
-                      <a href={`tel:${maskPhoneNumber(doc.phone)}`} className="contact-link phone-link" title="Call Doctor">
-                        <Phone size={12} /> {maskPhoneNumber(doc.phone)}
+                      <a href={`tel:${maskPhoneNumber(doc["Mobile No."])}`} className="contact-link phone-link" title="Call Doctor">
+                        <Phone size={12} /> {maskPhoneNumber(doc["Mobile No."])}
                       </a>
                       {doc.email ? (
                         <a href={`mailto:${doc.email}`} className="contact-link email-link" title="Email Doctor">

@@ -277,21 +277,6 @@ const HRRegistration = () => {
                   >
                     📄 Read Terms &amp; Conditions
                   </a>
-                  <a
-                    href="/terms-and-conditions.pdf"
-                    download="HRM-Terms-and-Conditions.pdf"
-                    style={{
-                      display: 'inline-flex', alignItems: 'center', gap: '6px',
-                      padding: '8px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: '600',
-                      background: 'linear-gradient(135deg, #10b981, #059669)',
-                      color: '#fff', textDecoration: 'none', boxShadow: '0 2px 8px rgba(16,185,129,0.3)',
-                      transition: 'opacity 0.2s'
-                    }}
-                    onMouseOver={e => e.currentTarget.style.opacity = '0.85'}
-                    onMouseOut={e => e.currentTarget.style.opacity = '1'}
-                  >
-                    ⬇ Download PDF
-                  </a>
                 </div>
               </div>
             </div>

@@ -25,6 +25,7 @@ import Services from './pages/Services';
 import Samples from './pages/Samples';
 import FindDoctor from './pages/FindDoctor';
 import VideoConsultation from './pages/VideoConsultation';
+import DeveloperPage from './pages/DeveloperPage';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -81,6 +82,7 @@ function App() {
           <Route path="/terms" element={<TermsConditions />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/about" element={<AboutUs />} />
+          <Route path="/developers" element={<DeveloperPage />} />
           <Route path="/blog" element={<ProtectedRoute><Blog /></ProtectedRoute>} />
           <Route path="/services" element={<ProtectedRoute><Services /></ProtectedRoute>} />
           <Route path="/samples" element={<ProtectedRoute><Samples /></ProtectedRoute>} />

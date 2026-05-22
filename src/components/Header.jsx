@@ -45,6 +45,7 @@ const Header = () => {
             <li><Link to="/samples" onClick={closeMenu}>Samples</Link></li>
             <li><Link to="/hr-extractor" onClick={closeMenu}>HR Tools</Link></li>
             <li><Link to="/find-doctor" onClick={closeMenu}>Find Doctor</Link></li>
+            <li><Link to="/developers" onClick={closeMenu}>Developers</Link></li>
           </ul>
           <div className="nav-actions">
             <Link to="/contact" className="btn-contact" onClick={closeMenu}>Contact Us</Link>

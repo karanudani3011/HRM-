@@ -15,8 +15,15 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
       return;
     }
+
+    // Safety timeout: if Firebase doesn't respond in 6 seconds, unblock the app
+    const safetyTimeout = setTimeout(() => {
+      console.warn('Firebase auth timeout — proceeding without auth.');
+      setLoading(false);
+    }, 6000);
     
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      clearTimeout(safetyTimeout);
       setUser(currentUser);
       setLoading(false);
 
@@ -39,12 +46,43 @@ export const AuthProvider = ({ children }) => {
         }
       }
     });
-    return () => unsubscribe();
+
+    return () => {
+      clearTimeout(safetyTimeout);
+      unsubscribe();
+    };
   }, []);
+
+  if (loading) {
+    return (
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100vh',
+        background: 'linear-gradient(135deg, #1a0000 0%, #2d0a0a 100%)',
+        flexDirection: 'column',
+        gap: '16px',
+      }}>
+        <div style={{
+          width: '48px',
+          height: '48px',
+          border: '4px solid rgba(220,38,38,0.2)',
+          borderTop: '4px solid #dc2626',
+          borderRadius: '50%',
+          animation: 'spin 0.8s linear infinite',
+        }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        <p style={{ color: '#f87171', fontSize: '14px', margin: 0, letterSpacing: '0.05em' }}>
+          Loading…
+        </p>
+      </div>
+    );
+  }
 
   return (
     <AuthContext.Provider value={{ user, loading }}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 };

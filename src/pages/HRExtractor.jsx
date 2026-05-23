@@ -279,15 +279,7 @@ const HRExtractor = () => {
 
       <div className={verifiedEmail ? "" : "content-blur"}>
         <div className="hr-tool-header-section">
-          <div className="container" style={{ position: 'relative' }}>
-            {verifiedEmail && (
-              <button 
-                onClick={() => { setVerifiedEmail(''); setLeads([]); }}
-                style={{ position: 'absolute', top: 0, right: 0, background: 'none', border: '1px solid #bb2a3a', color: '#bb2a3a', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}
-              >
-                Logout ({verifiedEmail})
-              </button>
-            )}
+          <div className="container">
             <div className="hr-badge">HR Recruitment Suite</div>
             <h1>HR B2B <span>Leads Extractor</span></h1>
             <p>Powerful lead generation for healthcare recruitment and business expansion and ✨ Premium Healthcare Network</p>

@@ -224,8 +224,8 @@ const HospitalRegistration = () => {
           formType: 'Hospital Registration',
           createdAt: serverTimestamp(),
         });
-        alert('Hospital Registration Submitted!');
-        navigate('/');
+        localStorage.setItem('hasRegisteredService', 'true');
+        navigate('/registration-success', { state: { formType: 'Hospital Registration' } });
       } catch (err) { alert('Submission failed: ' + err.message); }
     }
   };

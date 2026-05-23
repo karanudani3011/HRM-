@@ -245,8 +245,8 @@ const DoctorRegistration = () => {
           selfie: formData.selfie,
           createdAt: serverTimestamp(),
         });
-        alert('Registration Successful! Our team will contact you shortly.');
-        navigate('/');
+        localStorage.setItem('hasRegisteredService', 'true');
+        navigate('/registration-success', { state: { formType: 'Doctor Registration' } });
       } catch (err) {
         console.error('Firestore error:', err);
         alert('Submission failed: ' + err.message);

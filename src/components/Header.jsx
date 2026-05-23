@@ -9,6 +9,7 @@ import './Header.css';
 const Header = () => {
   const { user } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const hasRegistered = localStorage.getItem('hasRegisteredService') === 'true';
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const closeMenu = () => setIsMenuOpen(false);
@@ -16,6 +17,7 @@ const Header = () => {
   const handleLogout = async () => {
     try {
       await signOut(auth);
+      localStorage.removeItem('hasRegisteredService');
       closeMenu();
     } catch (err) {
       console.error('Logout failed:', err);
@@ -39,14 +41,23 @@ const Header = () => {
         <div className={`nav-overlay ${isMenuOpen ? 'active' : ''}`} onClick={closeMenu}></div>
 
         <nav className={`nav-menu ${isMenuOpen ? 'active' : ''}`}>
-          <ul>
-            <li><Link to="/blog" onClick={closeMenu}>Blog</Link></li>
-            <li><Link to="/services" onClick={closeMenu}>Services</Link></li>
-            <li><Link to="/samples" onClick={closeMenu}>Samples</Link></li>
-            <li><Link to="/hr-extractor" onClick={closeMenu}>HR Tools</Link></li>
-            <li><Link to="/find-doctor" onClick={closeMenu}>Find Doctor</Link></li>
-            <li><Link to="/developers" onClick={closeMenu}>Developers</Link></li>
-          </ul>
+          {hasRegistered ? (
+            <ul>
+              <li><Link to="/find-doctor" onClick={closeMenu}>Find Doctor</Link></li>
+              <li><Link to="/hr-extractor" onClick={closeMenu}>HR Tools</Link></li>
+              <li><Link to="/blog" onClick={closeMenu}>Blog</Link></li>
+              <li><Link to="/samples" onClick={closeMenu}>Samples</Link></li>
+            </ul>
+          ) : (
+            <ul>
+              <li><Link to="/blog" onClick={closeMenu}>Blog</Link></li>
+              <li><Link to="/services" onClick={closeMenu}>Services</Link></li>
+              <li><Link to="/samples" onClick={closeMenu}>Samples</Link></li>
+              <li><Link to="/hr-extractor" onClick={closeMenu}>HR Tools</Link></li>
+              <li><Link to="/find-doctor" onClick={closeMenu}>Find Doctor</Link></li>
+              <li><Link to="/developers" onClick={closeMenu}>Developers</Link></li>
+            </ul>
+          )}
           <div className="nav-actions">
             <Link to="/contact" className="btn-contact" onClick={closeMenu}>Contact Us</Link>
             {user && (

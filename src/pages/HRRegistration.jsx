@@ -160,8 +160,8 @@ const HRRegistration = () => {
           selfie: formData.selfie,
           createdAt: serverTimestamp(),
         });
-        alert('Registration Successful!');
-        navigate('/');
+        localStorage.setItem('hasRegisteredService', 'true');
+        navigate('/registration-success', { state: { formType: 'HR Professional Registration' } });
       } catch (err) { alert('Submission failed: ' + err.message); }
     }
   };

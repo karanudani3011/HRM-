@@ -28,6 +28,16 @@ const maskPhoneNumber = (phone) => {
   return str.slice(0, -5) + 'xxxxx';
 };
 
+const getFirstName = (name) => {
+  if (!name) return '—';
+  const parts = String(name).trim().split(/\s+/);
+  // If name starts with "Dr" or "Dr.", keep prefix + first name
+  if (parts.length > 1 && /^dr\.?$/i.test(parts[0])) {
+    return parts.slice(0, 2).join(' ');
+  }
+  return parts[0];
+};
+
 const matchExperience = (expString, range) => {
   if (!range) return true;
   if (!expString) return false;
@@ -433,7 +443,7 @@ const HRExtractor = () => {
                         <tbody>
                           {filteredLeads.map((lead) => (
                             <tr key={lead.row_id || lead.id}>
-                              <td><strong>{lead.name}</strong></td>
+                              <td><strong>{getFirstName(lead.name)}</strong></td>
                               <td><span className="tag-spec">{lead.role || 'General Practitioner'}</span></td>
                               <td>{lead.location_or_note || 'India'}</td>
                               <td>
@@ -468,7 +478,7 @@ const HRExtractor = () => {
                           {filteredLeads.map((lead) => (
                             <tr key={lead.id}>
                               <td>
-                                <strong>{lead.Name}</strong>
+                                <strong>{getFirstName(lead.Name)}</strong>
                                 {lead.Location && (
                                   <span className="tag-loc" style={{ display: 'block', fontSize: '11px', color: '#475569', marginTop: '2px', fontWeight: '600' }}>
                                     📍 {lead.Location}

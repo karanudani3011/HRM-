@@ -10,6 +10,16 @@ const maskPhoneNumber = (phone) => {
   return str.slice(0, -5) + 'xxxxx';
 };
 
+const getFirstName = (name) => {
+  if (!name) return '—';
+  const parts = String(name).trim().split(/\s+/);
+  // If name starts with "Dr" or "Dr.", keep prefix + first name
+  if (parts.length > 1 && /^dr\.?$/i.test(parts[0])) {
+    return parts.slice(0, 2).join(' ');
+  }
+  return parts[0];
+};
+
 const DoctorSearch = () => {
   const [keyword, setKeyword] = useState('');
   const [location, setLocation] = useState('');
@@ -145,7 +155,7 @@ const DoctorSearch = () => {
                     </div>
                     <div className="doc-prime-info">
                       <h3 className="doc-name">
-                        {doc.Name?.startsWith('Dr') ? doc.Name : `Dr. ${doc.Name}`}
+                        {doc.Name?.startsWith('Dr') ? getFirstName(doc.Name) : `Dr. ${getFirstName(doc.Name)}`}
                         <ShieldCheck className="verified-badge-icon" size={16} title="Verified Practitioner" />
                       </h3>
                       <span className="spec-tag">{doc["Course(Highest Education)"] || 'MBBS Practitioner'}</span>

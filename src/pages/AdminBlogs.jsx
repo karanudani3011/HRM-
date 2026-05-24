@@ -158,7 +158,7 @@ const AdminBlogs = () => {
 
                     <div className="admin-blog-actions">
                       <button 
-                        onClick={() => window.open('/blog', '_blank')} 
+                        onClick={() => window.open(`/blog#${post.id}`, '_blank')} 
                         className="btn-action-view"
                         title="View on Website"
                       >

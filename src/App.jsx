@@ -34,7 +34,7 @@ function AppContent() {
   const location = useLocation();
   const navigate = useNavigate();
   const { hasRegistered } = useAuth();
-  
+
   const isAuthPage = location.pathname.startsWith('/portal/');
   const isAdminPage = location.pathname.startsWith('/admin');
   const isConsultPage = location.pathname.startsWith('/consultation/');
@@ -44,35 +44,15 @@ function AppContent() {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
-  // Route guard: Redirect registered users away from /, /services, /developers to /find-doctor
+  // Redirect registered users away from /services (they've already registered)
   useEffect(() => {
-    if (hasRegistered) {
-      const restrictedPaths = ['/services', '/developers', '/'];
-      if (restrictedPaths.includes(location.pathname)) {
-        navigate('/find-doctor', { replace: true });
-      }
+    if (hasRegistered && location.pathname === '/services') {
+      navigate('/find-doctor', { replace: true });
+    }
+    if (hasRegistered && location.pathname === '/') {
+      navigate('/find-doctor', { replace: true });
     }
   }, [location.pathname, hasRegistered, navigate]);
-
-  // Handle reload/refresh logic
-  useEffect(() => {
-    if (window.performance) {
-      const navEntries = window.performance.getEntriesByType('navigation');
-      if (navEntries.length > 0 && navEntries[0].type === 'reload') {
-        if (hasRegistered) {
-          return; // Skip redirect if user has registered
-        }
-        if (
-          location.pathname !== '/' &&
-          !location.pathname.startsWith('/portal/') &&
-          !location.pathname.startsWith('/admin') &&
-          location.pathname !== '/registration-success'
-        ) {
-          navigate('/', { replace: true });
-        }
-      }
-    }
-  }, [hasRegistered, location.pathname, navigate]);
 
   return (
     <div className="app">
@@ -85,22 +65,8 @@ function AppContent() {
         <Route path="/portal/hr/register" element={<HRRegistration />} />
         <Route path="/portal/hrm-partner/register" element={<Navigate to="/" replace />} />
         <Route path="/portal/linkedin-callback" element={<LinkedInCallback />} />
-        <Route 
-          path="/" 
-          element={
-            <ProtectedRoute>
-              <Home />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/contact" 
-          element={
-            <ProtectedRoute>
-              <ContactUs />
-            </ProtectedRoute>
-          } 
-        />
+        <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+        <Route path="/contact" element={<ProtectedRoute><ContactUs /></ProtectedRoute>} />
         <Route path="/terms" element={<TermsConditions />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/about" element={<AboutUs />} />

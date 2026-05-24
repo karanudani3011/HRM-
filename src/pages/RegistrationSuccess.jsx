@@ -69,10 +69,11 @@ const SuccessHeader = () => {
 
         <nav className={`nav-menu ${isMenuOpen ? 'active' : ''}`}>
           <ul>
-            <li><Link to="/find-doctor" onClick={closeMenu}>Find Doctor</Link></li>
-            <li><Link to="/hr-extractor" onClick={closeMenu}>HR Tools</Link></li>
             <li><Link to="/blog" onClick={closeMenu}>Blog</Link></li>
             <li><Link to="/samples" onClick={closeMenu}>Samples</Link></li>
+            <li><Link to="/hr-extractor" onClick={closeMenu}>HR Tools</Link></li>
+            <li><Link to="/find-doctor" onClick={closeMenu}>Find Doctor</Link></li>
+            <li><Link to="/developers" onClick={closeMenu}>Developers</Link></li>
           </ul>
           <div className="nav-actions">
             <Link to="/contact" className="btn-contact" onClick={closeMenu}>Contact Us</Link>
@@ -117,6 +118,7 @@ const SuccessFooter = () => {
               <li><Link to="/hr-extractor">HR Tools</Link></li>
               <li><Link to="/blog">Blog</Link></li>
               <li><Link to="/samples">Samples</Link></li>
+              <li><Link to="/developers">Developers</Link></li>
               <li><Link to="/contact">Contact Us</Link></li>
               {user && (
                 <li>

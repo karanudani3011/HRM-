@@ -6,13 +6,15 @@ import { signOut } from 'firebase/auth';
 import './Footer.css';
 
 const Footer = () => {
-  const { user } = useAuth();
-  const hasRegistered = localStorage.getItem('hasRegisteredService') === 'true';
+  const { user, hasRegistered, setHasRegistered } = useAuth();
 
   const handleLogout = async () => {
     try {
+      if (user?.email) {
+        localStorage.removeItem(`hasRegisteredService_${user.email.toLowerCase()}`);
+      }
       await signOut(auth);
-      localStorage.removeItem('hasRegisteredService');
+      setHasRegistered(false);
     } catch (err) {
       console.error('Logout failed:', err);
     }

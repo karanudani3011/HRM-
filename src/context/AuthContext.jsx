@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { auth } from '../firebase';
+import { auth, db } from '../firebase';
 import { onAuthStateChanged } from 'firebase/auth';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import { supabase } from '../lib/supabase';
 
 const AuthContext = createContext();
@@ -8,6 +9,7 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [hasRegistered, setHasRegistered] = useState(false);
 
   useEffect(() => {
     if (!auth) {
@@ -25,9 +27,9 @@ export const AuthProvider = ({ children }) => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       clearTimeout(safetyTimeout);
       setUser(currentUser);
-      setLoading(false);
 
       if (currentUser?.email) {
+        // 1. Sync search credits in Supabase
         try {
           const { data, error } = await supabase
             .from('user_search_credits')
@@ -44,7 +46,37 @@ export const AuthProvider = ({ children }) => {
         } catch (err) {
           console.error('Error auto-syncing user to Supabase:', err);
         }
+
+        // 2. Query Firestore database to check if this user has already registered a service
+        try {
+          if (db) {
+            const q = query(
+              collection(db, 'serviceForms'),
+              where('email', '==', currentUser.email)
+            );
+            const querySnapshot = await getDocs(q);
+            if (!querySnapshot.empty) {
+              setHasRegistered(true);
+              localStorage.setItem(`hasRegisteredService_${currentUser.email.toLowerCase()}`, 'true');
+            } else {
+              // Fallback to local storage in case Firestore query is empty but it was set locally
+              const localReg = localStorage.getItem(`hasRegisteredService_${currentUser.email.toLowerCase()}`) === 'true';
+              setHasRegistered(localReg);
+            }
+          } else {
+            const localReg = localStorage.getItem(`hasRegisteredService_${currentUser.email.toLowerCase()}`) === 'true';
+            setHasRegistered(localReg);
+          }
+        } catch (err) {
+          console.error('Error checking service registration from Firestore:', err);
+          const localReg = localStorage.getItem(`hasRegisteredService_${currentUser.email.toLowerCase()}`) === 'true';
+          setHasRegistered(localReg);
+        }
+      } else {
+        setHasRegistered(false);
       }
+
+      setLoading(false);
     });
 
     return () => {
@@ -81,10 +113,11 @@ export const AuthProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading }}>
+    <AuthContext.Provider value={{ user, loading, hasRegistered, setHasRegistered }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
+export default AuthProvider;
 export const useAuth = () => useContext(AuthContext);

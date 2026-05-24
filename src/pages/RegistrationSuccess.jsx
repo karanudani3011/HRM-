@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { auth } from '../firebase';
@@ -32,7 +32,7 @@ const SuccessTopBar = () => {
 
 /* ── Standard-style Header for success page ── */
 const SuccessHeader = () => {
-  const { user } = useAuth();
+  const { user, setHasRegistered } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
@@ -40,7 +40,11 @@ const SuccessHeader = () => {
 
   const handleLogout = async () => {
     try {
+      if (user?.email) {
+        localStorage.removeItem(`hasRegisteredService_${user.email.toLowerCase()}`);
+      }
       await signOut(auth);
+      setHasRegistered(false);
       closeMenu();
     } catch (err) {
       console.error('Logout failed:', err);
@@ -84,11 +88,15 @@ const SuccessHeader = () => {
 
 /* ── Standard-style Footer for success page ── */
 const SuccessFooter = () => {
-  const { user } = useAuth();
+  const { user, setHasRegistered } = useAuth();
 
   const handleLogout = async () => {
     try {
+      if (user?.email) {
+        localStorage.removeItem(`hasRegisteredService_${user.email.toLowerCase()}`);
+      }
       await signOut(auth);
+      setHasRegistered(false);
     } catch (err) {
       console.error('Logout failed:', err);
     }
@@ -153,6 +161,15 @@ const SuccessFooter = () => {
 const RegistrationSuccess = () => {
   const location = useLocation();
   const formType = location.state?.formType || 'Your Registration';
+  const { user, setHasRegistered } = useAuth();
+
+  // Instantly mark the user as registered reactively in AuthContext on mount
+  useEffect(() => {
+    setHasRegistered(true);
+    if (user?.email) {
+      localStorage.setItem(`hasRegisteredService_${user.email.toLowerCase()}`, 'true');
+    }
+  }, [setHasRegistered, user]);
 
   return (
     <div className="reg-success-wrapper">

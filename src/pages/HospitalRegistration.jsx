@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle2, ChevronRight, ChevronLeft, Camera, Upload, Send, ShieldCheck, Loader2, X } from 'lucide-react';
 import { uploadImageToCloudinary } from '../utils/cloudinary';
-import { db } from '../firebase';
+import { db, auth } from '../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import emailjs from '@emailjs/browser';
 import './HospitalRegistration.css';
@@ -224,7 +224,9 @@ const HospitalRegistration = () => {
           formType: 'Hospital Registration',
           createdAt: serverTimestamp(),
         });
-        localStorage.setItem('hasRegisteredService', 'true');
+        if (auth.currentUser?.email) {
+          localStorage.setItem(`hasRegisteredService_${auth.currentUser.email.toLowerCase()}`, 'true');
+        }
         navigate('/registration-success', { state: { formType: 'Hospital Registration' } });
       } catch (err) { alert('Submission failed: ' + err.message); }
     }

@@ -27,12 +27,14 @@ import FindDoctor from './pages/FindDoctor';
 import VideoConsultation from './pages/VideoConsultation';
 import DeveloperPage from './pages/DeveloperPage';
 import RegistrationSuccess from './pages/RegistrationSuccess';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
-function App() {
+function AppContent() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { hasRegistered } = useAuth();
+  
   const isAuthPage = location.pathname.startsWith('/portal/');
   const isAdminPage = location.pathname.startsWith('/admin');
   const isConsultPage = location.pathname.startsWith('/consultation/');
@@ -42,21 +44,21 @@ function App() {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
+  // Route guard: Redirect registered users away from /, /services, /developers to /find-doctor
   useEffect(() => {
-    const hasRegistered = localStorage.getItem('hasRegisteredService') === 'true';
     if (hasRegistered) {
       const restrictedPaths = ['/services', '/developers', '/'];
       if (restrictedPaths.includes(location.pathname)) {
         navigate('/find-doctor', { replace: true });
       }
     }
-  }, [location.pathname, navigate]);
+  }, [location.pathname, hasRegistered, navigate]);
 
+  // Handle reload/refresh logic
   useEffect(() => {
     if (window.performance) {
       const navEntries = window.performance.getEntriesByType('navigation');
       if (navEntries.length > 0 && navEntries[0].type === 'reload') {
-        const hasRegistered = localStorage.getItem('hasRegisteredService') === 'true';
         if (hasRegistered) {
           return; // Skip redirect if user has registered
         }
@@ -70,56 +72,62 @@ function App() {
         }
       }
     }
-  }, []);
+  }, [hasRegistered, location.pathname, navigate]);
 
   return (
+    <div className="app">
+      {!isAuthPage && !isAdminPage && !isConsultPage && !isSuccessPage && <TopBar />}
+      {!isAuthPage && !isAdminPage && !isConsultPage && !isSuccessPage && <Header />}
+      <Routes>
+        <Route path="/portal/:type" element={<PortalLogin />} />
+        <Route path="/portal/doctor/register" element={<DoctorRegistration />} />
+        <Route path="/portal/hospital/register" element={<HospitalRegistration />} />
+        <Route path="/portal/hr/register" element={<HRRegistration />} />
+        <Route path="/portal/hrm-partner/register" element={<Navigate to="/" replace />} />
+        <Route path="/portal/linkedin-callback" element={<LinkedInCallback />} />
+        <Route 
+          path="/" 
+          element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/contact" 
+          element={
+            <ProtectedRoute>
+              <ContactUs />
+            </ProtectedRoute>
+          } 
+        />
+        <Route path="/terms" element={<TermsConditions />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/about" element={<AboutUs />} />
+        <Route path="/developers" element={<DeveloperPage />} />
+        <Route path="/registration-success" element={<ProtectedRoute><RegistrationSuccess /></ProtectedRoute>} />
+        <Route path="/blog" element={<ProtectedRoute><Blog /></ProtectedRoute>} />
+        <Route path="/services" element={<ProtectedRoute><Services /></ProtectedRoute>} />
+        <Route path="/samples" element={<ProtectedRoute><Samples /></ProtectedRoute>} />
+        <Route path="/find-doctor" element={<ProtectedRoute><FindDoctor /></ProtectedRoute>} />
+        <Route path="/admin/services" element={<AdminServiceSubmissions />} />
+        <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/leads" element={<AdminLeads />} />
+        <Route path="/admin/blogs" element={<AdminBlogs />} />
+        <Route path="/hr-extractor" element={<ProtectedRoute><HRExtractor /></ProtectedRoute>} />
+        <Route path="/consultation/:roomId" element={<ProtectedRoute><VideoConsultation /></ProtectedRoute>} />
+      </Routes>
+      {!isAuthPage && !isAdminPage && !isConsultPage && !isSuccessPage && <Footer />}
+    </div>
+  );
+}
+
+function App() {
+  return (
     <AuthProvider>
-      <div className="app">
-        {!isAuthPage && !isAdminPage && !isConsultPage && !isSuccessPage && <TopBar />}
-        {!isAuthPage && !isAdminPage && !isConsultPage && !isSuccessPage && <Header />}
-        <Routes>
-          <Route path="/portal/:type" element={<PortalLogin />} />
-          <Route path="/portal/doctor/register" element={<DoctorRegistration />} />
-          <Route path="/portal/hospital/register" element={<HospitalRegistration />} />
-          <Route path="/portal/hr/register" element={<HRRegistration />} />
-          <Route path="/portal/hrm-partner/register" element={<Navigate to="/" replace />} />
-          <Route path="/portal/linkedin-callback" element={<LinkedInCallback />} />
-          <Route 
-            path="/" 
-            element={
-              <ProtectedRoute>
-                <Home />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/contact" 
-            element={
-              <ProtectedRoute>
-                <ContactUs />
-              </ProtectedRoute>
-            } 
-          />
-          <Route path="/terms" element={<TermsConditions />} />
-          <Route path="/privacy" element={<PrivacyPolicy />} />
-          <Route path="/about" element={<AboutUs />} />
-          <Route path="/developers" element={<DeveloperPage />} />
-          <Route path="/registration-success" element={<ProtectedRoute><RegistrationSuccess /></ProtectedRoute>} />
-          <Route path="/blog" element={<ProtectedRoute><Blog /></ProtectedRoute>} />
-          <Route path="/services" element={<ProtectedRoute><Services /></ProtectedRoute>} />
-          <Route path="/samples" element={<ProtectedRoute><Samples /></ProtectedRoute>} />
-          <Route path="/find-doctor" element={<ProtectedRoute><FindDoctor /></ProtectedRoute>} />
-          <Route path="/admin/services" element={<AdminServiceSubmissions />} />
-          <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
-          <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route path="/admin/leads" element={<AdminLeads />} />
-          <Route path="/admin/blogs" element={<AdminBlogs />} />
-          <Route path="/hr-extractor" element={<ProtectedRoute><HRExtractor /></ProtectedRoute>} />
-          <Route path="/consultation/:roomId" element={<ProtectedRoute><VideoConsultation /></ProtectedRoute>} />
-        </Routes>
-        {!isAuthPage && !isAdminPage && !isConsultPage && !isSuccessPage && <Footer />}
-      </div>
+      <AppContent />
     </AuthProvider>
   );
 }

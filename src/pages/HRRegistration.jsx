@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-import { db } from '../firebase';
+import { db, auth } from '../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { uploadImageToCloudinary } from '../utils/cloudinary';
 import { CheckCircle2, ChevronRight, ChevronLeft, Send, Camera, Loader2, ShieldCheck } from 'lucide-react';
@@ -160,7 +160,9 @@ const HRRegistration = () => {
           selfie: formData.selfie,
           createdAt: serverTimestamp(),
         });
-        localStorage.setItem('hasRegisteredService', 'true');
+        if (auth.currentUser?.email) {
+          localStorage.setItem(`hasRegisteredService_${auth.currentUser.email.toLowerCase()}`, 'true');
+        }
         navigate('/registration-success', { state: { formType: 'HR Professional Registration' } });
       } catch (err) { alert('Submission failed: ' + err.message); }
     }

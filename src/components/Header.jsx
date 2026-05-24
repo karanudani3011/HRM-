@@ -7,17 +7,19 @@ import { signOut } from 'firebase/auth';
 import './Header.css';
 
 const Header = () => {
-  const { user } = useAuth();
+  const { user, hasRegistered, setHasRegistered } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const hasRegistered = localStorage.getItem('hasRegisteredService') === 'true';
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const closeMenu = () => setIsMenuOpen(false);
 
   const handleLogout = async () => {
     try {
+      if (user?.email) {
+        localStorage.removeItem(`hasRegisteredService_${user.email.toLowerCase()}`);
+      }
       await signOut(auth);
-      localStorage.removeItem('hasRegisteredService');
+      setHasRegistered(false);
       closeMenu();
     } catch (err) {
       console.error('Logout failed:', err);

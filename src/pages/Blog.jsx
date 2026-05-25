@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { collection, query, orderBy, onSnapshot, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import UploadPostModal from '../components/UploadPostModal';
-import { Upload, Trash2, Share2, Check } from 'lucide-react';
+import { Upload, Trash2, Share2, Check, X, ExternalLink } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import './Blog.css';
 
@@ -10,7 +10,11 @@ const Blog = () => {
   const [posts, setPosts] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
+  const [selectedPost, setSelectedPost] = useState(null);
   const { user } = useAuth();
+
+  const openPost = (post) => setSelectedPost(post);
+  const closePost = () => setSelectedPost(null);
 
   useEffect(() => {
     if (!db) return;
@@ -68,14 +72,105 @@ const Blog = () => {
         </button>
       </div>
 
+      {/* ── Fullscreen Blog Detail Modal ── */}
+      {selectedPost && (
+        <div className="blog-detail-fullscreen-overlay">
+          <button className="blog-detail-close-btn" onClick={closePost} title="Close Detail View">
+            <X size={28} />
+          </button>
+
+          <div className="blog-detail-container">
+            {/* Left Side: Immersive Image Viewer */}
+            <div className="blog-detail-media-panel">
+              {selectedPost.imageUrl ? (
+                <div className="blog-detail-image-wrapper">
+                  <img
+                    src={selectedPost.imageUrl}
+                    alt={selectedPost.title}
+                    className="blog-detail-fullscreen-image"
+                    onClick={() => window.open(selectedPost.imageUrl, '_blank')}
+                    title="Click to view original image in new tab"
+                  />
+                  <div className="blog-detail-media-hint">Click image to view original in new tab ↗</div>
+                </div>
+              ) : (
+                <div className="blog-detail-no-image">No Image Available</div>
+              )}
+            </div>
+
+            {/* Right Side: Scrollable Details Panel */}
+            <div className="blog-detail-info-panel">
+              <div className="blog-detail-info-content">
+                <span className="blog-detail-tag">{selectedPost.category}</span>
+                <h1 className="blog-detail-main-title">{selectedPost.title}</h1>
+
+                <div className="blog-detail-meta-row">
+                  <div className="blog-detail-author-avatar">
+                    {selectedPost.author ? selectedPost.author.charAt(0).toUpperCase() : 'A'}
+                  </div>
+                  <div className="blog-detail-author-meta">
+                    <span className="author-name">Published by {selectedPost.author || 'Administrator'}</span>
+                    <span className="publish-date">{formatDate(selectedPost.createdAt)}</span>
+                  </div>
+                </div>
+
+                <div className="blog-detail-divider" />
+
+                <div className="blog-detail-body-text">
+                  {selectedPost.excerpt}
+                </div>
+
+                {selectedPost.externalUrl && (
+                  <div className="blog-detail-link-box">
+                    <a
+                      href={selectedPost.externalUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="blog-detail-external-btn"
+                    >
+                      <ExternalLink size={16} />
+                      Read Original Article
+                    </a>
+                  </div>
+                )}
+              </div>
+
+              <div className="blog-detail-action-footer">
+                <button
+                  className={`blog-share-btn ${copiedId === selectedPost.id ? 'copied' : ''}`}
+                  onClick={() => handleCopyLink(selectedPost)}
+                  title="Copy Link to Share"
+                >
+                  {copiedId === selectedPost.id ? (
+                    <>
+                      <Check size={14} style={{ color: '#ffffff' }} />
+                      <span>Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Share2 size={14} />
+                      <span>Share Post</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="blog-grid container">
         {posts.length > 0 ? (
           posts.map((post) => (
             <div key={post.id} className="blog-card" id={post.id}>
-              <div 
-                className="blog-image" 
+              <div
+                className="blog-image blog-image-clickable"
                 style={{ backgroundImage: `url(${post.imageUrl || '/placeholder-blog.jpg'})` }}
-              ></div>
+                onClick={() => openPost(post)}
+                title="Click to view full post"
+              >
+                <div className="blog-image-zoom-hint">🔍 View</div>
+              </div>
               <div className="blog-content">
                 <div className="blog-meta">
                   <span className="blog-category">{post.category}</span>
@@ -89,7 +184,7 @@ const Blog = () => {
                     </button>
                   )}
                 </div>
-                <h3 className="blog-title">{post.title}</h3>
+                <h3 className="blog-title blog-title-clickable" onClick={() => openPost(post)}>{post.title}</h3>
                 <p className="blog-excerpt">{post.excerpt}</p>
                 {post.externalUrl && (
                   <a 

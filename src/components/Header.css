@@ -61,12 +61,12 @@
 .nav-menu {
   display: flex;
   align-items: center;
-  gap: 30px;
+  gap: 16px;
 }
 
 .nav-menu ul {
   display: flex;
-  gap: 25px;
+  gap: 15px;
 }
 
 .nav-menu a {
@@ -80,18 +80,24 @@
   color: var(--primary-red);
 }
 
-.btn-contact {
+.nav-menu .btn-contact {
   background-color: var(--primary-red);
-  color: var(--white);
-  padding: 10px 24px;
+  color: var(--white) !important;
+  padding: 10px 20px;
   border-radius: 50px;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 
-.btn-contact:hover {
+.nav-menu .btn-contact:hover {
   background-color: var(--dark-red);
+  color: var(--white) !important;
   transform: translateY(-2px);
 }
 
@@ -101,21 +107,26 @@
   gap: 15px;
 }
 
-.btn-logout {
+.nav-menu .btn-logout {
   background: none;
-  border: 1px solid var(--primary-red);
-  color: var(--primary-red);
-  padding: 8px 20px;
+  border: 1.5px solid var(--primary-red);
+  color: var(--primary-red) !important;
+  padding: 8px 18px;
   border-radius: 50px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 
-.btn-logout:hover {
+.nav-menu .btn-logout:hover {
   background-color: var(--primary-red);
-  color: var(--white);
+  color: var(--white) !important;
 }
 
 .mobile-toggle {
@@ -145,7 +156,8 @@
 .nav-actions {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 12px;
+  flex-shrink: 0;
 }
 
 @media (max-width: 992px) {
@@ -213,13 +225,13 @@
     gap: 15px;
   }
 
-  .btn-contact {
+  .nav-menu .btn-contact {
     width: 100%;
     text-align: center;
     padding: 12px;
   }
 
-  .btn-logout {
+  .nav-menu .btn-logout {
     width: 100%;
     text-align: center;
     padding: 10px;
@@ -229,5 +241,55 @@
 @media (max-width: 480px) {
   .logo-text {
     display: none;
+  }
+}
+
+/* User Profile Badge in Header */
+.header-user-badge {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.header-avatar-link {
+  display: flex;
+  align-items: center;
+  transition: transform 0.2s ease;
+}
+
+.header-avatar-link:hover {
+  transform: scale(1.05);
+}
+
+.header-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--primary-red);
+  box-shadow: 0 2px 8px rgba(187, 42, 58, 0.15);
+}
+
+.header-avatar-fallback {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 16px;
+  background: linear-gradient(135deg, var(--primary-red) 0%, #ff6b6b 100%);
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 8px rgba(187, 42, 58, 0.15);
+}
+
+@media (max-width: 992px) {
+  .header-user-badge {
+    flex-direction: column-reverse;
+    width: 100%;
+    align-items: flex-start;
+    gap: 15px;
   }
 }

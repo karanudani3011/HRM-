@@ -1,14 +1,61 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { auth } from '../firebase';
 import { signOut } from 'firebase/auth';
+import { supabase } from '../lib/supabase';
 import './Header.css';
 
 const Header = () => {
   const { user, hasRegistered, setHasRegistered } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [profile, setProfile] = useState(null);
+
+  // Fetch avatar and name from Supabase user_profiles
+  useEffect(() => {
+    const fetchHeaderProfile = async () => {
+      if (!user?.email) {
+        setProfile(null);
+        return;
+      }
+      try {
+        const { data } = await supabase
+          .from('user_profiles')
+          .select('avatar_url, full_name')
+          .eq('email', user.email.toLowerCase())
+          .maybeSingle();
+        
+        if (data) {
+          setProfile(data);
+        } else {
+          setProfile(null);
+        }
+      } catch (err) {
+        console.error('Error fetching profile for header:', err);
+      }
+    };
+
+    fetchHeaderProfile();
+  }, [user]);
+
+  // Listen to profile updates from the Home dashboard to dynamically refresh the avatar
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      if (user?.email) {
+        supabase
+          .from('user_profiles')
+          .select('avatar_url, full_name')
+          .eq('email', user.email.toLowerCase())
+          .maybeSingle()
+          .then(({ data }) => {
+            if (data) setProfile(data);
+          });
+      }
+    };
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+    return () => window.removeEventListener('profileUpdated', handleProfileUpdate);
+  }, [user]);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const closeMenu = () => setIsMenuOpen(false);
@@ -54,7 +101,18 @@ const Header = () => {
           <div className="nav-actions">
             <Link to="/contact" className="btn-contact" onClick={closeMenu}>Contact Us</Link>
             {user && (
-              <button onClick={handleLogout} className="btn-logout">Logout</button>
+              <div className="header-user-badge">
+                <Link to="/" className="header-avatar-link" onClick={closeMenu} title="Go to Dashboard">
+                  {profile?.avatar_url ? (
+                    <img src={profile.avatar_url} alt="Profile" className="header-avatar" />
+                  ) : (
+                    <div className="header-avatar-fallback">
+                      {(profile?.full_name || user.email || 'U').charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                </Link>
+                <button onClick={handleLogout} className="btn-logout">Logout</button>
+              </div>
             )}
           </div>
         </nav>

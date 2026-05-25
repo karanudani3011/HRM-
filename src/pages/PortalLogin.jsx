@@ -1,24 +1,36 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
+import React, { useEffect, useState, useRef } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { auth, db } from '../firebase';
-import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import {
-  signInWithPopup,
-  GoogleAuthProvider,
   signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  fetchSignInMethodsForEmail
+  createUserWithEmailAndPassword
 } from 'firebase/auth';
+import { Upload } from 'lucide-react';
+import { supabase } from '../lib/supabase';
+import { uploadImageToCloudinary } from '../utils/cloudinary';
 import './PortalLogin.css';
 
 const PortalLogin = () => {
   const { type } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const fileInputRef = useRef(null);
+
+  // Form states
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [role, setRole] = useState(type || 'user');
+  const [locationField, setLocationField] = useState('');
+  const [bio, setBio] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
+
+  // UI/Loading states
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   // Redirect if already logged in
@@ -29,66 +41,110 @@ const PortalLogin = () => {
     window.scrollTo(0, 0);
   }, [navigate]);
 
+  // Sync role selector when type parameter changes
+  useEffect(() => {
+    if (type && type !== 'login') {
+      setRole(type);
+    }
+  }, [type]);
+
   const from = location.state?.from?.pathname || "/";
 
-  const handleSocialLogin = async (providerName) => {
-    setError('');
-    setLoading(true);
-    let provider;
-    if (providerName === 'google') {
-      provider = new GoogleAuthProvider();
-    } else if (providerName === 'linkedin') {
-      const clientId = import.meta.env.VITE_LINKEDIN_CLIENT_ID;
-      const redirectUri = encodeURIComponent(window.location.origin + '/portal/linkedin-callback');
-      const scope = encodeURIComponent('openid profile email');
-      const authUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}`;
-      window.location.href = authUrl;
+  // Trigger file selection for avatar upload
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
+  };
+
+  // Upload profile photo to Cloudinary
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('Invalid file format. Please select an image file.');
       return;
     }
 
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File size too large. Please select an image smaller than 5MB.');
+      return;
+    }
+
+    setUploadingAvatar(true);
     try {
-      const userCredential = await signInWithPopup(auth, provider);
-      if (db) {
-        const userDocRef = doc(db, 'users', userCredential.user.uid);
-        const userDocSnap = await getDoc(userDocRef);
-        if (!userDocSnap.exists()) {
-          await setDoc(userDocRef, {
-            email: userCredential.user.email,
-            createdAt: serverTimestamp(),
-            type: type || 'user'
-          });
-        }
-      }
-      navigate(from, { replace: true });
+      const url = await uploadImageToCloudinary(file);
+      setAvatarUrl(url);
     } catch (err) {
-      console.error(err);
-      setError(`Failed to sign in with ${providerName}. Please try again.`);
+      console.error('Avatar upload failed:', err);
+      alert('Failed to upload image. Please try again.');
     } finally {
-      setLoading(false);
+      setUploadingAvatar(false);
     }
   };
 
-  const handleEmailAuth = async (e) => {
+  // Unified form submission (Log in if exists, otherwise sign up with details)
+  const handleAuthSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
-      // Try sign in first
+      // 1. Try to sign in first
       await signInWithEmailAndPassword(auth, email, password);
       navigate(from, { replace: true });
     } catch (err) {
-      // If user not found or invalid credential, try creating account
+      // 2. If the user doesn't exist, create an account using all details
       if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
+        if (!fullName.trim()) {
+          setError('Full Name is required to register a new account.');
+          setLoading(false);
+          return;
+        }
+
         try {
           const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+          
+          // Store Firestore user
           if (db) {
             await setDoc(doc(db, 'users', userCredential.user.uid), {
               email: userCredential.user.email,
               createdAt: serverTimestamp(),
-              type: type || 'user'
+              type: type || role
             });
           }
+
+          // Store Supabase Profile
+          const newProfile = {
+            email: email.toLowerCase(),
+            full_name: fullName.trim(),
+            phone: phone.trim(),
+            role: role,
+            location: locationField.trim(),
+            bio: bio.trim(),
+            avatar_url: avatarUrl,
+            updated_at: new Date().toISOString()
+          };
+
+          const { error: profileErr } = await supabase
+            .from('user_profiles')
+            .insert([newProfile]);
+
+          if (profileErr) {
+            console.error('Error inserting profile metadata to Supabase:', profileErr);
+          }
+
+          // Provision searches remaining in credits
+          try {
+            await supabase
+              .from('user_search_credits')
+              .insert([{ email: email.toLowerCase(), searches_remaining: 3, plan_level: 'free' }]);
+          } catch (creditErr) {
+            console.error('Error auto-syncing credits in Supabase:', creditErr);
+          }
+
+          // Dispatch profile updated event to synchronize other page widgets (e.g. Header)
+          window.dispatchEvent(new Event('profileUpdated'));
+
           navigate(from, { replace: true });
         } catch (signUpErr) {
           console.error(signUpErr);
@@ -129,37 +185,142 @@ const PortalLogin = () => {
       <div className="login-card">
         <div className="login-card-header">
           <h1>Welcome</h1>
-          <p>{`Sign in to HRM Consultancy ${type.charAt(0).toUpperCase() + type.slice(1)} portal`}</p>
+          <p>{`Sign in or enter details to register for HRM Consultancy ${type ? (type.charAt(0).toUpperCase() + type.slice(1) + ' portal') : 'Portal'}`}</p>
         </div>
 
-        <div className="social-login-section">
-          <button className="social-btn-large" onClick={() => handleSocialLogin('google')} disabled={loading}>
-            <svg viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
-              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.47 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 12-4.53z" fill="#EA4335" />
-            </svg>
-            Continue with Google
-          </button>
+        <form className="email-login-form" onSubmit={handleAuthSubmit}>
+          
+          {/* Avatar / Profile photo upload widget */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '10px' }}>
+            <div 
+              className={`avatar-uploader-circle ${avatarUrl ? 'has-image' : ''}`}
+              onClick={triggerFileInput}
+              style={{
+                width: '85px',
+                height: '85px',
+                borderRadius: '50%',
+                border: '2px dashed rgba(37, 99, 235, 0.3)',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                position: 'relative',
+                cursor: 'pointer',
+                overflow: 'hidden',
+                backgroundColor: 'rgba(37, 99, 235, 0.02)',
+                transition: 'all 0.2s'
+              }}
+            >
+              {uploadingAvatar ? (
+                <div className="spinner" style={{ width: '16px', height: '16px', borderTopColor: '#2563eb' }}></div>
+              ) : avatarUrl ? (
+                <>
+                  <img src={avatarUrl} alt="Avatar Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <div className="avatar-upload-overlay" style={{ fontSize: '10px' }}>
+                    <Upload size={12} />
+                    <span>Change</span>
+                  </div>
+                </>
+              ) : (
+                <div className="avatar-upload-placeholder" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px', color: '#6b7280', fontSize: '10px' }}>
+                  <Upload size={18} style={{ color: '#2563eb' }} />
+                  <span>Photo</span>
+                </div>
+              )}
+            </div>
+            <span style={{ fontSize: '11px', color: '#6b7280', marginTop: '6px', fontWeight: '500' }}>
+              Upload Profile Picture (New Accounts)
+            </span>
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              onChange={handleAvatarUpload} 
+              accept="image/*" 
+              style={{ display: 'none' }} 
+            />
+          </div>
 
-          <button className="social-btn-large" onClick={() => handleSocialLogin('linkedin')} disabled={loading}>
-            <svg viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
-              <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" fill="#0077b5" />
-            </svg>
-            Continue with LinkedIn
-          </button>
-        </div>
-
-        <div className="form-divider" style={{ display: 'flex', alignItems: 'center', margin: '20px 0', color: '#9ca3af', fontSize: '14px' }}>
-          <div style={{ flex: 1, height: '1px', backgroundColor: '#e5e7eb' }}></div>
-          <span style={{ padding: '0 10px' }}>OR</span>
-          <div style={{ flex: 1, height: '1px', backgroundColor: '#e5e7eb' }}></div>
-        </div>
-
-        <form className="email-login-form" onSubmit={handleEmailAuth}>
+          {/* Profile Details Fields */}
           <div className="form-input-group">
-            <label>Email Address</label>
+            <label>Full Name *</label>
+            <input
+              type="text"
+              placeholder="e.g. John Doe (Required for signup)"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+            />
+          </div>
+
+          <div className="form-input-group">
+            <label>Phone Number</label>
+            <input
+              type="tel"
+              placeholder="e.g. +91 9876543210"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
+          </div>
+
+          <div className="form-input-group">
+            <label>Professional Role *</label>
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              style={{
+                padding: '14px 16px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '12px',
+                fontSize: '15px',
+                backgroundColor: '#f9fafb',
+                outline: 'none',
+                fontFamily: 'inherit',
+                color: '#374151'
+              }}
+              required
+            >
+              <option value="user">General User / Patient</option>
+              <option value="doctor">Medical Specialist / Doctor</option>
+              <option value="hr">HR Professional / Employer</option>
+              <option value="hospital">Hospital Administrator</option>
+              <option value="partner">HRM Network Partner</option>
+            </select>
+          </div>
+
+          <div className="form-input-group">
+            <label>Location / City</label>
+            <input
+              type="text"
+              placeholder="e.g. Mumbai, India"
+              value={locationField}
+              onChange={(e) => setLocationField(e.target.value)}
+            />
+          </div>
+
+          <div className="form-input-group">
+            <label>Professional Bio / Summary</label>
+            <textarea
+              placeholder="Describe your background or healthcare requirements..."
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              style={{
+                padding: '14px 16px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '12px',
+                fontSize: '15px',
+                backgroundColor: '#f9fafb',
+                outline: 'none',
+                resize: 'vertical',
+                minHeight: '70px',
+                fontFamily: 'inherit',
+                color: '#374151'
+              }}
+            />
+          </div>
+
+          <div style={{ height: '1px', backgroundColor: '#e5e7eb', margin: '10px 0' }} />
+
+          {/* Credentials Section */}
+          <div className="form-input-group">
+            <label>Email Address *</label>
             <input
               type="email"
               placeholder="you@example.com"
@@ -171,11 +332,11 @@ const PortalLogin = () => {
           </div>
 
           <div className="form-input-group">
-            <label>Password</label>
+            <label>Password *</label>
             <div className="password-field-wrapper">
               <input
                 type={showPassword ? 'text' : 'password'}
-                placeholder="Enter your password"
+                placeholder="Enter password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={loading}
@@ -195,17 +356,10 @@ const PortalLogin = () => {
 
           {error && <div className="login-error-msg">{error}</div>}
 
-          <button type="submit" className="login-main-btn" disabled={loading}>
+          <button type="submit" className="login-main-btn" disabled={loading || uploadingAvatar}>
             {loading ? 'Processing...' : 'Continue'}
           </button>
-          
-          {type === 'doctor' && (
-            <div className="register-link-container" style={{ textAlign: 'center', marginTop: '15px', fontSize: '14px' }}>
-              Don't have an account? <Link to="/portal/doctor/register" style={{ color: 'var(--primary-red)', fontWeight: '600' }}>Register as a Doctor</Link>
-            </div>
-          )}
         </form>
-
 
         <div className="login-footer">
           By continuing, you agree to our Terms & Privacy Policy

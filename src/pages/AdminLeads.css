@@ -1,92 +1,74 @@
-/* ─── Extractor Control Panel ─── */
+/* =====================================================
+   AdminLeads.css
+   Enterprise palette: Charcoal + HRM Red
+   ===================================================== */
+
+/* ── Extractor Control Panel ── */
 .extractor-control-panel {
-  background: #111827;
-  border: 1px solid rgba(255,255,255,0.07);
-  border-radius: 16px;
-  padding: 30px;
-  margin-bottom: 30px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  background: #141415;
+  border: 1px solid #2a2a2c;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
 }
 
 .extractor-inputs-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 24px;
-  margin-bottom: 24px;
+  gap: 20px;
+  margin-bottom: 20px;
 }
 
 .extractor-input-group {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .extractor-input-group label {
-  font-size: 13px;
-  font-weight: 600;
-  color: rgba(255,255,255,0.5);
+  font-size: 11px;
+  font-weight: 700;
+  color: #5a5a5e;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
 }
 
 .input-with-icon {
   display: flex;
   align-items: center;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 12px;
-  padding: 0 16px;
-  height: 52px;
-  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid #2a2a2c;
+  border-radius: 8px;
+  padding: 0 14px;
+  height: 46px;
+  transition: all 0.15s ease;
 }
 
 .input-with-icon:focus-within {
-  border-color: #3b82f6;
-  background: rgba(59,130,246,0.05);
-  box-shadow: 0 0 0 4px rgba(59,130,246,0.1);
+  border-color: #c0392b;
+  background: rgba(192, 57, 43, 0.04);
 }
 
 .input-icon {
-  color: #60a5fa;
-  margin-right: 12px;
+  color: #8a8a8e;
+  margin-right: 10px;
 }
 
 .input-with-icon input {
   background: transparent;
   border: none;
-  color: white;
+  color: #f0f0f0;
   width: 100%;
-  font-size: 15px;
-  outline: none;
-}
-
-/* Premium Toggle */
-.extractor-premium-toggle {
-  grid-column: span 2;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
-  background: rgba(59,130,246,0.08);
-  border: 1px solid rgba(59,130,246,0.2);
-  border-radius: 12px;
-}
-
-.premium-label {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: #93c5fd;
   font-size: 14px;
-  font-weight: 500;
+  outline: none;
 }
 
 /* Switch Styles */
 .switch {
   position: relative;
   display: inline-block;
-  width: 44px;
-  height: 22px;
+  width: 42px;
+  height: 20px;
 }
 
 .switch input { 
@@ -98,100 +80,109 @@
 .slider {
   position: absolute;
   cursor: pointer;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background-color: rgba(255,255,255,0.1);
-  transition: .4s;
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.1);
+  transition: 0.3s;
 }
 
 .slider:before {
   position: absolute;
   content: "";
-  height: 16px; width: 16px;
-  left: 3px; bottom: 3px;
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
   background-color: white;
-  transition: .4s;
+  transition: 0.3s;
 }
 
-input:checked + .slider { background-color: #3b82f6; }
-input:checked + .slider:before { transform: translateX(22px); }
-.slider.round { border-radius: 34px; }
-.slider.round:before { border-radius: 50%; }
+input:checked + .slider {
+  background-color: #c0392b;
+}
+
+input:checked + .slider:before {
+  transform: translateX(22px);
+}
+
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
 
 /* Actions */
 .extractor-actions {
   display: flex;
-  gap: 16px;
-  margin-top: 24px;
+  gap: 12px;
+  margin-top: 20px;
 }
 
 .btn-start-extraction {
   flex: 2;
-  height: 52px;
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  height: 46px;
+  background: #c0392b;
   color: white;
   border: none;
-  border-radius: 12px;
-  font-weight: 700;
-  letter-spacing: 1px;
+  border-radius: 8px;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(37,99,235,0.3);
+  transition: background 0.15s ease;
 }
 
 .btn-start-extraction:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(37,99,235,0.4);
-  background: linear-gradient(135deg, #4f46e5, #3b82f6);
+  background: #a93226;
 }
 
 .btn-export-csv {
   flex: 1;
-  height: 52px;
-  background: #10b981;
+  height: 46px;
+  background: #16a34a;
   color: white;
   border: none;
-  border-radius: 12px;
-  font-weight: 700;
+  border-radius: 8px;
+  font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: all 0.3s ease;
+  transition: background 0.15s ease;
 }
 
 .btn-export-csv:hover:not(:disabled) {
-  background: #059669;
+  background: #15803d;
 }
 
 .btn-export-csv:disabled {
-  background: rgba(255,255,255,0.05);
-  color: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.2);
   cursor: not-allowed;
 }
 
 /* Progress Bar */
 .extraction-progress-container {
-  margin-top: 24px;
+  margin-top: 20px;
 }
 
 .progress-bar-bg {
   height: 6px;
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 3px;
   overflow: hidden;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .progress-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #3b82f6, #10b981);
+  background: #c0392b;
   transition: width 0.3s ease;
 }
 
 .progress-status {
   font-size: 12px;
-  color: rgba(255,255,255,0.4);
+  color: #5a5a5e;
   text-align: center;
 }
 
@@ -200,31 +191,34 @@ input:checked + .slider:before { transform: translateX(22px); }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .results-header h3 {
-  font-size: 18px;
-  color: white;
+  font-size: 16px;
+  color: #f0f0f0;
+  font-weight: 600;
+  margin: 0;
 }
 
 .results-count {
-  font-size: 13px;
-  background: rgba(59,130,246,0.1);
-  color: #60a5fa;
-  padding: 4px 12px;
-  border-radius: 20px;
-  border: 1px solid rgba(59,130,246,0.2);
+  font-size: 12px;
+  background: rgba(192, 57, 43, 0.12);
+  color: #e07070;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(192, 57, 43, 0.25);
+  font-weight: 600;
 }
 
 .extractor-empty-state {
-  padding: 60px;
+  padding: 48px;
   text-align: center;
-  color: rgba(255,255,255,0.2);
+  color: #5a5a5e;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
 }
 
 /* Entity Cell */
@@ -234,37 +228,46 @@ input:checked + .slider:before { transform: translateX(22px); }
 }
 
 .entity-name-cell strong {
-  color: #ffffff;
+  color: #f0f0f0;
 }
 
 .entity-name-cell span {
   font-size: 11px;
-  color: rgba(255,255,255,0.4);
+  color: #5a5a5e;
 }
 
 .badge-specialty {
-  background: rgba(139,92,246,0.1);
-  color: #a78bfa;
-  border: 1px solid rgba(139,92,246,0.2);
-  padding: 4px 10px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #8a8a8e;
+  border: 1px solid #2a2a2c;
+  padding: 3px 8px;
   border-radius: 6px;
-  font-size: 12px;
+  font-size: 11px;
+  font-weight: 500;
 }
 
 .status-tag {
   font-size: 11px;
   font-weight: 600;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 4px 8px;
+  padding: 3px 8px;
   border-radius: 6px;
 }
 
-.status-tag.verified { background: rgba(16,185,129,0.1); color: #10b981; }
-.status-tag.pending { background: rgba(245,158,11,0.1); color: #f59e0b; }
+.status-tag.verified {
+  background: rgba(22, 163, 74, 0.1);
+  color: #4ade80;
+  border: 1px solid rgba(22, 163, 74, 0.22);
+}
+
+.status-tag.pending {
+  background: rgba(180, 83, 9, 0.1);
+  color: #fbbf24;
+  border: 1px solid rgba(180, 83, 9, 0.22);
+}
 
 @media (max-width: 900px) {
   .extractor-inputs-grid { grid-template-columns: 1fr; }
-  .extractor-premium-toggle { grid-column: span 1; }
 }

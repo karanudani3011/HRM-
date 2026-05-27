@@ -163,29 +163,39 @@ const Blog = () => {
         {posts.length > 0 ? (
           posts.map((post) => (
             <div key={post.id} className="blog-card" id={post.id}>
-              <div
-                className="blog-image blog-image-clickable"
-                style={{ backgroundImage: `url(${post.imageUrl || '/placeholder-blog.jpg'})` }}
-                onClick={() => openPost(post)}
-                title="Click to view full post"
-              >
-                <div className="blog-image-zoom-hint">🔍 View</div>
-              </div>
               <div className="blog-content">
-                <div className="blog-meta">
-                  <span className="blog-category">{post.category}</span>
-                  {user && (!post.userId || post.userId === user.uid) && (
-                    <button 
-                      onClick={() => handleDelete(post.id)}
-                      className="delete-btn"
-                      title="Delete Post"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  )}
+                
+                {/* 1. Author / Header Info (First) */}
+                <div className="blog-meta-header">
+                  <div className="blog-author">
+                    <div className="author-avatar">
+                      {post.author ? post.author.charAt(0).toUpperCase() : 'A'}
+                    </div>
+                    <div className="author-info">
+                      <h4>{post.author || 'Administrator'}</h4>
+                      <span>{formatDate(post.createdAt)}</span>
+                    </div>
+                  </div>
+                  <div className="blog-meta-right">
+                    <span className="blog-category">{post.category}</span>
+                    {user && (!post.userId || post.userId === user.uid) && (
+                      <button 
+                        onClick={() => handleDelete(post.id)}
+                        className="delete-btn"
+                        title="Delete Post"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <h3 className="blog-title blog-title-clickable" onClick={() => openPost(post)}>{post.title}</h3>
+
+                {/* 2. Title & Description (Second) */}
+                <h3 className="blog-title blog-title-clickable" onClick={() => openPost(post)}>
+                  {post.title}
+                </h3>
                 <p className="blog-excerpt">{post.excerpt}</p>
+                
                 {post.externalUrl && (
                   <a 
                     href={post.externalUrl} 
@@ -201,7 +211,7 @@ const Blog = () => {
                       fontWeight: '600', 
                       textDecoration: 'none',
                       marginTop: '8px',
-                      marginBottom: '8px',
+                      marginBottom: '12px',
                       transition: 'color 0.2s' 
                     }}
                     onMouseEnter={(e) => e.target.style.color = '#3730a3'}
@@ -210,30 +220,33 @@ const Blog = () => {
                     Read More ↗
                   </a>
                 )}
-                
-                <div className="blog-footer">
-                  <div className="blog-author">
-                    <div className="author-avatar">
-                      {post.author ? post.author.charAt(0).toUpperCase() : 'A'}
-                    </div>
-                    <div className="author-info">
-                      <h4>{post.author}</h4>
-                      <span>{formatDate(post.createdAt)}</span>
-                    </div>
-                  </div>
+              </div>
 
-                  <button 
-                    className={`blog-share-btn ${copiedId === post.id ? 'copied' : ''}`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleCopyLink(post);
-                    }}
-                    title="Copy Link to Share"
-                  >
-                    {copiedId === post.id ? <Check size={14} style={{ color: '#ffffff' }} /> : <Share2 size={14} />}
-                    <span>{copiedId === post.id ? 'Copied!' : 'Share'}</span>
-                  </button>
+              {/* 3. Image (Third - Down Side) */}
+              {post.imageUrl && (
+                <div
+                  className="blog-image blog-image-clickable"
+                  style={{ backgroundImage: `url(${post.imageUrl})` }}
+                  onClick={() => openPost(post)}
+                  title="Click to view full post"
+                >
+                  <div className="blog-image-zoom-hint">🔍 View Full Post</div>
                 </div>
+              )}
+
+              {/* 4. Action Footer (Bottom) */}
+              <div className="blog-action-footer">
+                <button 
+                  className={`blog-share-btn ${copiedId === post.id ? 'copied' : ''}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleCopyLink(post);
+                  }}
+                  title="Copy Link to Share"
+                >
+                  {copiedId === post.id ? <Check size={14} style={{ color: '#ffffff' }} /> : <Share2 size={14} />}
+                  <span>{copiedId === post.id ? 'Copied!' : 'Share'}</span>
+                </button>
               </div>
             </div>
           ))

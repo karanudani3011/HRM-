@@ -556,12 +556,40 @@
     padding: 20px 30px;
   }
   
-  .blog-detail-close-btn {
-    top: 16px;
-    right: 16px;
-    width: 40px;
-    height: 40px;
-  }
+    .blog-detail-close-btn {
+      top: 16px;
+      right: 16px;
+      width: 40px;
+      height: 40px;
+    }
+}
+
+/* Custom Feed Card Ordering Styles */
+.blog-meta-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+  width: 100%;
+}
+
+.blog-meta-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.blog-action-footer {
+  padding: 12px 24px;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: flex-end;
+  background-color: #fafbfd;
+}
+
+.blog-action-footer .blog-share-btn {
+  width: 100%;
+  justify-content: center;
 }
 
 

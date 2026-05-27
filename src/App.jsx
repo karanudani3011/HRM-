@@ -49,9 +49,6 @@ function AppContent() {
     if (hasRegistered && location.pathname === '/services') {
       navigate('/find-doctor', { replace: true });
     }
-    if (hasRegistered && location.pathname === '/') {
-      navigate('/find-doctor', { replace: true });
-    }
   }, [location.pathname, hasRegistered, navigate]);
 
   return (

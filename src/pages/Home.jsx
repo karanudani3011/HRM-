@@ -19,8 +19,12 @@ import {
   UserCheck
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { db } from '../firebase';
+import { collection, query, where, getDocs, orderBy, onSnapshot, limit } from 'firebase/firestore';
 import { uploadImageToCloudinary } from '../utils/cloudinary';
 import { useAuth } from '../context/AuthContext';
+import PostCarousel from '../components/PostCarousel';
+import PaymentModal from '../components/PaymentModal';
 import './Home.css';
 
 const Home = () => {
@@ -45,6 +49,14 @@ const Home = () => {
     bio: '',
     avatarUrl: ''
   });
+
+  // User's own registration details
+  const [userRegistration, setUserRegistration] = useState(null);
+
+  // Feed states for real-time posts
+  const [feedPosts, setFeedPosts] = useState([]);
+  const [feedLoading, setFeedLoading] = useState(true);
+  const [likedPosts, setLikedPosts] = useState(new Set());
 
   // Fetch Profile & Search Credits on mount/user change
   useEffect(() => {
@@ -92,6 +104,25 @@ const Home = () => {
         } else {
           setProfile(null);
         }
+
+        // Fetch user registration details from Firestore
+        if (db && user?.email) {
+          const q = query(
+            collection(db, 'serviceForms'),
+            where('email', '==', user.email)
+          );
+          const querySnapshot = await getDocs(q);
+          if (!querySnapshot.empty) {
+            const docReg = querySnapshot.docs.find(d => d.data().formType === 'Doctor Registration');
+            if (docReg) {
+              setUserRegistration(docReg.data());
+            } else {
+              setUserRegistration(querySnapshot.docs[0].data());
+            }
+          } else {
+            setUserRegistration(null);
+          }
+        }
       } catch (err) {
         console.error('Dashboard load error:', err);
       } finally {
@@ -115,6 +146,24 @@ const Home = () => {
       });
     }
   }, [profile]);
+
+  // Fetch real-time posts feed from Firestore
+  useEffect(() => {
+    if (!db) return;
+    const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'), limit(15));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const postsData = [];
+      snapshot.forEach((document) => {
+        postsData.push({ id: document.id, ...document.data() });
+      });
+      setFeedPosts(postsData);
+      setFeedLoading(false);
+    }, (error) => {
+      console.error("Error listening to feed posts:", error);
+      setFeedLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
 
   // Handle image upload to Cloudinary
   const handleAvatarUpload = async (e) => {
@@ -241,6 +290,19 @@ const Home = () => {
     } finally {
       setSubmitting(false);
     }
+  };
+  
+  // Toggle local post likes
+  const handleToggleLike = (postId) => {
+    setLikedPosts(prev => {
+      const newLikes = new Set(prev);
+      if (newLikes.has(postId)) {
+        newLikes.delete(postId);
+      } else {
+        newLikes.add(postId);
+      }
+      return newLikes;
+    });
   };
 
   // Loading state
@@ -525,133 +587,263 @@ const Home = () => {
           </div>
         ) : (
           /* STANDARD DASHBOARD VIEW */
-          <div className="dashboard-grid">
+          <div className="linkedin-layout">
             
-            {/* LEFT PROFILE CARD */}
-            <div className="dashboard-profile-card">
-              <div className="profile-card-banner"></div>
+            {/* LEFT COLUMN */}
+            <div className="linkedin-left-col">
               
-              <div className="profile-card-avatar-wrapper">
-                {profile.avatar_url ? (
-                  <img src={profile.avatar_url} alt="Profile avatar" className="profile-card-avatar" />
-                ) : (
-                  <div className="profile-card-avatar-fallback">
-                    {profile.full_name.charAt(0).toUpperCase()}
-                  </div>
-                )}
-                <span className="profile-card-role-badge">{profile.role}</span>
-              </div>
-
-              <div className="profile-card-body">
-                <h3>{profile.full_name}</h3>
-                <div className="profile-card-email">{profile.email}</div>
+              {/* PROFILE CARD */}
+              <div className="dashboard-profile-card">
+                <div className="profile-card-banner"></div>
                 
-                <button className="btn-edit-profile" onClick={() => setEditMode(true)}>
-                  <Edit size={14} /> Edit Profile
-                </button>
-
-                <div className="profile-card-divider"></div>
-
-                <div className="profile-card-meta">
-                  {profile.location && (
-                    <div className="profile-meta-item">
-                      <MapPin size={15} />
-                      <span>{profile.location}</span>
+                <div className="profile-card-avatar-wrapper">
+                  {profile.avatar_url ? (
+                    <img src={profile.avatar_url} alt="Profile avatar" className="profile-card-avatar" />
+                  ) : (
+                    <div className="profile-card-avatar-fallback">
+                      {profile.full_name.charAt(0).toUpperCase()}
                     </div>
                   )}
-                  {profile.phone && (
-                    <div className="profile-meta-item">
-                      <Phone size={15} />
-                      <span>{profile.phone}</span>
-                    </div>
-                  )}
-                  <div className="profile-meta-item">
-                    <Briefcase size={15} />
-                    <span style={{ textTransform: 'capitalize' }}>{profile.role} Profile</span>
-                  </div>
+                  <span className="profile-card-role-badge">{profile.role}</span>
                 </div>
 
-                {profile.bio && (
-                  <div className="profile-card-bio">
-                    {profile.bio}
+                <div className="profile-card-body">
+                  <h3>{profile.full_name}</h3>
+                  <div className="profile-card-email">{profile.email}</div>
+                  
+                  <button className="btn-edit-profile" onClick={() => setEditMode(true)}>
+                    <Edit size={14} /> Edit Profile
+                  </button>
+
+                  <div className="profile-card-divider"></div>
+
+                  <div className="profile-card-meta">
+                    {profile.location && (
+                      <div className="profile-meta-item">
+                        <MapPin size={15} />
+                        <span>{profile.location}</span>
+                      </div>
+                    )}
+                    {profile.phone && (
+                      <div className="profile-meta-item">
+                        <Phone size={15} />
+                        <span>{profile.phone}</span>
+                      </div>
+                    )}
+                    <div className="profile-meta-item">
+                      <Briefcase size={15} />
+                      <span style={{ textTransform: 'capitalize' }}>{profile.role} Profile</span>
+                    </div>
+
+                    {userRegistration && (
+                      <>
+                        <div className="profile-card-divider" style={{ margin: '12px 0 6px 0', width: '100%' }}></div>
+                        <div className="profile-meta-item" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '6px', width: '100%' }}>
+                          <span style={{ fontSize: '11px', color: 'var(--text-gray)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>License Status</span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-dark)' }}>
+                            <Award size={14} style={{ color: 'var(--primary-red)' }} />
+                            <span>No: <strong>{userRegistration.regNo || '—'}</strong></span>
+                          </div>
+                          {userRegistration.regState && (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-dark)' }}>
+                              <MapPin size={14} style={{ color: 'var(--primary-red)' }} />
+                              <span>State: {userRegistration.regState}</span>
+                            </div>
+                          )}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'green', fontWeight: '600' }}>
+                            <ShieldCheck size={14} color="green" />
+                            <span>Status: Verified</span>
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
-                )}
+
+                  {profile.bio && (
+                    <div className="profile-card-bio">
+                      {profile.bio}
+                    </div>
+                  )}
+                </div>
               </div>
+
+              {/* QUICK SERVICES */}
+              <div className="linkedin-left-card quick-services-card">
+                <h4>Quick Services</h4>
+                <div className="quick-services-list">
+                  <Link to="/find-doctor" className="quick-service-item">
+                    <div className="quick-service-icon-box">
+                      <Search size={16} />
+                    </div>
+                    <span>Find Doctor</span>
+                  </Link>
+
+                  <Link to="/hr-extractor" className="quick-service-item">
+                    <div className="quick-service-icon-box">
+                      <UserCheck size={16} />
+                    </div>
+                    <span>HR Extractor</span>
+                  </Link>
+
+                  <Link to="/blog" className="quick-service-item">
+                    <div className="quick-service-icon-box">
+                      <FileText size={16} />
+                    </div>
+                    <span>Network Blog</span>
+                  </Link>
+
+                  <Link to="/contact" className="quick-service-item">
+                    <div className="quick-service-icon-box">
+                      <Phone size={16} />
+                    </div>
+                    <span>Direct Support</span>
+                  </Link>
+                </div>
+              </div>
+
             </div>
 
-            {/* RIGHT DASHBOARD CONTENT */}
-            <div className="dashboard-main-content">
+            {/* MIDDLE FEED COLUMN */}
+            <div className="linkedin-middle-col">
               
-              {/* WELCOME BANNER */}
-              <div className="dashboard-welcome-banner">
-                <h2>Welcome Back, {profile.full_name.split(' ')[0]}!</h2>
-                <p>Manage your professional medical network account, search credits, and integrations here.</p>
+              {/* START A POST */}
+              <div className="linkedin-start-post-card">
+                <div className="start-post-upper">
+                  {profile.avatar_url ? (
+                    <img src={profile.avatar_url} alt="Profile avatar" className="post-avatar-small" />
+                  ) : (
+                    <div className="post-avatar-small-fallback">
+                      {profile.full_name.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <Link to="/blog" className="start-post-trigger">
+                    Start a post
+                  </Link>
+                </div>
+                <div className="start-post-lower">
+                  <Link to="/blog" className="post-type-btn">
+                    <span className="post-type-icon" style={{ color: '#378fe9' }}>📷</span> Photo
+                  </Link>
+                  <Link to="/blog" className="post-type-btn">
+                    <span className="post-type-icon" style={{ color: '#5f9b41' }}>🎥</span> Video
+                  </Link>
+                  <Link to="/blog" className="post-type-btn">
+                    <span className="post-type-icon" style={{ color: '#e06847' }}>📝</span> Write article
+                  </Link>
+                </div>
               </div>
 
-              {/* SEARCH CREDITS SUMMARY (Integrated directly with Supabase) */}
-              {searchCredits && (
-                <div className="dashboard-welcome-banner" style={{ borderLeft: '4px solid var(--primary-red)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
-                    <div>
-                      <h4 style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text-dark)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                        <TrendingUp size={16} style={{ color: 'var(--primary-red)' }} />
-                        Search License Status
-                      </h4>
-                      <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-gray)' }}>
-                        Current Tier: <strong style={{ textTransform: 'uppercase', color: 'var(--primary-red)' }}>{searchCredits.plan_level}</strong>
-                      </p>
-                    </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <span style={{ fontSize: '24px', fontWeight: '800', color: 'var(--primary-red)' }}>
-                        {searchCredits.searches_remaining}
-                      </span>
-                      <span style={{ fontSize: '12px', color: 'var(--text-gray)', marginLeft: '6px' }}>
-                        Queries Left
-                      </span>
-                    </div>
+              {/* FEED POSTS */}
+              <div className="linkedin-feed-posts">
+                {feedLoading ? (
+                  <div className="feed-loading-placeholder">
+                    <div className="spinner"></div> Loading feed...
                   </div>
+                ) : feedPosts.length === 0 ? (
+                  <div className="feed-empty-state">
+                    <h3>No Posts Yet</h3>
+                    <p>Be the first one in the HRM network to start a post!</p>
+                    <Link to="/blog" className="btn-write-first">Write Article</Link>
+                  </div>
+                ) : (
+                  feedPosts.map((post) => {
+                    const isLiked = likedPosts.has(post.id);
+                    return (
+                      <div key={post.id} className="linkedin-post-card">
+                        <div className="post-card-header">
+                          <div className="post-card-author-avatar">
+                            {post.authorAvatarUrl ? (
+                              <img src={post.authorAvatarUrl} alt={post.authorName} />
+                            ) : (
+                              <div className="avatar-fallback-small">
+                                {(post.authorName || 'H').charAt(0).toUpperCase()}
+                              </div>
+                            )}
+                          </div>
+                          <div className="post-card-author-info">
+                            <h4>{post.authorName || 'HRM Network Member'}</h4>
+                            <span>
+                              {post.category || 'Medical Update'} • {post.createdAt?.toDate ? post.createdAt.toDate().toLocaleDateString('en-IN', {day:'2-digit', month:'short'}) : 'Just now'}
+                            </span>
+                          </div>
+                        </div>
+                        
+                        <div className="post-card-content">
+                          <h3>{post.title}</h3>
+                          <p>{post.excerpt || post.content}</p>
+                        </div>
+                        
+                        {post.imageUrl && (
+                          <div className="post-card-image-box">
+                            <img src={post.imageUrl} alt={post.title} />
+                          </div>
+                        )}
+                        
+                        <div className="post-card-footer">
+                          <button 
+                            className={`post-action-btn ${isLiked ? 'liked' : ''}`}
+                            onClick={() => handleToggleLike(post.id)}
+                          >
+                            <span className="action-icon">{isLiked ? '❤️' : '👍'}</span>
+                            <span>{isLiked ? 'Liked' : 'Like'}</span>
+                          </button>
+                          <button 
+                            className="post-action-btn"
+                            onClick={() => {
+                              navigator.clipboard.writeText(`${window.location.origin}/blog`);
+                              alert('Link copied to clipboard!');
+                            }}
+                          >
+                            <span className="action-icon">🔗</span>
+                            <span>Share</span>
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
+            </div>
+
+            {/* RIGHT COLUMN */}
+            <div className="linkedin-right-col">
+              
+              <div className="linkedin-right-card news-card">
+                <div className="news-card-header">
+                  <h4>HRM Network News</h4>
+                  <span className="info-icon">ℹ️</span>
                 </div>
-              )}
-
-              {/* QUICK ACTIONS */}
-              <div>
-                <h3 className="dashboard-section-title">
-                  <Compass size={16} style={{ color: 'var(--primary-red)' }} /> Quick Services
-                </h3>
-                
-                <div className="quick-actions-grid">
-                  <Link to="/find-doctor" className="action-card-link">
-                    <div className="action-card-icon-box red-theme">
-                      <Search size={20} />
+                <ul className="news-list">
+                  <li>
+                    <span className="news-dot"></span>
+                    <div className="news-content">
+                      <h5>Top medical specialists joining in Rajkot</h5>
+                      <span>1h ago • 3,240 readers</span>
                     </div>
-                    <h4>Find Doctor</h4>
-                    <p>Search India's medical registries and specialist doctors instantly.</p>
-                  </Link>
-
-                  <Link to="/hr-extractor" className="action-card-link">
-                    <div className="action-card-icon-box red-theme">
-                      <UserCheck size={20} />
+                  </li>
+                  <li>
+                    <span className="news-dot"></span>
+                    <div className="news-content">
+                      <h5>US Medical Council updates guidelines</h5>
+                      <span>4h ago • 1,850 readers</span>
                     </div>
-                    <h4>HR Extractor</h4>
-                    <p>Verify potential candidates and search HR directories.</p>
-                  </Link>
-
-                  <Link to="/blog" className="action-card-link">
-                    <div className="action-card-icon-box red-theme">
-                      <FileText size={20} />
+                  </li>
+                  <li>
+                    <span className="news-dot"></span>
+                    <div className="news-content">
+                      <h5>Healthcare staffing demand surges</h5>
+                      <span>21h ago • 9,450 readers</span>
                     </div>
-                    <h4>Network Blog</h4>
-                    <p>Explore articles, stories, and blogs from HRM health experts.</p>
-                  </Link>
-
-                  <Link to="/contact" className="action-card-link">
-                    <div className="action-card-icon-box red-theme">
-                      <Phone size={20} />
+                  </li>
+                  <li>
+                    <span className="news-dot"></span>
+                    <div className="news-content">
+                      <h5>Vaidik Pandya likes this update</h5>
+                      <span>1d ago • 5,120 readers</span>
                     </div>
-                    <h4>Direct Support</h4>
-                    <p>Get in touch with HRM support consultants and specialists.</p>
-                  </Link>
-                </div>
+                  </li>
+                </ul>
               </div>
 
             </div>

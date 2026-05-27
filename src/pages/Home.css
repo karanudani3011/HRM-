@@ -633,3 +633,561 @@
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
+
+/* License Search Form & Results styling */
+.license-search-form {
+  margin-top: 15px;
+}
+
+.license-search-input-group {
+  display: flex;
+  gap: 12px;
+}
+
+.license-search-input {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  outline: none;
+  font-size: 14px;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  background-color: #f8fafc;
+}
+
+.license-search-input:focus {
+  border-color: var(--primary-red);
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(187, 42, 58, 0.1);
+}
+
+.license-search-btn {
+  background-color: var(--primary-red);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.license-search-btn:hover {
+  background-color: var(--dark-red);
+  transform: translateY(-1px);
+}
+
+.license-search-btn:disabled {
+  background-color: #cbd5e1;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.license-details-grid {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) !important;
+}
+
+/* Dashboard Blog Section / PostCarousel integrated overrides */
+.dashboard-blog-section {
+  margin-top: 15px;
+}
+
+.dashboard-blog-section .post-carousel-section {
+  padding: 20px 0;
+  background: transparent;
+  overflow: visible;
+}
+
+.dashboard-blog-section .carousel-header {
+  margin-bottom: 20px;
+}
+
+.dashboard-blog-section .carousel-header h2 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dashboard-blog-section .carousel-header h2::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background-color: #e5e7eb;
+}
+
+.dashboard-blog-section .post-card {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  border-radius: 16px;
+}
+
+.dashboard-blog-section .post-image {
+  min-height: 300px;
+}
+
+.dashboard-blog-section .post-info {
+  padding: 30px;
+}
+
+.dashboard-blog-section .post-title {
+  font-size: 24px;
+}
+
+.dashboard-blog-section .carousel-dots {
+  margin-top: 20px;
+}
+
+.dashboard-blog-section .nav-arrow {
+  width: 40px;
+  height: 40px;
+}
+
+.dashboard-blog-section .nav-arrow.left {
+  left: -20px;
+}
+
+.dashboard-blog-section .nav-arrow.right {
+  right: -20px;
+}
+
+/* LinkedIn Layout Redesign */
+.linkedin-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr 290px;
+  gap: 24px;
+  align-items: start;
+  max-width: 1128px;
+  margin: 0 auto;
+  padding: 0 10px;
+  font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "Fira Sans", Ubuntu, Oxygen, "Oxygen Sans", Cantarell, "Droid Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+@media (max-width: 1024px) {
+  .linkedin-layout {
+    grid-template-columns: 240px 1fr;
+  }
+  .linkedin-right-col {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .linkedin-layout {
+    grid-template-columns: 1fr;
+  }
+  .linkedin-right-col {
+    display: none;
+  }
+}
+
+/* LinkedIn Left Sidebar widgets */
+.linkedin-left-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.linkedin-left-card,
+.linkedin-right-card {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  overflow: hidden;
+  padding: 12px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.dashboard-profile-card {
+  border: 1px solid #e0e0e0 !important;
+  border-radius: 10px !important;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04) !important;
+}
+
+.quick-services-card h4 {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.9);
+  margin-bottom: 8px;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.quick-services-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.quick-service-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  text-decoration: none;
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 4px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.quick-service-item:hover {
+  background-color: #f3f3f3;
+  color: var(--primary-red);
+}
+
+.quick-service-icon-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: rgba(187, 42, 58, 0.08);
+  color: var(--primary-red);
+}
+
+/* Middle Feed Column */
+.linkedin-middle-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Start a Post Card */
+.linkedin-start-post-card {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 12px 16px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.start-post-upper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.post-avatar-small {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.post-avatar-small-fallback {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 18px;
+  background: linear-gradient(135deg, #bb2a3a 0%, #ff6b6b 100%);
+}
+
+.start-post-trigger {
+  flex: 1;
+  border: 1px solid #b2b2b2;
+  border-radius: 35px;
+  padding: 12px 16px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.6);
+  text-align: left;
+  background-color: #ffffff;
+  transition: background-color 0.15s ease;
+}
+
+.start-post-trigger:hover {
+  background-color: #f3f3f3;
+}
+
+.start-post-lower {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.post-type-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.6);
+  transition: background-color 0.15s ease;
+}
+
+.post-type-btn:hover {
+  background-color: #f3f3f3;
+}
+
+.post-type-icon {
+  font-size: 18px;
+}
+
+/* Feed Posts Stream */
+.linkedin-feed-posts {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.linkedin-post-card {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 16px 16px 8px 16px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.post-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.post-card-author-avatar img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.avatar-fallback-small {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 16px;
+  background: linear-gradient(135deg, #bb2a3a 0%, #ff6b6b 100%);
+}
+
+.post-card-author-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.post-card-author-info h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.9);
+  margin: 0;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.post-card-author-info span {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
+  margin-top: 2px;
+}
+
+.post-card-content h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.9);
+  margin: 0 0 8px 0;
+  text-align: left;
+  line-height: 1.4;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.post-card-content p {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.7);
+  line-height: 1.5;
+  margin: 0;
+  text-align: left;
+}
+
+.post-card-image-box {
+  width: calc(100% + 32px);
+  margin-left: -16px;
+  margin-right: -16px;
+  max-height: 400px;
+  overflow: hidden;
+  border-top: 1px solid #f3f3f3;
+  border-bottom: 1px solid #f3f3f3;
+  background-color: #fcfcfc;
+}
+
+.post-card-image-box img {
+  width: 100%;
+  height: auto;
+  max-height: 400px;
+  object-fit: contain;
+}
+
+.post-card-footer {
+  border-top: 1px solid #f3f3f3;
+  padding-top: 4px;
+  display: flex;
+  gap: 8px;
+}
+
+.post-action-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  border: none;
+  background: transparent;
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.post-action-btn:hover {
+  background-color: #f3f3f3;
+}
+
+.post-action-btn.liked {
+  color: var(--primary-red);
+}
+
+.action-icon {
+  font-size: 16px;
+}
+
+.feed-loading-placeholder,
+.feed-empty-state {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 32px;
+  text-align: center;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.feed-empty-state h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.9);
+  margin-bottom: 8px;
+}
+
+.feed-empty-state p {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.6);
+  margin-bottom: 16px;
+}
+
+.btn-write-first {
+  display: inline-block;
+  background-color: var(--primary-red);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  text-decoration: none;
+  font-size: 13.5px;
+  font-weight: 600;
+  transition: background-color 0.15s ease;
+}
+
+.btn-write-first:hover {
+  background-color: var(--dark-red);
+}
+
+/* News Sidebar Widget */
+.news-card {
+  padding: 12px 12px 4px 12px;
+}
+
+.news-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.news-card-header h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.9);
+  margin: 0;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.news-card-header .info-icon {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+}
+
+.news-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.news-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  text-align: left;
+}
+
+.news-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.6);
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+.news-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.news-content h5 {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.9);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.news-content span {
+  font-size: 11px;
+  color: rgba(0, 0, 0, 0.6);
+  margin-top: 2px;
+}

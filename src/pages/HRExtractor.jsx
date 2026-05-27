@@ -13,7 +13,9 @@ import {
   ChevronRight,
   Filter,
   UserCheck,
-  Briefcase
+  Briefcase,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import EmailOTP from '../components/EmailOTP';
@@ -67,6 +69,14 @@ const HRExtractor = () => {
   const [localSearch, setLocalSearch] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [verifiedEmail, setVerifiedEmail] = useState('');
+  const [revealedLeads, setRevealedLeads] = useState({});
+
+  const toggleRevealLead = (leadId) => {
+    setRevealedLeads(prev => ({
+      ...prev,
+      [leadId]: !prev[leadId]
+    }));
+  };
 
   // Sync Google/LinkedIn/Email authenticated user's email automatically
   useEffect(() => {
@@ -433,25 +443,36 @@ const HRExtractor = () => {
                           </tr>
                         </thead>
                         <tbody>
-                          {filteredLeads.map((lead) => (
-                            <tr key={lead.row_id || lead.id}>
-                              <td><strong>{getFirstName(lead.name)}</strong></td>
-                              <td><span className="tag-spec">{lead.role || 'General Practitioner'}</span></td>
-                              <td>{lead.location_or_note || 'India'}</td>
-                              <td>
-                                <div className="contact-info-small">
-                                  <span>📱 {maskPhoneNumber(lead.phone)}</span>
-                                </div>
-                              </td>
-                              <td>
-                                {isVerified ? (
-                                  <span className="status-verified">Verified</span>
-                                ) : (
-                                  <span className="status-pending">Pending</span>
-                                )}
-                              </td>
-                            </tr>
-                          ))}
+                          {filteredLeads.map((lead) => {
+                            const isRevealed = !!revealedLeads[lead.row_id || lead.id];
+                            return (
+                              <tr key={lead.row_id || lead.id}>
+                                <td><strong>{isRevealed ? lead.name : getFirstName(lead.name)}</strong></td>
+                                <td><span className="tag-spec">{lead.role || 'General Practitioner'}</span></td>
+                                <td>{lead.location_or_note || 'India'}</td>
+                                <td>
+                                  <div className="contact-info-small" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <span>📱 {isRevealed ? (lead.phone || '—') : maskPhoneNumber(lead.phone)}</span>
+                                    <button
+                                      onClick={() => toggleRevealLead(lead.row_id || lead.id)}
+                                      className="btn-view-lead"
+                                      title={isRevealed ? "Hide full details" : "View full details"}
+                                    >
+                                      {isRevealed ? <EyeOff size={12} /> : <Eye size={12} />}
+                                      <span>{isRevealed ? "Hide" : "View"}</span>
+                                    </button>
+                                  </div>
+                                </td>
+                                <td>
+                                  {isVerified ? (
+                                    <span className="status-verified">Verified</span>
+                                  ) : (
+                                    <span className="status-pending">Pending</span>
+                                  )}
+                                </td>
+                              </tr>
+                            );
+                          })}
                         </tbody>
                       </>
                     ) : (
@@ -467,53 +488,64 @@ const HRExtractor = () => {
                           </tr>
                         </thead>
                         <tbody>
-                          {filteredLeads.map((lead) => (
-                            <tr key={lead.id}>
-                              <td>
-                                <strong>{getFirstName(lead.Name)}</strong>
-                                {lead.Location && (
-                                  <span className="tag-loc" style={{ display: 'block', fontSize: '11px', color: '#475569', marginTop: '2px', fontWeight: '600' }}>
-                                    📍 {lead.Location}
+                          {filteredLeads.map((lead) => {
+                            const isRevealed = !!revealedLeads[lead.id];
+                            return (
+                              <tr key={lead.id}>
+                                <td>
+                                  <strong>{isRevealed ? lead.Name : getFirstName(lead.Name)}</strong>
+                                  {lead.Location && (
+                                    <span className="tag-loc" style={{ display: 'block', fontSize: '11px', color: '#475569', marginTop: '2px', fontWeight: '600' }}>
+                                      📍 {lead.Location}
+                                    </span>
+                                  )}
+                                  <span className="tag-date" style={{ display: 'block', fontSize: '10px', color: '#94a3b8', marginTop: '2px' }}>
+                                    📅 {lead.Date || '—'}
                                   </span>
-                                )}
-                                <span className="tag-date" style={{ display: 'block', fontSize: '10px', color: '#94a3b8', marginTop: '2px' }}>
-                                  📅 {lead.Date || '—'}
-                                </span>
-                              </td>
-                              <td>
-                                <span className="tag-spec">{lead.Speciality || lead.Department || '—'}</span>
-                              </td>
-                              <td>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                                  <span className="tag-exp" style={{ fontSize: '11px', fontWeight: 'bold', color: '#bb2a3a' }}>
-                                    💼 {lead.Experience || '—'}
-                                  </span>
-                                  <span style={{ fontSize: '12px', color: '#64748b' }}>
-                                    🎓 {lead.Qualification || '—'}
-                                  </span>
-                                </div>
-                              </td>
-                              <td>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                                  <strong style={{ fontSize: '13px', color: '#1e293b' }}>{lead["Current Job"] || '—'}</strong>
-                                  <span style={{ fontSize: '12px', color: '#64748b' }}>{lead["Current Designation"] || '—'}</span>
-                                </div>
-                              </td>
-                              <td>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                                  <span style={{ fontSize: '13px', color: '#334155' }}>📋 {lead["Applied For"] || '—'}</span>
-                                  <span className="tag-source" style={{ fontSize: '11px', background: '#e0f2fe', color: '#0369a1', padding: '2px 6px', borderRadius: '4px', alignSelf: 'flex-start', fontWeight: '600' }}>
-                                    {lead.Source || 'ZOHO'}
-                                  </span>
-                                </div>
-                              </td>
-                              <td>
-                                <div className="contact-info-small">
-                                  <span>📱 {maskPhoneNumber(lead["Contact Number"])}</span>
-                                </div>
-                              </td>
-                            </tr>
-                          ))}
+                                </td>
+                                <td>
+                                  <span className="tag-spec">{lead.Speciality || lead.Department || '—'}</span>
+                                </td>
+                                <td>
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                    <span className="tag-exp" style={{ fontSize: '11px', fontWeight: 'bold', color: '#bb2a3a' }}>
+                                      💼 {lead.Experience || '—'}
+                                    </span>
+                                    <span style={{ fontSize: '12px', color: '#64748b' }}>
+                                      🎓 {lead.Qualification || '—'}
+                                    </span>
+                                  </div>
+                                </td>
+                                <td>
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                    <strong style={{ fontSize: '13px', color: '#1e293b' }}>{lead["Current Job"] || '—'}</strong>
+                                    <span style={{ fontSize: '12px', color: '#64748b' }}>{lead["Current Designation"] || '—'}</span>
+                                  </div>
+                                </td>
+                                <td>
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                    <span style={{ fontSize: '13px', color: '#334155' }}>📋 {lead["Applied For"] || '—'}</span>
+                                    <span className="tag-source" style={{ fontSize: '11px', background: '#e0f2fe', color: '#0369a1', padding: '2px 6px', borderRadius: '4px', alignSelf: 'flex-start', fontWeight: '600' }}>
+                                      {lead.Source || 'ZOHO'}
+                                    </span>
+                                  </div>
+                                </td>
+                                <td>
+                                  <div className="contact-info-small" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <span>📱 {isRevealed ? (lead["Contact Number"] || '—') : maskPhoneNumber(lead["Contact Number"])}</span>
+                                    <button
+                                      onClick={() => toggleRevealLead(lead.id)}
+                                      className="btn-view-lead"
+                                      title={isRevealed ? "Hide full details" : "View full details"}
+                                    >
+                                      {isRevealed ? <EyeOff size={12} /> : <Eye size={12} />}
+                                      <span>{isRevealed ? "Hide" : "View"}</span>
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                          })}
                         </tbody>
                       </>
                     )}

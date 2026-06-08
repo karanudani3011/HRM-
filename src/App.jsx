@@ -27,6 +27,7 @@ import FindDoctor from './pages/FindDoctor';
 import VideoConsultation from './pages/VideoConsultation';
 import DeveloperPage from './pages/DeveloperPage';
 import RegistrationSuccess from './pages/RegistrationSuccess';
+import ResetPassword from './pages/ResetPassword';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -39,6 +40,7 @@ function AppContent() {
   const isAdminPage = location.pathname.startsWith('/admin');
   const isConsultPage = location.pathname.startsWith('/consultation/');
   const isSuccessPage = location.pathname === '/registration-success';
+  const isResetPage = location.pathname === '/reset-password';
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -53,8 +55,8 @@ function AppContent() {
 
   return (
     <div className="app">
-      {!isAuthPage && !isAdminPage && !isConsultPage && !isSuccessPage && <TopBar />}
-      {!isAuthPage && !isAdminPage && !isConsultPage && !isSuccessPage && <Header />}
+      {!isAuthPage && !isAdminPage && !isConsultPage && !isSuccessPage && !isResetPage && <TopBar />}
+      {!isAuthPage && !isAdminPage && !isConsultPage && !isSuccessPage && !isResetPage && <Header />}
       <Routes>
         <Route path="/portal/:type" element={<PortalLogin />} />
         <Route path="/portal/doctor/register" element={<DoctorRegistration />} />
@@ -81,8 +83,9 @@ function AppContent() {
         <Route path="/admin/blogs" element={<AdminBlogs />} />
         <Route path="/hr-extractor" element={<ProtectedRoute><HRExtractor /></ProtectedRoute>} />
         <Route path="/consultation/:roomId" element={<ProtectedRoute><VideoConsultation /></ProtectedRoute>} />
+        <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>
-      {!isAuthPage && !isAdminPage && !isConsultPage && !isSuccessPage && <Footer />}
+      {!isAuthPage && !isAdminPage && !isConsultPage && !isSuccessPage && !isResetPage && <Footer />}
     </div>
   );
 }

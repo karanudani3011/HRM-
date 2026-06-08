@@ -24,7 +24,7 @@ const DEVELOPERS = [
   {
     id: 'jeeldave',
     name: 'Jeel Dave',
-    role: 'Lead Web Architect & Frontend Engineer',
+    role: 'Lead Web Architect, Frontend Engineer & Business Developer',
     bio: 'Architects modern React applications with premium UI/UX, seamless transitions, and clean client-side architectures. Dedicated to bringing high-fidelity glassmorphism and stunning responsiveness to every pixel.',
     skills: ['React.js', 'JavaScript (ES6+)', 'Tailwind CSS', 'Vite', 'HTML5 & CSS3', 'UI/UX Design'],
     initials: 'JD',
@@ -36,7 +36,7 @@ const DEVELOPERS = [
   {
     id: 'karanudani',
     name: 'Karan Udani',
-    role: 'Full Stack Developer & Systems Admin',
+    role: 'Full Stack Developer, Systems Admin & Business Developer',
     bio: 'Bridges front-end experiences with secure, robust database engines and application servers. Specializes in building full-lifecycle applications, handling integrations, and optimization.',
     skills: ['Node.js', 'Express.js', 'Firebase', 'Supabase', 'RESTful APIs', 'SQL / NoSQL'],
     initials: 'KU',
@@ -48,7 +48,7 @@ const DEVELOPERS = [
   {
     id: 'vaidikpandya',
     name: 'Vaidik Pandya',
-    role: 'Backend Specialist & DevOps Engineer',
+    role: 'Backend Specialist, DevOps Engineer & Business Developer',
     bio: 'Expert in designing secure database relations, server-side configurations, and robust cloud hosting pipelines. Focuses on performance scaling, data encryption, and high-availability server patterns.',
     skills: ['PostgreSQL', 'Cloudinary API', 'Docker', 'Git / GitHub', 'JSON Storage', 'DevOps'],
     initials: 'VP',

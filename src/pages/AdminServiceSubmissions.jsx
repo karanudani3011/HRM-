@@ -165,6 +165,68 @@ const AdminServiceSubmissions = () => {
     setTimeout(() => { newWin.print(); }, 500);
   };
 
+  const downloadSinglePDF = (sub) => {
+    if (!sub) return;
+    const newWin = window.open('', '_blank');
+    
+    let reportContent = `
+      <div class="submission-block" style="border: 1px solid #e5e7eb; padding: 20px; border-radius: 8px;">
+        <h3 style="color: #1e3a5f; border-bottom: 2px solid #3b82f6; padding-bottom: 10px;">
+          ${sub.formType || 'Registration'} Submission Details
+        </h3>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+          ${Object.entries(sub).map(([key, value]) => {
+            if (key === 'id' || key === 'createdAt') return '';
+            if (typeof value === 'object' && value !== null) {
+              if (Array.isArray(value)) value = value.join(', ');
+              else value = JSON.stringify(value);
+            }
+            // Clean up keys for display
+            const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+            
+            let displayContent = value || '—';
+            if (isImageUrl(key, value)) {
+              displayContent = `<img src="${value}" style="max-width: 200px; max-height: 150px; border-radius: 4px; display: block; margin-top: 5px;" />`;
+            }
+
+            return `
+              <tr>
+                <td style="padding: 8px; border-bottom: 1px solid #f3f4f6; font-weight: 600; width: 30%; color: #4b5563;">${label}</td>
+                <td style="padding: 8px; border-bottom: 1px solid #f3f4f6; color: #111827;">${displayContent}</td>
+              </tr>
+            `;
+          }).join('')}
+          <tr>
+            <td style="padding: 8px; border-bottom: 1px solid #f3f4f6; font-weight: 600; color: #4b5563;">Submitted At</td>
+            <td style="padding: 8px; border-bottom: 1px solid #f3f4f6; color: #111827;">${formatDate(sub.createdAt)}</td>
+          </tr>
+        </table>
+      </div>
+    `;
+
+    const docTitle = `${sub.formType || 'Registration'} - ${sub.name || sub.fullName || sub.hospitalName || sub.contactPerson || 'Detail'}`;
+
+    newWin.document.write(`
+      <html><head><title>${docTitle}</title>
+      <style>
+        body { font-family: 'Inter', sans-serif; padding: 40px; color: #333; line-height: 1.5; }
+        h2 { color: #1e3a5f; margin-bottom: 10px; font-size: 24px; }
+        .header { margin-bottom: 30px; text-align: center; border-bottom: 1px solid #eee; padding-bottom: 20px; }
+        .submission-block { background: white; }
+      </style>
+      </head><body>
+      <div class="header">
+        <h2>HRM Service Submission Detail</h2>
+        <p style="color: #666;">Generated on ${new Date().toLocaleString('en-IN')}</p>
+      </div>
+      ${reportContent}
+      </body></html>
+    `);
+    newWin.document.close();
+    setTimeout(() => { newWin.print(); }, 500);
+  };
+
+
   const getBadgeClass = (type) => {
     if (!type) return '';
     if (type.includes('Doctor')) return 'badge badge-doctor';
@@ -310,6 +372,13 @@ const AdminServiceSubmissions = () => {
                             onClick={() => { setSelectedSub(sub); setIsModalOpen(true); }}
                           >
                             <Eye size={16} />
+                          </button>
+                          <button 
+                            className="admin-download-single-btn" 
+                            title="Download Details as PDF"
+                            onClick={() => downloadSinglePDF(sub)}
+                          >
+                            <Download size={16} />
                           </button>
                           <button 
                             className="admin-delete-btn" 

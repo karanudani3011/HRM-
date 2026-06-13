@@ -187,6 +187,36 @@ const ContactUs = () => {
             )}
           </div>
         </div>
+
+        <div className="leadership-section">
+          <div className="section-header">
+            <h2>Our Leadership</h2>
+            <p className="section-subtitle">Meet the visionaries, founders, and owners behind HRM Doctors Choice.</p>
+          </div>
+          <div className="leadership-grid">
+            <div className="leadership-card">
+              <div className="leader-image-wrapper">
+                <img src="/images/nirav-pandya.jpg" alt="PANDYA NIRAV" className="leader-image" />
+              </div>
+              <h3 className="leader-name">PANDYA NIRAV</h3>
+              <p className="leader-role">Founder & CEO</p>
+            </div>
+            <div className="leadership-card">
+              <div className="leader-image-wrapper">
+                <img src="/images/bhumika-pandya.jpg" alt="BHUMIKA N.PANDYA" className="leader-image" />
+              </div>
+              <h3 className="leader-name">BHUMIKA N.PANDYA</h3>
+              <p className="leader-role">CEO</p>
+            </div>
+            <div className="leadership-card">
+              <div className="leader-image-wrapper">
+                <img src="/images/dishant-dave.jpg" alt="Dishant K.Dave" className="leader-image" />
+              </div>
+              <h3 className="leader-name">Dishant K.Dave</h3>
+              <p className="leader-role">COO</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

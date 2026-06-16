@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { db, auth } from '../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { supabase } from '../lib/supabase';
 import { uploadImageToCloudinary } from '../utils/cloudinary';
 import { CheckCircle2, ChevronRight, ChevronLeft, Send, Camera, Loader2, ShieldCheck } from 'lucide-react';
 import emailjs from '@emailjs/browser';
@@ -153,6 +154,7 @@ const HRRegistration = () => {
     if (validate()) {
       if (!agreedToTerms) { alert("Please agree to the terms"); return; }
       try {
+        // 1. Submit to Firestore
         await addDoc(collection(db, 'serviceForms'), {
           ...formData,
           formType: 'HR Registration',
@@ -160,6 +162,24 @@ const HRRegistration = () => {
           selfie: formData.selfie,
           createdAt: serverTimestamp(),
         });
+
+        // 2. Submit to Supabase
+        const { error: supabaseErr } = await supabase
+          .from('hr_registration')
+          .insert([{
+            full_name: formData.fullName,
+            company_name: formData.companyName,
+            designation: formData.designation,
+            mobile: formData.mobile,
+            email: formData.email,
+            hiring_needs: formData.hiringNeeds,
+            selfie_url: formData.selfie
+          }]);
+
+        if (supabaseErr) {
+          console.error('Supabase error:', supabaseErr);
+        }
+
         if (auth.currentUser?.email) {
           localStorage.setItem(`hasRegisteredService_${auth.currentUser.email.toLowerCase()}`, 'true');
         }

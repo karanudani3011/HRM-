@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { db, auth } from '../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { supabase } from '../lib/supabase';
 import { uploadImageToCloudinary } from '../utils/cloudinary';
 import { CheckCircle2, ChevronRight, ChevronLeft, Send, Upload, Loader2, FileText, Camera, ShieldCheck, Mail } from 'lucide-react';
 import emailjs from '@emailjs/browser';
@@ -234,6 +235,7 @@ const DoctorRegistration = () => {
         return;
       }
       try {
+        // 1. Submit to Firestore
         await addDoc(collection(db, 'serviceForms'), {
           ...formData,
           formType: 'Doctor Registration',
@@ -245,12 +247,39 @@ const DoctorRegistration = () => {
           selfie: formData.selfie,
           createdAt: serverTimestamp(),
         });
+
+        // 2. Submit to Supabase
+        const { error: supabaseErr } = await supabase
+          .from('doctors_registration')
+          .insert([{
+            full_name: formData.fullName,
+            mobile: formData.mobile,
+            email: formData.email,
+            dob: formData.dob,
+            gender: formData.gender,
+            current_city: formData.currentCity,
+            willing_to_relocate: formData.willingToRelocate,
+            highest_qualification: formData.highestQualification,
+            super_speciality: formData.superSpeciality,
+            year_of_passing: parseInt(formData.yearOfPassing) || null,
+            college: formData.college,
+            reg_no: formData.regNo,
+            reg_state: formData.regState,
+            total_experience: parseInt(formData.totalExperience) || 0,
+            auth_letter_url: formData.authLetterUrl,
+            selfie_url: formData.selfie
+          }]);
+
+        if (supabaseErr) {
+          console.error('Supabase error:', supabaseErr);
+        }
+
         if (auth.currentUser?.email) {
           localStorage.setItem(`hasRegisteredService_${auth.currentUser.email.toLowerCase()}`, 'true');
         }
         navigate('/registration-success', { state: { formType: 'Doctor Registration' } });
       } catch (err) {
-        console.error('Firestore error:', err);
+        console.error('Submission error:', err);
         alert('Submission failed: ' + err.message);
       }
     }

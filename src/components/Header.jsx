@@ -97,6 +97,24 @@ const Header = () => {
             <li><Link to="/hr-extractor" onClick={closeMenu}>HR Tools</Link></li>
             <li><Link to="/find-doctor" onClick={closeMenu}>Find Doctor</Link></li>
             <li><Link to="/developers" onClick={closeMenu}>Developers</Link></li>
+            <li>
+              <Link
+                to="/services/directory"
+                onClick={closeMenu}
+                style={{
+                  color: '#4f46e5',
+                  fontWeight: '700',
+                  background: 'linear-gradient(135deg, #f5f3ff, #ede9fe)',
+                  padding: '4px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid rgba(79,70,229,0.25)',
+                  fontSize: '13px',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                Registrations
+              </Link>
+            </li>
           </ul>
           <div className="nav-actions">
             <Link to="/contact" className="btn-contact" onClick={closeMenu}>Contact Us</Link>

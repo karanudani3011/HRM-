@@ -22,6 +22,7 @@ import AdminLeads from './pages/AdminLeads';
 import HRExtractor from './pages/HRExtractor';
 import AdminBlogs from './pages/AdminBlogs';
 import Services from './pages/Services';
+import ServicesDirectory from './pages/ServicesDirectory';
 import Samples from './pages/Samples';
 import FindDoctor from './pages/FindDoctor';
 import VideoConsultation from './pages/VideoConsultation';
@@ -46,12 +47,6 @@ function AppContent() {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
-  // Redirect registered users away from /services (they've already registered)
-  useEffect(() => {
-    if (hasRegistered && location.pathname === '/services') {
-      navigate('/find-doctor', { replace: true });
-    }
-  }, [location.pathname, hasRegistered, navigate]);
 
   return (
     <div className="app">
@@ -73,6 +68,7 @@ function AppContent() {
         <Route path="/registration-success" element={<ProtectedRoute><RegistrationSuccess /></ProtectedRoute>} />
         <Route path="/blog" element={<ProtectedRoute><Blog /></ProtectedRoute>} />
         <Route path="/services" element={<ProtectedRoute><Services /></ProtectedRoute>} />
+        <Route path="/services/directory" element={<ProtectedRoute><ServicesDirectory /></ProtectedRoute>} />
         <Route path="/samples" element={<ProtectedRoute><Samples /></ProtectedRoute>} />
         <Route path="/find-doctor" element={<ProtectedRoute><FindDoctor /></ProtectedRoute>} />
         <Route path="/admin/services" element={<AdminServiceSubmissions />} />

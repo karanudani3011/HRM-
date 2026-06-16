@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Stethoscope, Users, Building2, HeartPulse, Handshake, ClipboardList } from 'lucide-react';
+import { Stethoscope, Users, Building2, HeartPulse, Handshake } from 'lucide-react';
 import './ServicePortals.css';
 
 const ServicePortals = () => {
@@ -63,20 +63,6 @@ const ServicePortals = () => {
             <span className="access-link partner-link" style={{ opacity: 0.6, cursor: 'not-allowed' }}>Access Portal &rarr;</span>
           </div>
 
-          {/* Card 6: All Registrations */}
-          <div className="portal-card-large all-registrations-card">
-            <div className="icon-box" style={{ backgroundColor: '#4f46e5' }}>
-              <ClipboardList size={24} color="white" />
-            </div>
-            <h3>All Registrations</h3>
-            <p>Quick access to all HRM registration portals in one place</p>
-            <div className="registration-links" style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: 'auto', width: '100%' }}>
-              <Link to="/portal/doctor/register" className="access-link" style={{ fontSize: '13px', display: 'block', padding: '4px 0' }}>&rarr; Doctor Registration</Link>
-              <Link to="/portal/hr/register" className="access-link" style={{ fontSize: '13px', display: 'block', padding: '4px 0' }}>&rarr; HR Registration</Link>
-              <Link to="/portal/hospital/register" className="access-link" style={{ fontSize: '13px', display: 'block', padding: '4px 0' }}>&rarr; Hospital Registration</Link>
-              <span className="access-link partner-link" style={{ fontSize: '13px', display: 'block', padding: '4px 0', opacity: 0.6, cursor: 'not-allowed' }}>&rarr; Partner Registration</span>
-            </div>
-          </div>
         </div>
 
 

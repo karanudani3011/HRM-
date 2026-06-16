@@ -5,6 +5,7 @@ import { CheckCircle2, ChevronRight, ChevronLeft, Camera, Upload, Send, ShieldCh
 import { uploadImageToCloudinary } from '../utils/cloudinary';
 import { db, auth } from '../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { supabase } from '../lib/supabase';
 import emailjs from '@emailjs/browser';
 import './HospitalRegistration.css';
 
@@ -219,11 +220,50 @@ const HospitalRegistration = () => {
     e.preventDefault();
     if (agreedToTerms) {
       try {
+        // 1. Submit to Firestore
         await addDoc(collection(db, 'serviceForms'), {
           ...formData,
           formType: 'Hospital Registration',
           createdAt: serverTimestamp(),
         });
+
+        // 2. Submit to Supabase
+        const { error: supabaseErr } = await supabase
+          .from('hospitals_registration')
+          .insert([{
+            hospital_name: formData.hospitalName,
+            hospital_type: formData.hospitalType,
+            reg_number: formData.regNumber,
+            year_of_establishment: parseInt(formData.yearOfEstablishment) || null,
+            bed_capacity: parseInt(formData.bedCapacity) || null,
+            address: formData.address,
+            city: formData.city,
+            state: formData.state,
+            pincode: formData.pincode,
+            website: formData.website,
+            admin_name: formData.adminName,
+            designation: formData.designation,
+            mobile: formData.mobile,
+            email: formData.email,
+            whatsapp: formData.whatsapp,
+            auth_letter_url: formData.authLetter,
+            selfie_url: formData.selfie,
+            logo_url: formData.logo,
+            needed_doctors: formData.neededDoctors || [],
+            job_types: formData.jobTypes || [],
+            exp_range: formData.expRange,
+            salary_range: formData.salaryRange,
+            urgency: formData.urgency,
+            facility_highlights: formData.facilityHighlights,
+            hospital_photos: formData.hospitalPhotos || [],
+            gst_number: formData.gstNumber,
+            plan: formData.plan || 'Free'
+          }]);
+
+        if (supabaseErr) {
+          console.error('Supabase error:', supabaseErr);
+        }
+
         if (auth.currentUser?.email) {
           localStorage.setItem(`hasRegisteredService_${auth.currentUser.email.toLowerCase()}`, 'true');
         }

@@ -20,17 +20,16 @@ const UploadPostModal = ({ isOpen, onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!file) {
-      setError('Please select an image file');
-      return;
-    }
 
     setLoading(true);
     setError('');
 
     try {
-      // 1. Upload image to Cloudinary
-      const imageUrl = await uploadImageToCloudinary(file);
+      // 1. Upload image to Cloudinary only if a file was selected
+      let imageUrl = null;
+      if (file) {
+        imageUrl = await uploadImageToCloudinary(file);
+      }
 
       // 2. Save post data to Firebase Firestore
       await addDoc(collection(db, 'posts'), {
@@ -70,13 +69,12 @@ const UploadPostModal = ({ isOpen, onClose }) => {
 
         <form className="post-form" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Image</label>
+            <label>Image <span style={{ fontWeight: 400, color: '#888', fontSize: '0.85em' }}>(Optional)</span></label>
             <input 
               type="file" 
               accept="image/*" 
               onChange={(e) => setFile(e.target.files[0])} 
               className="file-input"
-              required
             />
           </div>
 

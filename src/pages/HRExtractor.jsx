@@ -70,12 +70,19 @@ const HRExtractor = () => {
   const [errorMsg, setErrorMsg] = useState('');
   const [verifiedEmail, setVerifiedEmail] = useState('');
   const [revealedLeads, setRevealedLeads] = useState({});
+  const [viewsUsed, setViewsUsed] = useState(0);
+  const MAX_FREE_VIEWS = 3;
 
   const toggleRevealLead = (leadId) => {
-    setRevealedLeads(prev => ({
-      ...prev,
-      [leadId]: !prev[leadId]
-    }));
+    setRevealedLeads(prev => {
+      const alreadyRevealed = !!prev[leadId];
+      if (!alreadyRevealed && viewsUsed >= MAX_FREE_VIEWS) {
+        // Limit reached — do nothing, button is hidden anyway
+        return prev;
+      }
+      if (!alreadyRevealed) setViewsUsed(c => c + 1);
+      return { ...prev, [leadId]: !alreadyRevealed };
+    });
   };
 
   // Sync Google/LinkedIn/Email authenticated user's email automatically
@@ -381,9 +388,6 @@ const HRExtractor = () => {
                   <button type="submit" className="btn-extract" disabled={extracting}>
                     {extracting ? 'EXTRACTING...' : 'START SEARCH'}
                   </button>
-                  <button type="button" className="btn-export" onClick={handleExport} disabled={leads.length === 0 || extracting}>
-                    <Download size={18} /> EXPORT CSV
-                  </button>
                 </div>
                 <div style={{ textAlign: 'center', marginTop: '12px', fontSize: '0.9rem', color: '#a0a0b0' }}>
                   Free searches remaining: <strong style={{color: '#bb2a3a'}}>{searchesRemaining}</strong> / 3
@@ -454,13 +458,15 @@ const HRExtractor = () => {
                                   <div className="contact-info-small" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                     <span>📱 {isRevealed ? (lead.phone || '—') : maskPhoneNumber(lead.phone)}</span>
                                     <button
-                                      onClick={() => toggleRevealLead(lead.row_id || lead.id)}
-                                      className="btn-view-lead"
-                                      title={isRevealed ? "Hide full details" : "View full details"}
-                                    >
-                                      {isRevealed ? <EyeOff size={12} /> : <Eye size={12} />}
-                                      <span>{isRevealed ? "Hide" : "View"}</span>
-                                    </button>
+                                        onClick={() => toggleRevealLead(lead.row_id || lead.id)}
+                                        className="btn-view-lead"
+                                        title={isRevealed ? "Hide full details" : (viewsUsed >= MAX_FREE_VIEWS ? "View limit reached" : "View full details")}
+                                        disabled={!isRevealed && viewsUsed >= MAX_FREE_VIEWS}
+                                        style={!isRevealed && viewsUsed >= MAX_FREE_VIEWS ? { opacity: 0.35, cursor: 'not-allowed' } : {}}
+                                      >
+                                        {isRevealed ? <EyeOff size={12} /> : <Eye size={12} />}
+                                        <span>{isRevealed ? "Hide" : "View"}</span>
+                                      </button>
                                   </div>
                                 </td>
                                 <td>
@@ -534,13 +540,15 @@ const HRExtractor = () => {
                                   <div className="contact-info-small" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                     <span>📱 {isRevealed ? (lead["Contact Number"] || '—') : maskPhoneNumber(lead["Contact Number"])}</span>
                                     <button
-                                      onClick={() => toggleRevealLead(lead.id)}
-                                      className="btn-view-lead"
-                                      title={isRevealed ? "Hide full details" : "View full details"}
-                                    >
-                                      {isRevealed ? <EyeOff size={12} /> : <Eye size={12} />}
-                                      <span>{isRevealed ? "Hide" : "View"}</span>
-                                    </button>
+                                        onClick={() => toggleRevealLead(lead.id)}
+                                        className="btn-view-lead"
+                                        title={isRevealed ? "Hide full details" : (viewsUsed >= MAX_FREE_VIEWS ? "View limit reached" : "View full details")}
+                                        disabled={!isRevealed && viewsUsed >= MAX_FREE_VIEWS}
+                                        style={!isRevealed && viewsUsed >= MAX_FREE_VIEWS ? { opacity: 0.35, cursor: 'not-allowed' } : {}}
+                                      >
+                                        {isRevealed ? <EyeOff size={12} /> : <Eye size={12} />}
+                                        <span>{isRevealed ? "Hide" : "View"}</span>
+                                      </button>
                                   </div>
                                 </td>
                               </tr>

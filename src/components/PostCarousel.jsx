@@ -86,10 +86,12 @@ const PostCarousel = () => {
                   key={post.id} 
                   className={`post-card ${index === currentIndex ? 'active' : ''}`}
                 >
-                  <div 
-                    className="post-image" 
-                    style={{ backgroundImage: `url(${post.imageUrl})` }}
-                  ></div>
+                  {post.imageUrl && (
+                    <div 
+                      className="post-image" 
+                      style={{ backgroundImage: `url(${post.imageUrl})` }}
+                    ></div>
+                  )}
                   <div className="post-info">
                     <div className="post-info-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                       <span className="post-category">{post.category}</span>

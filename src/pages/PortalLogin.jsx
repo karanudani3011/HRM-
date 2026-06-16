@@ -36,6 +36,7 @@ const PortalLogin = () => {
   const [loading, setLoading] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [accepted, setAccepted] = useState(false);
   const [forgotPasswordMode, setForgotPasswordMode] = useState(false);
   const [resetSent, setResetSent] = useState(false);
 
@@ -95,6 +96,10 @@ const PortalLogin = () => {
   const handleAuthSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    if (!accepted) {
+      setError('You must agree to the Terms & Privacy Policy before continuing.');
+      return;
+    }
     setLoading(true);
 
     if (isSignUp) {
@@ -631,9 +636,25 @@ const PortalLogin = () => {
             </div>
           </div>
 
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+            <input
+              id="acceptTerms"
+              type="checkbox"
+              checked={accepted}
+              onChange={(e) => setAccepted(e.target.checked)}
+              disabled={loading}
+            />
+            <label htmlFor="acceptTerms" style={{ fontSize: '13px' }}>
+              I agree to the{' '}
+              <a href="/terms" style={{ color: '#2563eb', textDecoration: 'underline' }}>Terms</a>
+              {' '}and{' '}
+              <a href="/privacy" style={{ color: '#2563eb', textDecoration: 'underline' }}>Privacy Policy</a>
+            </label>
+          </div>
+
           {error && <div className="login-error-msg">{error}</div>}
 
-          <button type="submit" className="login-main-btn" disabled={loading || (isSignUp && uploadingAvatar)}>
+          <button type="submit" className="login-main-btn" disabled={loading || (isSignUp && uploadingAvatar) || !accepted}>
             {loading ? 'Processing...' : (isSignUp ? 'Sign Up' : 'Log In')}
           </button>
         </form>

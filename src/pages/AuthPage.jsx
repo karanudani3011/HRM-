@@ -18,9 +18,14 @@ const AuthPage = () => {
   const [error, setError] = useState(null);
   const [otpSent, setOtpSent] = useState(false);
   const [confirmationResult, setConfirmationResult] = useState(null);
+  const [accepted, setAccepted] = useState(false);
   const navigate = useNavigate();
 
   const handleGoogleSignIn = async () => {
+    if (!accepted) {
+      setError('You must agree to the Terms & Privacy Policy before continuing.');
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
@@ -35,6 +40,10 @@ const AuthPage = () => {
   };
 
   const handleLinkedInSignIn = async () => {
+    if (!accepted) {
+      setError('You must agree to the Terms & Privacy Policy before continuing.');
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
@@ -77,6 +86,11 @@ const AuthPage = () => {
     e.preventDefault();
     if (!otpSent) return;
 
+    if (!accepted) {
+      setError('You must agree to the Terms & Privacy Policy before continuing.');
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -95,6 +109,11 @@ const AuthPage = () => {
   };
 
   const handleSendOTP = async () => {
+    if (!accepted) {
+      setError('You must agree to the Terms & Privacy Policy before continuing.');
+      setLoading(false);
+      return;
+    }
     let formattedNumber = phoneNumber.trim();
     if (!formattedNumber.startsWith('+')) {
       if (formattedNumber.length === 10) {
@@ -158,11 +177,11 @@ const AuthPage = () => {
         {!otpSent && (
           <>
             <div className="social-login-container" style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '0 32px', marginTop: '16px' }}>
-              <button className="social-btn google-btn" onClick={handleGoogleSignIn} disabled={loading} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', padding: '14px', border: '1px solid #d1d5db', borderRadius: '12px', background: 'white', fontWeight: '600', cursor: 'pointer' }}>
+              <button className="social-btn google-btn" onClick={handleGoogleSignIn} disabled={loading || !accepted} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', padding: '14px', border: '1px solid #d1d5db', borderRadius: '12px', background: 'white', fontWeight: '600', cursor: 'pointer' }}>
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style={{ width: '20px', marginRight: '12px' }} />
                 Continue with Google
               </button>
-              <button className="social-btn linkedin-btn" onClick={handleLinkedInSignIn} disabled={loading} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', padding: '14px', border: '1px solid #d1d5db', borderRadius: '12px', background: 'white', fontWeight: '600', cursor: 'pointer' }}>
+              <button className="social-btn linkedin-btn" onClick={handleLinkedInSignIn} disabled={loading || !accepted} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', padding: '14px', border: '1px solid #d1d5db', borderRadius: '12px', background: 'white', fontWeight: '600', cursor: 'pointer' }}>
                 <svg viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg" style={{ marginRight: '12px' }}>
                   <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" fill="#0077b5"/>
                 </svg>
@@ -220,7 +239,17 @@ const AuthPage = () => {
             </div>
           )}
 
-          <button type="submit" className="auth-submit-btn" disabled={loading}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '0 32px', marginTop: '16px' }}>
+            <input id="acceptTerms" type="checkbox" checked={accepted} onChange={(e) => setAccepted(e.target.checked)} disabled={loading} />
+            <label htmlFor="acceptTerms" style={{ fontSize: '13px' }}>
+              I agree to the{' '}
+              <a href="/terms" style={{ color: '#2563eb', textDecoration: 'underline' }}>Terms</a>
+              {' '}and{' '}
+              <a href="/privacy" style={{ color: '#2563eb', textDecoration: 'underline' }}>Privacy Policy</a>
+            </label>
+          </div>
+
+          <button type="submit" className="auth-submit-btn" disabled={loading || !accepted}>
             {loading ? 'Processing...' : (otpSent ? 'Verify OTP' : 'Send OTP')}
           </button>
         </form>

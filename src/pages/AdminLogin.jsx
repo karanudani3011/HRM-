@@ -80,21 +80,6 @@ const AdminLogin = () => {
           <p>Enter your credentials to access the control panel</p>
         </div>
 
-        {/* Credential Hint Box */}
-        <div className="admin-credential-hint">
-          <div className="admin-credential-hint-icon">🔑</div>
-          <div className="admin-credential-hint-text">
-            <strong>Default Login Credentials</strong>
-            <div className="admin-credential-row">
-              <span>Admin ID</span>
-              <span>admin</span>
-            </div>
-            <div className="admin-credential-row">
-              <span>Password</span>
-              <span>admin123</span>
-            </div>
-          </div>
-        </div>
 
         <form className="admin-login-form" onSubmit={handleLogin}>
           <div className="admin-field-group">

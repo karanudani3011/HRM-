@@ -1,16 +1,20 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { auth } from '../firebase';
 import { signOut } from 'firebase/auth';
 import { supabase } from '../lib/supabase';
+import PaymentModal from './PaymentModal';
 import './Header.css';
 
 const Header = () => {
   const { user, hasRegistered, setHasRegistered } = useAuth();
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [profile, setProfile] = useState(null);
+  const [isPremiumDir, setIsPremiumDir] = useState(false);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
 
   // Fetch avatar and name from Supabase user_profiles
   useEffect(() => {
@@ -25,7 +29,7 @@ const Header = () => {
           .select('avatar_url, full_name')
           .eq('email', user.email.toLowerCase())
           .maybeSingle();
-        
+
         if (data) {
           setProfile(data);
         } else {
@@ -37,6 +41,24 @@ const Header = () => {
     };
 
     fetchHeaderProfile();
+  }, [user]);
+
+  // Check if user has paid for Premium Directory
+  useEffect(() => {
+    const checkPremiumPlan = async () => {
+      if (!user?.email) { setIsPremiumDir(false); return; }
+      try {
+        const { data } = await supabase
+          .from('user_search_credits')
+          .select('plan_level')
+          .eq('email', user.email.toLowerCase())
+          .maybeSingle();
+        setIsPremiumDir(data?.plan_level === 'premium_dir');
+      } catch (err) {
+        console.error('Error checking premium plan:', err);
+      }
+    };
+    checkPremiumPlan();
   }, [user]);
 
   // Listen to profile updates from the Home dashboard to dynamically refresh the avatar
@@ -59,6 +81,15 @@ const Header = () => {
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const closeMenu = () => setIsMenuOpen(false);
+
+  const handlePremiumClick = () => {
+    closeMenu();
+    if (isPremiumDir) {
+      navigate('/services/directory');
+    } else {
+      setShowPremiumModal(true);
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -98,22 +129,27 @@ const Header = () => {
             <li><Link to="/find-doctor" onClick={closeMenu}>Find Doctor</Link></li>
             <li><Link to="/developers" onClick={closeMenu}>Developers</Link></li>
             <li>
-              <Link
-                to="/services/directory"
-                onClick={closeMenu}
+              <button
+                onClick={handlePremiumClick}
                 style={{
-                  color: '#4f46e5',
+                  color: isPremiumDir ? '#16a34a' : '#4f46e5',
                   fontWeight: '700',
-                  background: 'linear-gradient(135deg, #f5f3ff, #ede9fe)',
+                  background: isPremiumDir
+                    ? 'linear-gradient(135deg, #f0fdf4, #dcfce7)'
+                    : 'linear-gradient(135deg, #f5f3ff, #ede9fe)',
                   padding: '4px 12px',
                   borderRadius: '6px',
-                  border: '1px solid rgba(79,70,229,0.25)',
+                  border: isPremiumDir
+                    ? '1px solid rgba(22,163,74,0.3)'
+                    : '1px solid rgba(79,70,229,0.25)',
                   fontSize: '13px',
-                  transition: 'all 0.2s ease'
+                  transition: 'all 0.2s ease',
+                  cursor: 'pointer',
+                  lineHeight: '1.5',
                 }}
               >
-                Registrations
-              </Link>
+                {isPremiumDir ? '✓ Premium' : 'Premium'}
+              </button>
             </li>
           </ul>
           <div className="nav-actions">
@@ -135,6 +171,25 @@ const Header = () => {
           </div>
         </nav>
       </div>
+
+      {/* Premium Directory Payment Modal */}
+      {showPremiumModal && (
+        <PaymentModal
+          mode="premium"
+          onClose={() => {
+            setShowPremiumModal(false);
+            // Re-check plan after modal closes (in case admin just upgraded them)
+            if (user?.email) {
+              supabase
+                .from('user_search_credits')
+                .select('plan_level')
+                .eq('email', user.email.toLowerCase())
+                .maybeSingle()
+                .then(({ data }) => setIsPremiumDir(data?.plan_level === 'premium_dir'));
+            }
+          }}
+        />
+      )}
     </header>
   );
 };

@@ -7,6 +7,8 @@ import {
   Search, ChevronDown, FileText, X, ExternalLink,
   Stethoscope, Building2, Users, ArrowLeft
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import PaymentModal from '../components/PaymentModal';
 import './ServicesDirectory.css';
 
 const ServicesDirectory = () => {
@@ -15,6 +17,49 @@ const ServicesDirectory = () => {
   const [selectedCategory, setSelectedCategory] = useState('Doctor Registration');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedItem, setSelectedItem] = useState(null);
+
+  const { user } = useAuth();
+  const [isPremiumDir, setIsPremiumDir] = useState(false);
+  const [creditsLoading, setCreditsLoading] = useState(true);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+
+  const fetchUserCredits = async () => {
+    if (!user?.email) {
+      setCreditsLoading(false);
+      return;
+    }
+    setCreditsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('user_search_credits')
+        .select('plan_level')
+        .eq('email', user.email.toLowerCase())
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (data?.plan_level === 'premium_dir') {
+        setIsPremiumDir(true);
+      }
+    } catch (err) {
+      console.error('Error fetching user plan:', err);
+    } finally {
+      setCreditsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserCredits();
+  }, [user]);
+
+  // Hard paywall — no free views. Must have premium_dir plan to see any profile.
+  const handleViewProfileClick = (item) => {
+    if (isPremiumDir) {
+      setSelectedItem(item);
+    } else {
+      setShowPaymentModal(true);
+    }
+  };
 
   const getTableName = (category) => {
     if (category === 'Doctor Registration') return 'doctors_registration';
@@ -389,6 +434,22 @@ const ServicesDirectory = () => {
         <div className="dashboard-stats">
           <div className="stat-badge">Category: <span>{selectedCategory.replace(' Registration', 's')}</span></div>
           <div className="stat-badge">Total Found: <span>{filteredData.length}</span></div>
+          {!creditsLoading && (
+            isPremiumDir ? (
+              <div className="stat-badge" style={{ cursor: 'default', borderColor: 'rgba(34,197,94,0.4)' }}>
+                Access: <span style={{ color: '#22c55e', marginLeft: '5px', fontWeight: '800' }}>✓ Unlimited</span>
+              </div>
+            ) : (
+              <div
+                className="stat-badge"
+                style={{ cursor: 'pointer', borderColor: 'rgba(187,42,58,0.5)', background: 'rgba(187,42,58,0.08)' }}
+                onClick={() => setShowPaymentModal(true)}
+                title="Click to unlock Premium Directory"
+              >
+                Access: <span style={{ color: '#bb2a3a', marginLeft: '5px', fontWeight: '800' }}>🔒 Locked — ₹599</span>
+              </div>
+            )
+          )}
         </div>
 
         {/* Cards */}
@@ -522,8 +583,16 @@ const ServicesDirectory = () => {
                   </div>
 
                   <div className="card-footer-action">
-                    <button className="view-details-btn" onClick={() => setSelectedItem(item)}>
-                      <FileText size={15} /> View Full Profile
+                    <button
+                      className="view-details-btn"
+                      onClick={() => handleViewProfileClick(item)}
+                      style={!isPremiumDir ? { opacity: 0.75 } : {}}
+                    >
+                      {isPremiumDir ? (
+                        <><FileText size={15} /> View Full Profile</>
+                      ) : (
+                        <>🔒 Unlock Profile</>
+                      )}
                     </button>
                   </div>
                 </article>
@@ -621,6 +690,17 @@ const ServicesDirectory = () => {
               </div>
             </div>
           </div>
+        )}
+
+        {/* Payment Modal */}
+        {showPaymentModal && (
+          <PaymentModal 
+            mode="premium" 
+            onClose={() => {
+              setShowPaymentModal(false);
+              fetchUserCredits();
+            }} 
+          />
         )}
 
       </div>

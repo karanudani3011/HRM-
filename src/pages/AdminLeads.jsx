@@ -125,6 +125,34 @@ const AdminLeads = () => {
 
     setCreditLoading(true);
     setCreditMessage('');
+
+    // Premium Directory is a one-time lifetime plan — just flip plan_level, no credit math
+    if (planLevel === 'premium_dir') {
+      try {
+        let error;
+        if (foundUser.isNew) {
+          const res = await supabase.from('user_search_credits').insert([
+            { email: foundUser.email, searches_remaining: 0, plan_level: 'premium_dir' }
+          ]);
+          error = res.error;
+        } else {
+          const res = await supabase.from('user_search_credits')
+            .update({ plan_level: 'premium_dir', updated_at: new Date() })
+            .eq('email', foundUser.email);
+          error = res.error;
+        }
+        if (error) throw error;
+        setCreditMessage(`✅ Success! ${foundUser.email} now has LIFETIME Premium Directory access (₹599 one-time plan). They can view all profiles without any limit.`);
+        setFoundUser({ ...foundUser, plan_level: 'premium_dir', isNew: false });
+        fetchAllUserCredits();
+      } catch (err) {
+        console.error(err);
+        setCreditMessage('Error: ' + err.message);
+      } finally {
+        setCreditLoading(false);
+      }
+      return;
+    }
     
     let additionalSearches = 0;
     if (planLevel === 'bronze') additionalSearches = 5;
@@ -300,9 +328,10 @@ const AdminLeads = () => {
                       onChange={(e) => setPlanLevel(e.target.value)}
                       style={{ background: '#1c1c1e', border: '1px solid #2a2a2c', color: '#f0f0f0', padding: '11px 14px', borderRadius: '8px', width: '100%', cursor: 'pointer', fontSize: '13.5px', outline: 'none' }}
                     >
-                      <option value="bronze">Bronze Plan (+5 Searches)</option>
-                      <option value="silver">Silver Plan (+10 Searches)</option>
-                      <option value="gold">Gold Plan (+20 Searches)</option>
+                      <option value="bronze">Bronze Plan (+5 Searches) — HR Tools</option>
+                      <option value="silver">Silver Plan (+10 Searches) — HR Tools</option>
+                      <option value="gold">Gold Plan (+20 Searches) — HR Tools</option>
+                      <option value="premium_dir">⭐ Premium Directory — ₹599 Lifetime (Unlimited Views)</option>
                       <option value="custom">Custom Amount</option>
                     </select>
                   </div>
@@ -409,9 +438,9 @@ const AdminLeads = () => {
                             fontSize: '11px', 
                             padding: '3px 8px', 
                             borderRadius: '6px',
-                            background: u.plan_level === 'free' ? 'rgba(255,255,255,0.04)' : u.plan_level === 'bronze' ? 'rgba(180, 83, 9, 0.12)' : u.plan_level === 'silver' ? 'rgba(100, 116, 139, 0.12)' : 'rgba(192, 57, 43, 0.12)',
-                            color: u.plan_level === 'free' ? '#8a8a8e' : u.plan_level === 'bronze' ? '#fbbf24' : u.plan_level === 'silver' ? '#94a3b8' : '#e07070',
-                            border: u.plan_level === 'free' ? '1px solid #2a2a2c' : u.plan_level === 'bronze' ? '1px solid rgba(180, 83, 9, 0.25)' : u.plan_level === 'silver' ? '1px solid rgba(100, 116, 139, 0.25)' : '1px solid rgba(192, 57, 43, 0.25)',
+                            background: u.plan_level === 'free' ? 'rgba(255,255,255,0.04)' : u.plan_level === 'bronze' ? 'rgba(180, 83, 9, 0.12)' : u.plan_level === 'silver' ? 'rgba(100, 116, 139, 0.12)' : u.plan_level === 'gold' ? 'rgba(192, 57, 43, 0.12)' : 'rgba(168, 85, 247, 0.12)',
+                            color: u.plan_level === 'free' ? '#8a8a8e' : u.plan_level === 'bronze' ? '#fbbf24' : u.plan_level === 'silver' ? '#94a3b8' : u.plan_level === 'gold' ? '#e07070' : '#c084fc',
+                            border: u.plan_level === 'free' ? '1px solid #2a2a2c' : u.plan_level === 'bronze' ? '1px solid rgba(180, 83, 9, 0.25)' : u.plan_level === 'silver' ? '1px solid rgba(100, 116, 139, 0.25)' : u.plan_level === 'gold' ? '1px solid rgba(192, 57, 43, 0.25)' : '1px solid rgba(168, 85, 247, 0.25)',
                             textTransform: 'uppercase',
                             fontWeight: '700',
                             letterSpacing: '0.2px'

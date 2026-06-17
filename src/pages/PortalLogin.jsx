@@ -104,11 +104,6 @@ const PortalLogin = () => {
 
     if (isSignUp) {
       // Sign Up Mode validation: Enforce ALL fields as requested by the user
-      if (!avatarUrl) {
-        setError('Profile picture is required for new accounts.');
-        setLoading(false);
-        return;
-      }
       if (!fullName.trim()) {
         setError('Full Name is required.');
         setLoading(false);
@@ -155,7 +150,7 @@ const PortalLogin = () => {
           role: role,
           location: locationField.trim(),
           bio: bio.trim(),
-          avatar_url: avatarUrl,
+          avatar_url: avatarUrl || 'https://via.placeholder.com/150',
           updated_at: new Date().toISOString()
         };
 

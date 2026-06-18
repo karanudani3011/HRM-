@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { X, CheckCircle2, ShieldAlert, Award, Zap, Camera, Phone, Check } from 'lucide-react';
 import './PaymentModal.css';
 import { useAuth } from '../context/AuthContext';
@@ -55,7 +56,7 @@ const PaymentModal = ({ onClose, mode = 'hr' }) => {
       : `Hello Admin,\n\nI am selecting the ${activeTier?.name} plan (₹${activeTier?.price}) on HRM Extractor.\nMy registered email: ${userIdentifier}${userDisplayName}\n\nHere is my successful payment screenshot.`
   );
 
-  return (
+  return createPortal(
     <div className="payment-modal-overlay">
       <div className="payment-modal-container">
         <div className="payment-modal-header">
@@ -148,7 +149,7 @@ const PaymentModal = ({ onClose, mode = 'hr' }) => {
         </div>
       </div>
     </div>
-  );
+  , document.body);
 };
 
 export default PaymentModal;

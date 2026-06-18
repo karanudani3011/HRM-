@@ -131,22 +131,7 @@ const Header = () => {
             <li>
               <button
                 onClick={handlePremiumClick}
-                style={{
-                  color: isPremiumDir ? '#16a34a' : '#4f46e5',
-                  fontWeight: '700',
-                  background: isPremiumDir
-                    ? 'linear-gradient(135deg, #f0fdf4, #dcfce7)'
-                    : 'linear-gradient(135deg, #f5f3ff, #ede9fe)',
-                  padding: '4px 12px',
-                  borderRadius: '6px',
-                  border: isPremiumDir
-                    ? '1px solid rgba(22,163,74,0.3)'
-                    : '1px solid rgba(79,70,229,0.25)',
-                  fontSize: '13px',
-                  transition: 'all 0.2s ease',
-                  cursor: 'pointer',
-                  lineHeight: '1.5',
-                }}
+                className={`premium-btn${isPremiumDir ? ' is-active' : ''}`}
               >
                 {isPremiumDir ? '✓ Premium' : 'Premium'}
               </button>

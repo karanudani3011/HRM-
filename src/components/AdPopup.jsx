@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './AdPopup.css';
 
 import { useAuth } from '../context/AuthContext';
@@ -32,65 +32,88 @@ const ADS = [
 
 const AdPopup = () => {
   const { user } = useAuth();
-  const [phase, setPhase]         = useState('gap');   // 'show' | 'gap' | 'done'
+  const [phase, setPhase]         = useState('idle');  // 'idle' | 'show' | 'gap' | 'done'
   const [adIndex, setAdIndex]     = useState(0);
   const [countdown, setCountdown] = useState(AD_DURATION);
   const [closing, setClosing]     = useState(false);
-  const timerRef = useRef(null);
 
-  // ── Main sequencer triggered on login ───────────────────────────
-  useEffect(() => {
-    if (user?.uid) {
-      // Small initial delay before first ad
-      const boot = setTimeout(() => startAd(0), 800);
-      return () => clearTimeout(boot);
-    } else {
-      setPhase('gap');
-    }
-  }, [user?.uid]);
+  // ── Two SEPARATE refs to prevent timer conflicts ─────────────────
+  const tickRef = useRef(null);   // countdown setInterval
+  const gapRef  = useRef(null);   // inter-ad gap setTimeout
 
-  const startAd = (index) => {
+  const clearAll = () => {
+    if (tickRef.current) { clearInterval(tickRef.current);  tickRef.current = null; }
+    if (gapRef.current)  { clearTimeout(gapRef.current);    gapRef.current  = null; }
+  };
+
+  const startAd = useCallback((index) => {
     if (index >= ADS.length) { setPhase('done'); return; }
+    clearAll();
     setAdIndex(index);
     setCountdown(AD_DURATION);
     setClosing(false);
     setPhase('show');
-  };
+  }, []);
 
-  const closeAd = (index) => {
-    setClosing(true);
-    timerRef.current && clearInterval(timerRef.current);
-    setTimeout(() => {
-      setPhase('gap');
-      // After gap, show next ad
-      if (index + 1 < ADS.length) {
-        timerRef.current = setTimeout(() => startAd(index + 1), AD_GAP * 1000);
-      } else {
-        setPhase('done');
-      }
-    }, 550);
-  };
+  // ── Trigger ad sequence on login ─────────────────────────────────
+  useEffect(() => {
+    if (user?.uid) {
+      gapRef.current = setTimeout(() => startAd(0), 800);
+    } else {
+      clearAll();
+      setPhase('idle');
+    }
+    return () => clearAll();
+  }, [user?.uid, startAd]);
 
-  // ── Countdown ticker while ad is visible ─────────────────────
+  // ── Countdown ticker (only while an ad is visible) ───────────────
   useEffect(() => {
     if (phase !== 'show') return;
 
-    timerRef.current = setInterval(() => {
+    tickRef.current = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
-          clearInterval(timerRef.current);
-          closeAd(adIndex);
+          // Let closeAd handle the transition — stop interval here
+          clearInterval(tickRef.current);
+          tickRef.current = null;
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
 
-    return () => clearInterval(timerRef.current);
+    return () => {
+      if (tickRef.current) { clearInterval(tickRef.current); tickRef.current = null; }
+    };
   }, [phase, adIndex]);
 
-  // ── Nothing to render ────────────────────────────────────────
-  if (!user || phase === 'done' || phase === 'gap') return null;
+  // ── When countdown reaches 0, auto-advance ───────────────────────
+  useEffect(() => {
+    if (countdown === 0 && phase === 'show') {
+      closeAd(adIndex);
+    }
+  }, [countdown]);
+
+  const closeAd = useCallback((index) => {
+    // Stop countdown
+    if (tickRef.current) { clearInterval(tickRef.current); tickRef.current = null; }
+
+    setClosing(true);
+
+    // After closing animation (550ms), either gap → next ad or finish
+    setTimeout(() => {
+      if (index + 1 < ADS.length) {
+        setPhase('gap');
+        // Use gapRef (separate from tickRef!) to schedule next ad
+        gapRef.current = setTimeout(() => startAd(index + 1), AD_GAP * 1000);
+      } else {
+        setPhase('done');
+      }
+    }, 550);
+  }, [startAd]);
+
+  // ── Nothing to render ────────────────────────────────────────────
+  if (!user || phase === 'done' || phase === 'gap' || phase === 'idle') return null;
 
   const ad       = ADS[adIndex];
   const progress = ((AD_DURATION - countdown) / AD_DURATION) * 100;
@@ -147,7 +170,10 @@ const AdPopup = () => {
         {/* Ad counter dots */}
         <div className="adp-dots">
           {ADS.map((_, i) => (
-            <span key={i} className={`adp-dot ${i === adIndex ? 'adp-dot-active' : i < adIndex ? 'adp-dot-done' : ''}`} />
+            <span
+              key={i}
+              className={`adp-dot ${i === adIndex ? 'adp-dot-active' : i < adIndex ? 'adp-dot-done' : ''}`}
+            />
           ))}
         </div>
 

@@ -1,5 +1,5 @@
 const API_KEY = 'AIzaSyA59_9MaPWfQbnwEb8_Bf92f8tEx6lfV5c';
-const email = 'karanudani30@gmail.com';
+const email = 'director@hrmconsultancydoctorschoices.com';
 
 async function test() {
   const url = `https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${API_KEY}`;

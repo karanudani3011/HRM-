@@ -1,0 +1,219 @@
+/* ══════════════════════════════════════════════
+   CENTERED MODAL AD POPUP  – 3-Ad Carousel
+══════════════════════════════════════════════ */
+
+/* ── Overlay backdrop ── */
+.adp-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+/* ── Modal card ── */
+.adp-modal {
+  position: relative;
+  width: 360px;
+  max-width: 96vw;
+  max-height: 92vh;
+  border-radius: 18px;
+  overflow: hidden;
+  overflow-y: auto;
+  background: #0d0d0d;
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.7),
+    0 0 0 1px rgba(212, 160, 23, 0.25);
+  scrollbar-width: none;
+}
+.adp-modal::-webkit-scrollbar { display: none; }
+
+/* ── Animations ── */
+.adp-opening {
+  animation: adpSlideIn 0.55s cubic-bezier(0.34, 1.45, 0.64, 1) forwards;
+}
+.adp-closing {
+  animation: adpSlideOut 0.5s ease-in forwards;
+}
+
+@keyframes adpSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.82) translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes adpSlideOut {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.88) translateY(20px);
+  }
+}
+
+/* ── Top bar ── */
+.adp-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.9);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.adp-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.38);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.adp-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── Countdown ring ── */
+.adp-ring-wrap {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.adp-ring-svg {
+  width: 30px;
+  height: 30px;
+  transform: rotate(-90deg);
+  position: absolute;
+}
+
+.adp-ring-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.1);
+  stroke-width: 3;
+}
+
+.adp-ring-fill {
+  fill: none;
+  stroke: #d4a017;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 0, 100;
+  transition: stroke-dasharray 1s linear;
+}
+
+.adp-ring-num {
+  position: relative;
+  font-size: 9px;
+  font-weight: 800;
+  color: #d4a017;
+  line-height: 1;
+}
+
+/* ── Close button ── */
+.adp-close-btn {
+  background: rgba(255, 255, 255, 0.09);
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 11px;
+  font-weight: 700;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.adp-close-btn:hover {
+  background: rgba(187, 42, 58, 0.6);
+  color: #fff;
+}
+
+/* ── Poster image ── */
+.adp-img-link {
+  display: block;
+  text-decoration: none;
+  cursor: pointer;
+  line-height: 0;
+}
+
+.adp-poster {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
+  transition: filter 0.2s ease;
+}
+
+.adp-img-link:hover .adp-poster {
+  filter: brightness(1.06);
+}
+
+/* ── Progress bar ── */
+.adp-progress-track {
+  height: 3px;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.adp-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #bb2a3a, #d4a017);
+  transition: width 1s linear;
+}
+
+/* ── Ad counter dots ── */
+.adp-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 0 10px;
+  background: rgba(0, 0, 0, 0.85);
+}
+
+.adp-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transition: background 0.3s;
+}
+
+.adp-dot-active {
+  background: #d4a017;
+  transform: scale(1.2);
+}
+
+.adp-dot-done {
+  background: rgba(187, 42, 58, 0.5);
+}
+
+/* ── Mobile tweaks ── */
+@media (max-width: 480px) {
+  .adp-modal {
+    width: 98vw;
+    max-height: 90vh;
+    border-radius: 14px;
+  }
+}

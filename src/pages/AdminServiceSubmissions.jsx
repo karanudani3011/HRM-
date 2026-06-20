@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
-import { collection, onSnapshot, orderBy, query, doc, deleteDoc } from 'firebase/firestore';
+import { collection, onSnapshot, orderBy, query, doc, deleteDoc, getDocs, addDoc } from 'firebase/firestore';
+import { supabase } from '../lib/supabase';
 import { Trash2, Eye, Download, Info } from 'lucide-react';
 import './AdminDashboard.css';
 import './AdminServiceSubmissions.css';
@@ -49,6 +50,141 @@ const IconLogout = () => (
   </svg>
 );
 
+const buildSupabasePayload = (item) => {
+  if (item.formType === 'Doctor Registration') {
+    return {
+      full_name: item.fullName || item.name || 'Unnamed',
+      mobile: item.mobile || '',
+      email: item.email,
+      dob: item.dob || null,
+      gender: item.gender || null,
+      current_city: item.currentCity || item.city || '',
+      willing_to_relocate: item.willingToRelocate || 'No',
+      highest_qualification: item.highestQualification || '',
+      super_speciality: item.superSpeciality || '',
+      year_of_passing: parseInt(item.yearOfPassing) || null,
+      college: item.college || '',
+      reg_no: item.regNo || '',
+      reg_state: item.regState || '',
+      total_experience: parseInt(item.totalExperience) || 0,
+      auth_letter_url: item.authLetter || item.authLetterUrl || '',
+      selfie_url: item.selfie || ''
+    };
+  } else if (item.formType === 'HR Registration') {
+    return {
+      full_name: item.fullName || item.name || 'Unnamed',
+      company_name: item.companyName || '',
+      designation: item.designation || '',
+      mobile: item.mobile || '',
+      email: item.email,
+      hiring_needs: item.hiringNeeds || '',
+      selfie_url: item.selfie || ''
+    };
+  } else {
+    return {
+      hospital_name: item.hospitalName || '',
+      hospital_type: item.hospitalType || '',
+      reg_number: item.regNumber || '',
+      year_of_establishment: parseInt(item.yearOfEstablishment) || null,
+      bed_capacity: parseInt(item.bedCapacity) || null,
+      address: item.address || '',
+      city: item.city || '',
+      state: item.state || '',
+      pincode: item.pincode || '',
+      website: item.website || '',
+      admin_name: item.adminName || '',
+      designation: item.designation || '',
+      mobile: item.mobile || '',
+      email: item.email,
+      whatsapp: item.whatsapp || '',
+      auth_letter_url: item.authLetter || item.authLetterUrl || '',
+      selfie_url: item.selfie || '',
+      logo_url: item.logo || '',
+      needed_doctors: item.neededDoctors || [],
+      job_types: item.jobTypes || [],
+      exp_range: item.expRange || '',
+      salary_range: item.salaryRange || '',
+      urgency: item.urgency || '',
+      facility_highlights: item.facilityHighlights || '',
+      hospital_photos: item.hospitalPhotos || [],
+      gst_number: item.gstNumber || '',
+      plan: item.plan || 'Free'
+    };
+  }
+};
+
+const mapSupaToFirestore = (item, category) => {
+  if (category === 'Doctor Registration') {
+    return {
+      formType: 'Doctor Registration',
+      fullName: item.full_name,
+      name: item.full_name,
+      email: item.email,
+      mobile: item.mobile,
+      dob: item.dob,
+      gender: item.gender,
+      currentCity: item.current_city,
+      city: item.current_city,
+      willingToRelocate: item.willing_to_relocate,
+      highestQualification: item.highest_qualification,
+      superSpeciality: item.super_speciality,
+      yearOfPassing: item.year_of_passing?.toString() || '',
+      college: item.college,
+      regNo: item.reg_no,
+      regState: item.reg_state,
+      totalExperience: item.total_experience?.toString() || '0',
+      authLetterUrl: item.auth_letter_url || '',
+      authLetter: item.auth_letter_url || '',
+      selfie: item.selfie_url || '',
+      createdAt: new Date(item.created_at)
+    };
+  } else if (category === 'HR Registration') {
+    return {
+      formType: 'HR Registration',
+      fullName: item.full_name,
+      name: item.full_name,
+      companyName: item.company_name,
+      designation: item.designation,
+      mobile: item.mobile,
+      email: item.email,
+      hiringNeeds: item.hiring_needs,
+      selfie: item.selfie_url || '',
+      createdAt: new Date(item.created_at)
+    };
+  } else {
+    return {
+      formType: 'Hospital Registration',
+      hospitalName: item.hospital_name,
+      hospitalType: item.hospital_type,
+      regNumber: item.reg_number,
+      yearOfEstablishment: item.year_of_establishment?.toString() || '',
+      bedCapacity: item.bed_capacity?.toString() || '',
+      address: item.address,
+      city: item.city,
+      state: item.state,
+      pincode: item.pincode,
+      website: item.website,
+      adminName: item.admin_name,
+      designation: item.designation,
+      mobile: item.mobile,
+      email: item.email,
+      whatsapp: item.whatsapp,
+      authLetter: item.auth_letter_url || '',
+      selfie: item.selfie_url || '',
+      logo: item.logo_url || '',
+      neededDoctors: item.needed_doctors || [],
+      jobTypes: item.job_types || [],
+      expRange: item.exp_range,
+      salaryRange: item.salary_range,
+      urgency: item.urgency,
+      facilityHighlights: item.facility_highlights,
+      hospitalPhotos: item.hospital_photos || [],
+      gstNumber: item.gst_number || '',
+      plan: item.plan || 'Free',
+      createdAt: new Date(item.created_at)
+    };
+  }
+};
 
 const AdminServiceSubmissions = () => {
   const navigate = useNavigate();
@@ -62,6 +198,55 @@ const AdminServiceSubmissions = () => {
     const isAuthenticated = localStorage.getItem('adminAuth') === 'true';
     if (!isAuthenticated) navigate('/admin/login', { replace: true });
   }, [navigate]);
+
+  useEffect(() => {
+    // One-way sync: Firestore -> Supabase only (Firestore is the source of truth)
+    // Never sync Supabase -> Firestore to prevent re-appearing of deleted records
+    const syncFirestoreToSupabase = async () => {
+      try {
+        const q = query(collection(db, 'serviceForms'));
+        const snap = await getDocs(q);
+        const firestoreDocs = [];
+        snap.forEach(d => {
+          firestoreDocs.push({ id: d.id, ...d.data() });
+        });
+
+        const categories = [
+          { name: 'Doctor Registration', table: 'doctors_registration' },
+          { name: 'HR Registration', table: 'hr_registration' },
+          { name: 'Hospital Registration', table: 'hospitals_registration' }
+        ];
+
+        for (const cat of categories) {
+          const { data: supaData, error: supaErr } = await supabase
+            .from(cat.table)
+            .select('email');
+
+          if (supaErr) {
+            console.error(`Error fetching ${cat.table} from Supabase:`, supaErr);
+            continue;
+          }
+
+          const supaEmails = new Set((supaData || []).map(s => s.email?.toLowerCase()));
+          const catFsDocs = firestoreDocs.filter(d => d.formType === cat.name);
+
+          // Sync ONLY Firestore -> Supabase (not the reverse)
+          for (const fsItem of catFsDocs) {
+            if (!fsItem.email) continue;
+            if (!supaEmails.has(fsItem.email.toLowerCase())) {
+              const payload = buildSupabasePayload(fsItem);
+              const { error: insErr } = await supabase.from(cat.table).insert([payload]);
+              if (insErr) console.error(`Sync fs->supa error for ${cat.name}:`, insErr);
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Database sync failed:', err);
+      }
+    };
+
+    syncFirestoreToSupabase();
+  }, []);
 
   useEffect(() => {
     // Real-time listener — updates instantly when a new form is submitted
@@ -86,10 +271,40 @@ const AdminServiceSubmissions = () => {
 
   const filtered = filter === 'All' ? submissions : submissions.filter(s => s.formType === filter);
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (sub) => {
     if (window.confirm('Are you sure you want to delete this submission? This action cannot be undone.')) {
       try {
-        await deleteDoc(doc(db, 'serviceForms', id));
+        // 1. Delete from Firestore — also delete ALL duplicate Firestore docs with same email+formType
+        const allDocsQ = query(collection(db, 'serviceForms'));
+        const allSnap = await getDocs(allDocsQ);
+        const deletePromises = [];
+        allSnap.forEach(d => {
+          const data = d.data();
+          if (
+            data.email?.toLowerCase() === sub.email?.toLowerCase() &&
+            data.formType === sub.formType
+          ) {
+            deletePromises.push(deleteDoc(doc(db, 'serviceForms', d.id)));
+          }
+        });
+        await Promise.all(deletePromises);
+
+        // 2. Delete from Supabase (case-insensitive via ilike)
+        let tableName = '';
+        if (sub.formType === 'Doctor Registration') tableName = 'doctors_registration';
+        else if (sub.formType === 'HR Registration') tableName = 'hr_registration';
+        else if (sub.formType === 'Hospital Registration') tableName = 'hospitals_registration';
+
+        if (tableName && sub.email) {
+          const { error: supaDeleteErr } = await supabase
+            .from(tableName)
+            .delete()
+            .filter('email', 'ilike', sub.email);
+
+          if (supaDeleteErr) {
+            console.error('Error deleting from Supabase:', supaDeleteErr);
+          }
+        }
       } catch (err) {
         alert('Error deleting submission: ' + err.message);
       }
@@ -383,7 +598,7 @@ const AdminServiceSubmissions = () => {
                           <button 
                             className="admin-delete-btn" 
                             title="Delete Submission"
-                            onClick={() => handleDelete(sub.id)}
+                            onClick={() => handleDelete(sub)}
                           >
                             <Trash2 size={16} />
                           </button>

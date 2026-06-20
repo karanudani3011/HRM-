@@ -1,163 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { auth } from '../firebase';
-import { signOut } from 'firebase/auth';
-import { CheckCircle2, Phone, Mail, Menu, X, FileCheck2, ClipboardCheck, PhoneCall } from 'lucide-react';
-import '../components/TopBar.css';
-import '../components/Header.css';
-import '../components/Footer.css';
+import { CheckCircle2 } from 'lucide-react';
 import './RegistrationSuccess.css';
-
-/* ── Standard-style TopBar for success page ── */
-const SuccessTopBar = () => {
-  return (
-    <div className="top-bar">
-      <div className="container top-bar-content">
-        <div className="contact-info">
-          <a href="tel:9879450072" className="contact-item">
-            <Phone size={14} className="contact-icon" />
-            <span>9879450072</span>
-          </a>
-          <span className="divider">|</span>
-          <a href="mailto:director@hrmconsultancydoctorschoices.com" className="contact-item">
-            <Mail size={14} className="contact-icon" />
-            <span>director@hrmconsultancydoctorschoices.com</span>
-          </a>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-/* ── Standard-style Header for success page ── */
-const SuccessHeader = () => {
-  const { user, setHasRegistered } = useAuth();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-  const closeMenu = () => setIsMenuOpen(false);
-
-  const handleLogout = async () => {
-    try {
-      if (user?.email) {
-        localStorage.removeItem(`hasRegisteredService_${user.email.toLowerCase()}`);
-      }
-      await signOut(auth);
-      setHasRegistered(false);
-      closeMenu();
-    } catch (err) {
-      console.error('Logout failed:', err);
-    }
-  };
-
-  return (
-    <header className="header">
-      <div className="container header-container">
-        <Link to="/" className="logo-section" style={{ textDecoration: 'none' }}>
-          <img src="/logo.jpeg" alt="HRM Consultancy Logo" className="brand-logo" />
-          <div className="logo-text">
-            <h1>HRM Doctors Choice</h1>
-            <p>Premium Healthcare Network</p>
-          </div>
-        </Link>
-        <button className="mobile-toggle" onClick={toggleMenu} aria-label="Toggle Menu">
-          {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
-        </button>
-
-        <div className={`nav-overlay ${isMenuOpen ? 'active' : ''}`} onClick={closeMenu}></div>
-
-        <nav className={`nav-menu ${isMenuOpen ? 'active' : ''}`}>
-          <ul>
-            <li><Link to="/blog" onClick={closeMenu}>Blog</Link></li>
-            <li><Link to="/samples" onClick={closeMenu}>Samples</Link></li>
-            <li><Link to="/hr-extractor" onClick={closeMenu}>HR Tools</Link></li>
-            <li><Link to="/find-doctor" onClick={closeMenu}>Find Doctor</Link></li>
-            <li><Link to="/developers" onClick={closeMenu}>Developers</Link></li>
-          </ul>
-          <div className="nav-actions">
-            <Link to="/contact" className="btn-contact" onClick={closeMenu}>Contact Us</Link>
-            {user && (
-              <button onClick={handleLogout} className="btn-logout">Logout</button>
-            )}
-          </div>
-        </nav>
-      </div>
-    </header>
-  );
-};
-
-/* ── Standard-style Footer for success page ── */
-const SuccessFooter = () => {
-  const { user, setHasRegistered } = useAuth();
-
-  const handleLogout = async () => {
-    try {
-      if (user?.email) {
-        localStorage.removeItem(`hasRegisteredService_${user.email.toLowerCase()}`);
-      }
-      await signOut(auth);
-      setHasRegistered(false);
-    } catch (err) {
-      console.error('Logout failed:', err);
-    }
-  };
-
-  return (
-    <footer className="footer">
-      <div className="container footer-content">
-        <div className="footer-logo">
-          <img src="/logo.jpeg" alt="HRM Consultancy Logo" className="brand-logo footer-brand-logo" />
-          <p>Connecting Healthcare Professionals across India.</p>
-        </div>
-        <div className="footer-links">
-          <div className="link-group">
-            <h3>Quick Links</h3>
-            <ul>
-              <li><Link to="/find-doctor">Find Doctor</Link></li>
-              <li><Link to="/hr-extractor">HR Tools</Link></li>
-              <li><Link to="/blog">Blog</Link></li>
-              <li><Link to="/samples">Samples</Link></li>
-              <li><Link to="/developers">Developers</Link></li>
-              <li><Link to="/contact">Contact Us</Link></li>
-              {user && (
-                <li>
-                  <button 
-                    onClick={handleLogout} 
-                    style={{ 
-                      background: 'none', 
-                      border: 'none', 
-                      color: '#aaaaaa', 
-                      fontSize: '14px', 
-                      cursor: 'pointer', 
-                      padding: 0,
-                      fontFamily: 'inherit',
-                      transition: 'color 0.3s ease'
-                    }}
-                    onMouseOver={(e) => e.target.style.color = 'var(--primary-red)'}
-                    onMouseOut={(e) => e.target.style.color = '#aaaaaa'}
-                  >
-                    Logout
-                  </button>
-                </li>
-              )}
-            </ul>
-          </div>
-          <div className="link-group">
-            <h3>Legal</h3>
-            <ul>
-              <li><Link to="/privacy">Privacy Policy</Link></li>
-              <li><Link to="/terms">Terms &amp; Conditions</Link></li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      <div className="footer-bottom">
-        <p>&copy; {new Date().getFullYear()} HRM Doctors Choice. All rights reserved.</p>
-      </div>
-    </footer>
-  );
-};
 
 /* ── Main Success Page ── */
 const RegistrationSuccess = () => {
@@ -175,9 +20,6 @@ const RegistrationSuccess = () => {
 
   return (
     <div className="reg-success-wrapper">
-      <SuccessTopBar />
-      <SuccessHeader />
-
       <div className="reg-success-page">
         {/* Animated background blobs */}
         <div className="success-blob blob-1"></div>
@@ -232,8 +74,6 @@ const RegistrationSuccess = () => {
           </p>
         </div>
       </div>
-
-      <SuccessFooter />
     </div>
   );
 };

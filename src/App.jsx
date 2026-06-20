@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Routes, Route, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import TopBar from './components/TopBar';
+import AdPopup from './components/AdPopup';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -40,7 +41,6 @@ function AppContent() {
   const isAuthPage = location.pathname.startsWith('/portal/');
   const isAdminPage = location.pathname.startsWith('/admin');
   const isConsultPage = location.pathname.startsWith('/consultation/');
-  const isSuccessPage = location.pathname === '/registration-success';
   const isResetPage = location.pathname === '/reset-password';
 
   useEffect(() => {
@@ -50,8 +50,10 @@ function AppContent() {
 
   return (
     <div className="app">
-      {!isAuthPage && !isAdminPage && !isConsultPage && !isSuccessPage && !isResetPage && <TopBar />}
-      {!isAuthPage && !isAdminPage && !isConsultPage && !isSuccessPage && !isResetPage && <Header />}
+      {/* 10-Second Popup Ad */}
+      {!isAdminPage && !isConsultPage && <AdPopup />}
+      {!isAuthPage && !isAdminPage && !isConsultPage && !isResetPage && <TopBar />}
+      {!isAuthPage && !isAdminPage && !isConsultPage && !isResetPage && <Header />}
       <Routes>
         <Route path="/portal/:type" element={<PortalLogin />} />
         <Route path="/portal/doctor/register" element={<DoctorRegistration />} />
@@ -81,7 +83,7 @@ function AppContent() {
         <Route path="/consultation/:roomId" element={<ProtectedRoute><VideoConsultation /></ProtectedRoute>} />
         <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>
-      {!isAuthPage && !isAdminPage && !isConsultPage && !isSuccessPage && !isResetPage && <Footer />}
+      {!isAuthPage && !isAdminPage && !isConsultPage && !isResetPage && <Footer />}
     </div>
   );
 }

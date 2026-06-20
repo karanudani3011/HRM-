@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { db } from '../firebase';
-import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
+import { collection, onSnapshot, orderBy, query, getDocs, addDoc } from 'firebase/firestore';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import {
@@ -203,6 +203,79 @@ const ServicesDirectory = () => {
     }
   };
 
+  const mapSupaToFirestore = (item, category) => {
+    if (category === 'Doctor Registration') {
+      return {
+        formType: 'Doctor Registration',
+        fullName: item.full_name,
+        name: item.full_name,
+        email: item.email,
+        mobile: item.mobile,
+        dob: item.dob,
+        gender: item.gender,
+        currentCity: item.current_city,
+        city: item.current_city,
+        willingToRelocate: item.willing_to_relocate,
+        highestQualification: item.highest_qualification,
+        superSpeciality: item.super_speciality,
+        yearOfPassing: item.year_of_passing?.toString() || '',
+        college: item.college,
+        regNo: item.reg_no,
+        regState: item.reg_state,
+        totalExperience: item.total_experience?.toString() || '0',
+        authLetterUrl: item.auth_letter_url || '',
+        authLetter: item.auth_letter_url || '',
+        selfie: item.selfie_url || '',
+        createdAt: new Date(item.created_at)
+      };
+    } else if (category === 'HR Registration') {
+      return {
+        formType: 'HR Registration',
+        fullName: item.full_name,
+        name: item.full_name,
+        companyName: item.company_name,
+        designation: item.designation,
+        mobile: item.mobile,
+        email: item.email,
+        hiringNeeds: item.hiring_needs,
+        selfie: item.selfie_url || '',
+        createdAt: new Date(item.created_at)
+      };
+    } else {
+      return {
+        formType: 'Hospital Registration',
+        hospitalName: item.hospital_name,
+        hospitalType: item.hospital_type,
+        regNumber: item.reg_number,
+        yearOfEstablishment: item.year_of_establishment?.toString() || '',
+        bedCapacity: item.bed_capacity?.toString() || '',
+        address: item.address,
+        city: item.city,
+        state: item.state,
+        pincode: item.pincode,
+        website: item.website,
+        adminName: item.admin_name,
+        designation: item.designation,
+        mobile: item.mobile,
+        email: item.email,
+        whatsapp: item.whatsapp,
+        authLetter: item.auth_letter_url || '',
+        selfie: item.selfie_url || '',
+        logo: item.logo_url || '',
+        neededDoctors: item.needed_doctors || [],
+        jobTypes: item.job_types || [],
+        expRange: item.exp_range,
+        salaryRange: item.salary_range,
+        urgency: item.urgency,
+        facilityHighlights: item.facility_highlights,
+        hospitalPhotos: item.hospital_photos || [],
+        gstNumber: item.gst_number || '',
+        plan: item.plan || 'Free',
+        createdAt: new Date(item.created_at)
+      };
+    }
+  };
+
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
@@ -210,29 +283,12 @@ const ServicesDirectory = () => {
       if (!table) { setLoading(false); return; }
 
       try {
-        // Step 1: Try fetching from Supabase first
-        const { data: supaData, error: supaErr } = await supabase
-          .from(table)
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        if (!supaErr && supaData && supaData.length > 0) {
-          // Data already in Supabase — just map and display
-          setSubmissions(supaData.map(item => mapToUi(item, selectedCategory)));
-          setLoading(false);
-          return;
-        }
-
-        // Step 2: Supabase is empty — fall back to Firestore and sync
-        console.log('Supabase empty, syncing from Firestore...');
+        // 1. Fetch Firestore records (source of truth)
         const q = query(
           collection(db, 'serviceForms'),
           orderBy('createdAt', 'desc')
         );
-
-        const snap = await new Promise((resolve, reject) => {
-          const unsub = onSnapshot(q, (s) => { unsub(); resolve(s); }, reject);
-        });
+        const snap = await getDocs(q);
 
         const firestoreDocs = [];
         snap.forEach(doc => {
@@ -240,34 +296,32 @@ const ServicesDirectory = () => {
           if (d.formType === selectedCategory) firestoreDocs.push(d);
         });
 
-        // Step 3: Upsert each Firestore record into Supabase
-        for (const item of firestoreDocs) {
-          if (!item.email) continue;
-          const { data: existing } = await supabase
-            .from(table)
-            .select('id')
-            .eq('email', item.email)
-            .maybeSingle();
-
-          if (!existing) {
-            const payload = buildSupabasePayload(item);
-            const { error: insertErr } = await supabase.from(table).insert([payload]);
-            if (insertErr) console.error('Sync insert error:', insertErr);
-          }
-        }
-
-        // Step 4: Re-fetch from Supabase after sync
-        const { data: freshData, error: freshErr } = await supabase
+        // 2. Fetch Supabase records
+        const { data: supaData, error: supaErr } = await supabase
           .from(table)
           .select('*')
           .order('created_at', { ascending: false });
 
-        if (!freshErr && freshData) {
-          setSubmissions(freshData.map(item => mapToUi(item, selectedCategory)));
-        } else {
-          // Final fallback — display directly from Firestore data
-          setSubmissions(firestoreDocs);
+        if (supaErr) throw supaErr;
+
+        // 3. One-way sync: Firestore -> Supabase only
+        // NEVER sync Supabase -> Firestore (that re-creates deleted records)
+        const supaEmails = new Set((supaData || []).map(s => s.email?.toLowerCase()));
+        for (const fsItem of firestoreDocs) {
+          if (!fsItem.email) continue;
+          if (!supaEmails.has(fsItem.email.toLowerCase())) {
+            const payload = buildSupabasePayload(fsItem);
+            const { error: insErr } = await supabase.from(table).insert([payload]);
+            if (insErr) console.error('Sync to Supabase error:', insErr);
+            else supaEmails.add(fsItem.email.toLowerCase());
+          }
         }
+
+        // 4. Display from Supabase (show only what Firestore has — filter by Firestore emails)
+        const fsEmails = new Set(firestoreDocs.map(f => f.email?.toLowerCase()));
+        const displayData = (supaData || []).filter(s => fsEmails.has(s.email?.toLowerCase()));
+        setSubmissions(displayData.map(item => mapToUi(item, selectedCategory)));
+
       } catch (err) {
         console.error('Data load error:', err);
         setSubmissions([]);

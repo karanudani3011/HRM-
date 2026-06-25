@@ -359,6 +359,8 @@ input:checked + .hr-slider:before { transform: translateX(24px); }
   .premium-verify-box { grid-column: span 1; }
   .header-right { flex-direction: column; align-items: flex-start; gap: 10px; }
   .local-search-box { width: 100%; }
+  .extraction-footer { flex-direction: column; }
+  .btn-export { width: 100%; padding: 15px; justify-content: center; }
 }
 
 /* Segmented Control Tabs styling */

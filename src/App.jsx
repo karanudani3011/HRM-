@@ -30,6 +30,7 @@ import VideoConsultation from './pages/VideoConsultation';
 import DeveloperPage from './pages/DeveloperPage';
 import RegistrationSuccess from './pages/RegistrationSuccess';
 import ResetPassword from './pages/ResetPassword';
+import VerifyCard from './pages/VerifyCard';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -42,6 +43,9 @@ function AppContent() {
   const isAdminPage = location.pathname.startsWith('/admin');
   const isConsultPage = location.pathname.startsWith('/consultation/');
   const isResetPage = location.pathname === '/reset-password';
+  const isVerifyPage = location.pathname.startsWith('/verify/');
+
+  const isCleanPage = isAuthPage || isAdminPage || isConsultPage || isResetPage || isVerifyPage;
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -51,9 +55,9 @@ function AppContent() {
   return (
     <div className="app">
       {/* 10-Second Popup Ad */}
-      {!isAdminPage && !isConsultPage && <AdPopup />}
-      {!isAuthPage && !isAdminPage && !isConsultPage && !isResetPage && <TopBar />}
-      {!isAuthPage && !isAdminPage && !isConsultPage && !isResetPage && <Header />}
+      {!isAdminPage && !isConsultPage && !isVerifyPage && !isAuthPage && !isResetPage && <AdPopup />}
+      {!isCleanPage && <TopBar />}
+      {!isCleanPage && <Header />}
       <Routes>
         <Route path="/portal/:type" element={<PortalLogin />} />
         <Route path="/portal/doctor/register" element={<DoctorRegistration />} />
@@ -73,6 +77,7 @@ function AppContent() {
         <Route path="/services/directory" element={<ProtectedRoute><ServicesDirectory /></ProtectedRoute>} />
         <Route path="/samples" element={<ProtectedRoute><Samples /></ProtectedRoute>} />
         <Route path="/find-doctor" element={<ProtectedRoute><FindDoctor /></ProtectedRoute>} />
+        <Route path="/verify/:idNo" element={<VerifyCard />} />
         <Route path="/admin/services" element={<AdminServiceSubmissions />} />
         <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
         <Route path="/admin/login" element={<AdminLogin />} />
@@ -83,7 +88,7 @@ function AppContent() {
         <Route path="/consultation/:roomId" element={<ProtectedRoute><VideoConsultation /></ProtectedRoute>} />
         <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>
-      {!isAuthPage && !isAdminPage && !isConsultPage && !isResetPage && <Footer />}
+      {!isCleanPage && <Footer />}
     </div>
   );
 }

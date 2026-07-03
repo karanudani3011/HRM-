@@ -135,11 +135,19 @@ const PortalLogin = () => {
 
         // Store Firestore user
         if (db) {
-          await setDoc(doc(db, 'users', userCredential.user.uid), {
+          const userDoc = {
             email: userCredential.user.email,
             createdAt: serverTimestamp(),
             type: type && type !== 'login' ? type : role
-          });
+          };
+          
+          const urlParams = new URLSearchParams(window.location.search);
+          const refParam = urlParams.get('ref');
+          if (refParam) {
+            userDoc.referredByCardId = refParam.replace(/\s+/g, ''); // strip spaces for consistency
+          }
+          
+          await setDoc(doc(db, 'users', userCredential.user.uid), userDoc);
         }
 
         // Store Supabase Profile

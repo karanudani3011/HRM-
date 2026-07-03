@@ -509,3 +509,228 @@
   .admin-quick-actions{ grid-template-columns: 1fr; }
   .admin-topbar { padding: 0 16px; gap: 10px; }
 }
+
+/* ── Sub-Admin Accounts & QR Stats Styling ── */
+.admin-accounts-layout {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 24px;
+}
+
+.admin-form-card {
+  background: var(--ad-card);
+  border: 1px solid var(--ad-border);
+  border-radius: var(--ad-radius);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.admin-form-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ad-text-1);
+  margin-bottom: 4px;
+}
+
+.admin-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.admin-input-group label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--ad-text-3);
+}
+
+.admin-text-input {
+  background: var(--ad-bg);
+  border: 1px solid var(--ad-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--ad-text-1);
+  font-family: var(--ad-font);
+  font-size: 13.5px;
+  transition: border-color 0.2s;
+}
+
+.admin-text-input:focus {
+  outline: none;
+  border-color: var(--ad-accent);
+}
+
+.admin-checkbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.admin-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--ad-text-2);
+}
+
+.admin-checkbox-item input {
+  cursor: pointer;
+  accent-color: var(--ad-accent);
+}
+
+.admin-submit-btn {
+  background: var(--ad-accent);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--ad-font);
+  transition: opacity 0.2s;
+}
+
+.admin-submit-btn:hover {
+  opacity: 0.9;
+}
+
+.admin-table-card {
+  background: var(--ad-card);
+  border: 1px solid var(--ad-border);
+  border-radius: var(--ad-radius);
+  padding: 24px;
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 13px;
+}
+
+.admin-table th {
+  padding: 12px;
+  border-bottom: 2px solid var(--ad-border);
+  color: var(--ad-text-3);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 11px;
+}
+
+.admin-table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--ad-border-sub);
+  color: var(--ad-text-2);
+}
+
+.admin-table tr:hover td {
+  color: var(--ad-text-1);
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.admin-perm-badge {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--ad-text-2);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  margin-right: 4px;
+  display: inline-block;
+  margin-bottom: 2px;
+}
+
+.admin-delete-btn {
+  background: transparent;
+  border: none;
+  color: #e74c3c;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.admin-delete-btn:hover {
+  background: rgba(231, 76, 60, 0.1);
+}
+
+/* QR Stats Section */
+.qr-stats-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 24px;
+}
+
+.qr-stats-sidebar {
+  background: var(--ad-card);
+  border: 1px solid var(--ad-border);
+  border-radius: var(--ad-radius);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 20px;
+}
+
+.qr-code-box-wrap {
+  background: white;
+  padding: 12px;
+  border-radius: 12px;
+  display: inline-block;
+}
+
+.qr-info-box {
+  width: 100%;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.qr-link-copy {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.qr-link-copy input {
+  flex: 1;
+  background: var(--ad-bg);
+  border: 1px solid var(--ad-border);
+  border-radius: 6px;
+  padding: 8px;
+  color: var(--ad-text-2);
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-color: var(--ad-border);
+}
+
+.qr-copy-btn {
+  background: var(--ad-accent-dim);
+  border: 1px solid rgba(192, 57, 43, 0.3);
+  color: #e74c3c;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.qr-copy-btn:hover {
+  background: rgba(192, 57, 43, 0.2);
+}
+
+@media (max-width: 992px) {
+  .admin-accounts-layout,
+  .qr-stats-layout {
+    grid-template-columns: 1fr;
+  }
+}

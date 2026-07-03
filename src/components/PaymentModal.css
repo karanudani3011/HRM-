@@ -19,7 +19,6 @@
   max-width: 900px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
 }
@@ -107,9 +106,23 @@
   transform: translateY(-5px);
 }
 
-.tier-card.bronze:hover, .tier-card.bronze.selected { border-color: #cd7f32; box-shadow: 0 4px 15px rgba(205, 127, 50, 0.2); }
-.tier-card.silver:hover, .tier-card.silver.selected { border-color: #c0c0c0; box-shadow: 0 4px 15px rgba(192, 192, 192, 0.2); }
-.tier-card.gold:hover, .tier-card.gold.selected { border-color: #ffd700; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2); }
+.tier-card.bronze:hover,
+.tier-card.bronze.selected {
+  border-color: #cd7f32;
+  box-shadow: 0 4px 15px rgba(205, 127, 50, 0.2);
+}
+
+.tier-card.silver:hover,
+.tier-card.silver.selected {
+  border-color: #c0c0c0;
+  box-shadow: 0 4px 15px rgba(192, 192, 192, 0.2);
+}
+
+.tier-card.gold:hover,
+.tier-card.gold.selected {
+  border-color: #ffd700;
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
+}
 
 .tier-icon {
   margin-bottom: 12px;
@@ -117,9 +130,17 @@
   justify-content: center;
 }
 
-.tier-card.bronze .tier-icon { color: #cd7f32; }
-.tier-card.silver .tier-icon { color: #c0c0c0; }
-.tier-card.gold .tier-icon { color: #ffd700; }
+.tier-card.bronze .tier-icon {
+  color: #cd7f32;
+}
+
+.tier-card.silver .tier-icon {
+  color: #c0c0c0;
+}
+
+.tier-card.gold .tier-icon {
+  color: #ffd700;
+}
 
 .tier-card h3 {
   color: #fff;
@@ -174,7 +195,7 @@
   background: white;
   padding: 16px;
   border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .qr-code-box img {
@@ -254,13 +275,16 @@
   .pricing-tiers {
     flex-direction: column;
   }
+
   .tier-card {
     max-width: 100%;
   }
+
   .payment-content {
     flex-direction: column;
     text-align: center;
   }
+
   .step-item {
     text-align: left;
   }

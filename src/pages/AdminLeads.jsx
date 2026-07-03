@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import './AdminDashboard.css';
 import './AdminLeads.css';
 
@@ -192,9 +192,24 @@ const AdminLeads = () => {
     }
   };
 
+  const [permissions, setPermissions] = useState([]);
+  const [adminName, setAdminName] = useState('');
+
   useEffect(() => {
     const isAuthenticated = localStorage.getItem('adminAuth') === 'true';
-    if (!isAuthenticated) navigate('/admin/login', { replace: true });
+    if (!isAuthenticated) {
+      navigate('/admin/login', { replace: true });
+      return;
+    }
+
+    const perms = JSON.parse(localStorage.getItem('adminPermissions') || '[]');
+    setPermissions(perms);
+    setAdminName(localStorage.getItem('adminName') || 'Admin');
+
+    if (!perms.includes('leads')) {
+      alert('Access Denied: You do not have permission to view Users & Leads.');
+      navigate('/admin/dashboard', { replace: true });
+    }
   }, [navigate]);
 
   useEffect(() => {
@@ -211,6 +226,10 @@ const AdminLeads = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('adminAuth');
+    localStorage.removeItem('adminUsername');
+    localStorage.removeItem('adminName');
+    localStorage.removeItem('adminCardId');
+    localStorage.removeItem('adminPermissions');
     navigate('/admin/login', { replace: true });
   };
 
@@ -229,25 +248,47 @@ const AdminLeads = () => {
         <nav className="admin-sidebar-nav">
           <div className="admin-nav-section-label">Main</div>
 
-          <a href="/admin/dashboard" className="admin-nav-item">
-            <IconDashboard /> Overview
-          </a>
-          <a href="/admin/services" className="admin-nav-item">
-            <IconClipboard /> Service Submissions
-          </a>
+          {permissions.includes('dashboard') && (
+            <Link to="/admin/dashboard" className="admin-nav-item">
+              <IconDashboard /> Overview
+            </Link>
+          )}
+          {permissions.includes('services') && (
+            <a href="/admin/services" className="admin-nav-item">
+              <IconClipboard /> Service Submissions
+            </a>
+          )}
 
           <div className="admin-nav-divider" />
           <div className="admin-nav-section-label">Manage</div>
 
-          <a href="/admin/leads" className="admin-nav-item active">
-            <IconUsers /> Users & Leads
-          </a>
-          <a href="/admin/blogs" className="admin-nav-item">
-            <IconEdit /> Blog Manager
-          </a>
-          <a href="#" className="admin-nav-item">
-            <IconSettings /> Settings
-          </a>
+          {permissions.includes('leads') && (
+            <a href="/admin/leads" className="admin-nav-item active">
+              <IconUsers /> Users & Leads
+            </a>
+          )}
+          {permissions.includes('blogs') && (
+            <a href="/admin/blogs" className="admin-nav-item">
+              <IconEdit /> Blog Manager
+            </a>
+          )}
+          {permissions.includes('qrStats') && (
+            <Link to="/admin/dashboard?tab=qr-stats" className="admin-nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="admin-nav-icon">
+                <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" />
+                <rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" />
+              </svg>
+              QR Stats
+            </Link>
+          )}
+          {permissions.includes('adminAccess') && (
+            <Link to="/admin/dashboard?tab=accounts" className="admin-nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="admin-nav-icon">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              </svg>
+              Admin Access
+            </Link>
+          )}
         </nav>
 
         <div className="admin-sidebar-footer">

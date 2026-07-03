@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { db } from '../firebase';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import './AdminLogin.css';
 
 const AdminLogin = () => {
@@ -16,19 +18,57 @@ const AdminLogin = () => {
     }
   }, [navigate]);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
-    setTimeout(() => {
-      if (id === 'admin' && password === 'admin123') {
+
+    try {
+      // 1. Check Super Admin hardcoded credentials
+      if (id.trim() === 'admin' && password === 'admin123') {
         localStorage.setItem('adminAuth', 'true');
+        localStorage.setItem('adminUsername', 'admin');
+        localStorage.setItem('adminName', 'Super Admin');
+        localStorage.setItem('adminCardId', '');
+        // Super Admin gets all permissions
+        localStorage.setItem('adminPermissions', JSON.stringify([
+          'dashboard', 'services', 'leads', 'blogs', 'qrStats', 'adminAccess'
+        ]));
+        
         navigate('/admin/dashboard');
+        return;
+      }
+
+      // 2. Check Firestore adminAccess collection
+      if (db) {
+        const q = query(
+          collection(db, 'adminAccess'),
+          where('username', '==', id.trim()),
+          where('password', '==', password)
+        );
+        const querySnapshot = await getDocs(q);
+        if (!querySnapshot.empty) {
+          const adminDoc = querySnapshot.docs[0].data();
+          localStorage.setItem('adminAuth', 'true');
+          localStorage.setItem('adminUsername', adminDoc.username);
+          localStorage.setItem('adminName', adminDoc.name || adminDoc.username);
+          localStorage.setItem('adminCardId', (adminDoc.cardId || '').replace(/\s+/g, ''));
+          localStorage.setItem('adminPermissions', JSON.stringify(adminDoc.permissions || []));
+          
+          navigate('/admin/dashboard');
+        } else {
+          setError('Invalid Admin ID or password. Please check your credentials and try again.');
+          setLoading(false);
+        }
       } else {
-        setError('Invalid Admin ID or password. Please check your credentials and try again.');
+        setError('Database connection error. Please try again.');
         setLoading(false);
       }
-    }, 700);
+    } catch (err) {
+      console.error('Login error:', err);
+      setError('An error occurred during verification. Please try again.');
+      setLoading(false);
+    }
   };
 
   return (

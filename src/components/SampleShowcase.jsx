@@ -6,6 +6,7 @@ import qrTerms from '../assets/qr_terms.png';
 import { CheckCircle, FileText, LayoutDashboard, HeartPulse, Upload, Download, Edit3 } from 'lucide-react';
 import html2pdf from 'html2pdf.js';
 import { QRCodeCanvas } from 'qrcode.react';
+import { supabase } from '../lib/supabase';
 
 const SampleShowcase = () => {
   const [showForm, setShowForm] = useState(false);
@@ -46,10 +47,30 @@ const SampleShowcase = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setFormSubmitted(true);
     setShowForm(false);
+
+    try {
+      const { error } = await supabase
+        .from('privilege_cards')
+        .insert([{
+          name: formData.name,
+          role: 'user',
+          id_no: formData.idNo.replace(/\s+/g, ''),
+          join_date: formData.joinDate,
+          expire_date: formData.expireDate,
+          photo_url: ''
+        }]);
+      if (error) {
+        console.error('Error saving to privilege_cards in Supabase:', error);
+      } else {
+        console.log('Successfully saved privilege card to Supabase');
+      }
+    } catch (err) {
+      console.error('Failed to save card:', err);
+    }
     
     // Increment the sequence for the next card
     const currentSequence = parseInt(localStorage.getItem('hrmCardSequence') || '1001', 10);

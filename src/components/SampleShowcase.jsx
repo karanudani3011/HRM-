@@ -1,6 +1,8 @@
 import React, { useState, useRef } from 'react';
 import './SampleShowcase.css';
 import clinicImg from '../assets/premium_clinic.png';
+import qrPartner from '../assets/qr_hrm_partner.png';
+import qrTerms from '../assets/qr_terms.png';
 import { CheckCircle, FileText, LayoutDashboard, HeartPulse, Upload, Download, Edit3 } from 'lucide-react';
 import html2pdf from 'html2pdf.js';
 import { QRCodeCanvas } from 'qrcode.react';
@@ -132,22 +134,12 @@ const SampleShowcase = () => {
                     <div className="back-card-qrs" style={{ gap: '15px', padding: '15px' }}>
                       <div style={{ display: 'flex', gap: '15px', width: '100%', justifyContent: 'center' }}>
                         <div className="qr-code-box" style={{ padding: '8px' }}>
-                          <span style={{ fontSize: '9px' }}>Download App</span>
-                          <QRCodeCanvas value="https://myhrm.co.in/download" size={65} />
+                          <span style={{ fontSize: '9px' }}>HRM Partner</span>
+                          <img src={qrPartner} alt="HRM Partner QR" style={{ width: '65px', height: '65px' }} />
                         </div>
-                        <div className="qr-code-box" style={{ padding: '8px' }}>
-                          <span style={{ fontSize: '9px' }}>Visit Website</span>
-                          <QRCodeCanvas value="https://myhrm.co.in" size={65} />
-                        </div>
-                      </div>
-                      <div style={{ display: 'flex', gap: '15px', width: '100%', justifyContent: 'center' }}>
                         <div className="qr-code-box" style={{ padding: '8px' }}>
                           <span style={{ fontSize: '9px' }}>Terms</span>
-                          <QRCodeCanvas value="https://myhrm.co.in/terms" size={65} />
-                        </div>
-                        <div className="qr-code-box" style={{ padding: '8px' }}>
-                          <span style={{ fontSize: '9px' }}>HRM Partner</span>
-                          <QRCodeCanvas value="https://myhrm.co.in/partner" size={65} />
+                          <img src={qrTerms} alt="Terms QR" style={{ width: '65px', height: '65px' }} />
                         </div>
                       </div>
                     </div>

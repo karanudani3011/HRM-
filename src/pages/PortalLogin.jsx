@@ -239,14 +239,8 @@ const PortalLogin = () => {
       return;
     }
 
-    // Point Firebase's reset link to our custom /reset-password page
-    const actionCodeSettings = {
-      url: `${window.location.origin}/reset-password`,
-      handleCodeInApp: false
-    };
-
     try {
-      await sendPasswordResetEmail(auth, email.trim(), actionCodeSettings);
+      await sendPasswordResetEmail(auth, email.trim());
       setResetSent(true);
     } catch (err) {
       console.error("Password reset error:", err);

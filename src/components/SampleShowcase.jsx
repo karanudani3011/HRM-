@@ -3,6 +3,7 @@ import './SampleShowcase.css';
 import clinicImg from '../assets/premium_clinic.png';
 import { CheckCircle, FileText, LayoutDashboard, HeartPulse, Upload, Download, Edit3 } from 'lucide-react';
 import html2pdf from 'html2pdf.js';
+import { QRCodeCanvas } from 'qrcode.react';
 
 const SampleShowcase = () => {
   const [showForm, setShowForm] = useState(false);
@@ -19,8 +20,7 @@ const SampleShowcase = () => {
       name: 'Laura Doe',
       idNo: `HRM8484 ${currentSequence}`,
       expireDate: `${month}/${year + 1}`,
-      joinDate: `${month}/${year}`,
-      photo: null
+      joinDate: `${month}/${year}`
     };
   };
 
@@ -41,14 +41,6 @@ const SampleShowcase = () => {
       setFormData(prev => ({ ...prev, [name]: value, expireDate: newExpire }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
-    }
-  };
-
-  const handlePhotoUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setFormData(prev => ({ ...prev, photo: url }));
     }
   };
 
@@ -105,13 +97,7 @@ const SampleShowcase = () => {
                     
                     <div className="id-photo-container">
                       <div className="id-photo-border">
-                        {formData.photo ? (
-                          <img src={formData.photo} alt="Profile" className="id-photo-img" />
-                        ) : (
-                          <div className="id-photo-placeholder">
-                            <Upload size={32} color="#ccc" />
-                          </div>
-                        )}
+                        <QRCodeCanvas value={`https://myhrm.co.in/verify/${formData.idNo.replace(/\s+/g, '')}`} size={90} />
                       </div>
                     </div>
                     
@@ -139,13 +125,32 @@ const SampleShowcase = () => {
                   <div className="vertical-id-card back-card back-card-terms-only">
                     <div className="card-bg-pattern"></div>
                     
-                    <div className="id-terms">
-                      <h4>TERMS AND CONDITIONS:</h4>
-                      <p>
-                        This card is the property of HRM Clinic. If found, please return to the nearest HRM facility. Not transferable. Subject to all terms and conditions of the HRM Privilege Program.
-                      </p>
+                    <div className="back-card-header" style={{ textAlign: 'center', marginTop: '30px', position: 'relative', zIndex: 2 }}>
+                      <h2 style={{ fontSize: '20px', fontWeight: '800', color: '#dc2626', letterSpacing: '2px', margin: 0 }}>HRM PARTNER</h2>
                     </div>
 
+                    <div className="back-card-qrs" style={{ gap: '15px', padding: '15px' }}>
+                      <div style={{ display: 'flex', gap: '15px', width: '100%', justifyContent: 'center' }}>
+                        <div className="qr-code-box" style={{ padding: '8px' }}>
+                          <span style={{ fontSize: '9px' }}>Download App</span>
+                          <QRCodeCanvas value="https://myhrm.co.in/download" size={65} />
+                        </div>
+                        <div className="qr-code-box" style={{ padding: '8px' }}>
+                          <span style={{ fontSize: '9px' }}>Visit Website</span>
+                          <QRCodeCanvas value="https://myhrm.co.in" size={65} />
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', gap: '15px', width: '100%', justifyContent: 'center' }}>
+                        <div className="qr-code-box" style={{ padding: '8px' }}>
+                          <span style={{ fontSize: '9px' }}>Terms</span>
+                          <QRCodeCanvas value="https://myhrm.co.in/terms" size={65} />
+                        </div>
+                        <div className="qr-code-box" style={{ padding: '8px' }}>
+                          <span style={{ fontSize: '9px' }}>HRM Partner</span>
+                          <QRCodeCanvas value="https://myhrm.co.in/partner" size={65} />
+                        </div>
+                      </div>
+                    </div>
 
                   </div>
                 </div>
@@ -162,17 +167,6 @@ const SampleShowcase = () => {
                 {showForm && !formSubmitted && (
                   <form className="id-details-form" onSubmit={handleSubmit}>
                     <h4>Enter Card Details</h4>
-                    
-                    <div className="form-group">
-                      <label>Photo</label>
-                      <input 
-                        type="file" 
-                        accept="image/*"
-                        ref={fileInputRef}
-                        onChange={handlePhotoUpload}
-                        className="file-input"
-                      />
-                    </div>
                     
                     <div className="form-row">
                       <div className="form-group">

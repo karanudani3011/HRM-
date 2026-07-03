@@ -39,7 +39,7 @@ const ServicePortals = () => {
               <Building2 size={24} color="white" />
             </div>
             <h3>For Hospitals</h3>
-            <p>HRM Health Partner registration, doctor network & patient management</p>
+            <p>HRM Network Partner registration, doctor network & patient management</p>
             <Link to="/portal/hospital/register" className="access-link">Access Portal &rarr;</Link>
           </div>
 

@@ -9,13 +9,13 @@ const SampleShowcase = () => {
       <div className="container">
         <div className="section-header">
           <h2>HRM <span>Sample Showcase</span></h2>
-          <p>Preview your HRM Health Card & Partner Clinic Experience</p>
+          <p>Preview your HRM Privilege Card & Partner Clinic Experience</p>
         </div>
 
         <div className="samples-grid">
           {/* Sample 1: ID Card */}
           <div className="sample-item">
-            <h3 className="sample-title"><LayoutDashboard size={18} className="red-icon" /> HRM Health Card Sample</h3>
+            <h3 className="sample-title"><LayoutDashboard size={18} className="red-icon" /> HRM Privilege Card</h3>
             <div className="id-card-wrapper">
               <div className="id-card">
                 <div className="id-card-header">
@@ -54,18 +54,18 @@ const SampleShowcase = () => {
                 </div>
 
                 <div className="id-card-banner">
-                  HEALTH CARD SAMPLE AVAILABLE AS PER REQUEST
+                  PRIVILEGE CARD SAMPLE AVAILABLE AS PER REQUEST
                 </div>
               </div>
               <button className="download-btn">
-                <FileText size={16} /> Download Sample Health Card PDF
+                <FileText size={16} /> Download Sample Privilege Card PDF
               </button>
             </div>
           </div>
 
           {/* Sample 2: Clinic */}
           <div className="sample-item">
-            <h3 className="sample-title"><LayoutDashboard size={18} className="red-icon" /> HRM Health Partner Clinic Sample</h3>
+            <h3 className="sample-title"><LayoutDashboard size={18} className="red-icon" /> HRM Partner Clinic Experience</h3>
             <div className="clinic-sample-wrapper">
               <img src={clinicImg} alt="HRM Premium Clinic" className="clinic-image" />
               
@@ -86,12 +86,12 @@ const SampleShowcase = () => {
                   </li>
                 </ul>
                 <div className="sample-note">
-                  <FileText size={16} className="red-icon" /> See how your clinic will look as an HRM Health Partner
-                  <span>HEALTH PARTNER SAMPLE AVAILABLE AS PER REQUEST</span>
+                  <FileText size={16} className="red-icon" /> See how your clinic will look as an HRM Network Partner
+                  <span>PARTNER CLINIC SAMPLE AVAILABLE AS PER REQUEST</span>
                 </div>
               </div>
               
-              <button className="register-btn">Register as Health Partner</button>
+              <button className="register-btn">Register as Network Partner</button>
             </div>
           </div>
         </div>

@@ -243,7 +243,7 @@ const PortalLogin = () => {
       await sendPasswordResetEmail(auth, email.trim());
       setResetSent(true);
     } catch (err) {
-      console.error("Password reset error:", err);
+      console.error(err);
       switch (err.code) {
         case 'auth/user-not-found':
           setError('No account found with this email address.');
@@ -251,8 +251,11 @@ const PortalLogin = () => {
         case 'auth/invalid-email':
           setError('Please enter a valid email address.');
           break;
+        case 'auth/too-many-requests':
+          setError('Too many requests. Please wait a few minutes and try again.');
+          break;
         default:
-          setError(err.message);
+          setError('Failed to send reset email. Please try again.');
       }
     } finally {
       setLoading(false);

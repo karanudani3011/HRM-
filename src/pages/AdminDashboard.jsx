@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { db } from '../firebase';
 import { collection, onSnapshot, doc, addDoc, deleteDoc } from 'firebase/firestore';
 import { QRCodeCanvas } from 'qrcode.react';
+import { supabase } from '../lib/supabase';
 import './AdminDashboard.css';
 
 /* ── Inline SVG Icons ── */
@@ -101,6 +102,87 @@ const AdminDashboard = () => {
   const [qrUsers, setQrUsers] = useState([]);
   const [copied, setCopied] = useState(false);
 
+  // Card Activation / Renew state
+  const [privilegeCards, setPrivilegeCards] = useState([]);
+  const [cardsLoading, setCardsLoading] = useState(false);
+  const [cardSearch, setCardSearch] = useState('');
+
+  const fetchPrivilegeCards = async () => {
+    setCardsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('privilege_cards')
+        .select('*')
+        .order('name', { ascending: true });
+
+      if (error) throw error;
+      setPrivilegeCards(data || []);
+    } catch (err) {
+      console.error('Error fetching privilege cards:', err);
+    } finally {
+      setCardsLoading(false);
+    }
+  };
+
+  const handleActivateCard = async (cardId) => {
+    const today = new Date();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const year = today.getFullYear();
+    const joinDate = `${month}/${year}`;
+    const expireDate = `${month}/${year + 1}`;
+
+    try {
+      const { error } = await supabase
+        .from('privilege_cards')
+        .update({ 
+          card_status: 'ACTIVE',
+          join_date: joinDate,
+          expire_date: expireDate
+        })
+        .eq('id_no', cardId);
+
+      if (error) throw error;
+      alert(`Card ${cardId} activated successfully! Valid until ${expireDate}`);
+      fetchPrivilegeCards();
+    } catch (err) {
+      console.error('Failed to activate card:', err);
+      alert('Error activating card: ' + err.message);
+    }
+  };
+
+  const handleDeactivateCard = async (cardId) => {
+    try {
+      const { error } = await supabase
+        .from('privilege_cards')
+        .update({ card_status: 'INACTIVE' })
+        .eq('id_no', cardId);
+
+      if (error) throw error;
+      alert(`Card ${cardId} deactivated!`);
+      fetchPrivilegeCards();
+    } catch (err) {
+      console.error('Failed to deactivate card:', err);
+      alert('Error deactivating card: ' + err.message);
+    }
+  };
+
+  const handleDeleteCard = async (cardId) => {
+    if (!window.confirm(`Are you sure you want to delete card ${cardId}?`)) return;
+    try {
+      const { error } = await supabase
+        .from('privilege_cards')
+        .delete()
+        .eq('id_no', cardId);
+
+      if (error) throw error;
+      alert(`Card ${cardId} deleted!`);
+      fetchPrivilegeCards();
+    } catch (err) {
+      console.error('Failed to delete card:', err);
+      alert('Error deleting card: ' + err.message);
+    }
+  };
+
   /* ── Auth guard & Permissions init ── */
   useEffect(() => {
     if (localStorage.getItem('adminAuth') !== 'true') {
@@ -149,6 +231,13 @@ const AdminDashboard = () => {
     const id = setInterval(tick, 60000);
     return () => clearInterval(id);
   }, []);
+
+  /* ── Fetch privilege cards when activation tab is active ── */
+  useEffect(() => {
+    if (activeTab === 'activation') {
+      fetchPrivilegeCards();
+    }
+  }, [activeTab]);
 
   /* ── Real-time Firestore stats ── */
   useEffect(() => {
@@ -357,6 +446,18 @@ const AdminDashboard = () => {
               Admin Access
             </Link>
           )}
+          {hasPermission('dashboard') && (
+            <Link to="/admin/dashboard?tab=activation" className={`admin-nav-item ${activeTab === 'activation' ? 'active' : ''}`} onClick={() => setActiveTab('activation')}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="admin-nav-icon">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+                <polyline points="10 9 9 9 8 9" />
+              </svg>
+              Card Activation / Renew
+            </Link>
+          )}
         </nav>
 
         <div className="admin-sidebar-footer">
@@ -375,7 +476,7 @@ const AdminDashboard = () => {
         {/* Top Bar */}
         <header className="admin-topbar">
           <div className="admin-topbar-left">
-            <h1>{activeTab === 'overview' ? 'Overview' : activeTab === 'accounts' ? 'Admin Access' : 'QR Registration Stats'}</h1>
+            <h1>{activeTab === 'overview' ? 'Overview' : activeTab === 'accounts' ? 'Admin Access' : activeTab === 'activation' ? 'Card Activation & Renewals' : 'QR Registration Stats'}</h1>
             <p>HRM Doctors Choice — Admin Panel ({adminName})</p>
           </div>
           <div className="admin-topbar-right">
@@ -722,6 +823,181 @@ const AdminDashboard = () => {
                     )}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          )}
+
+          {/* 4. CARD ACTIVATION / RENEWAL TAB */}
+          {activeTab === 'activation' && hasPermission('dashboard') && (
+            <div className="activation-tab-layout">
+              {/* Stats Panel */}
+              <div className="admin-stats-grid" style={{ marginBottom: '24px' }}>
+                <div className="admin-stat-card red">
+                  <div className="admin-stat-label">Total Cards</div>
+                  <div className="admin-stat-value">{privilegeCards.length}</div>
+                  <div className="admin-stat-sub">Generated privilege cards</div>
+                </div>
+                <div className="admin-stat-card amber">
+                  <div className="admin-stat-label">Pending Approval</div>
+                  <div className="admin-stat-value" style={{ color: '#f39c12' }}>
+                    {privilegeCards.filter(c => c.card_status === 'PENDING_ACTIVATION').length}
+                  </div>
+                  <div className="admin-stat-sub">Reactivation / renewal requests</div>
+                </div>
+                <div className="admin-stat-card green">
+                  <div className="admin-stat-label">Active Cards</div>
+                  <div className="admin-stat-value" style={{ color: '#2ecc71' }}>
+                    {privilegeCards.filter(c => c.card_status === 'ACTIVE').length}
+                  </div>
+                  <div className="admin-stat-sub">Active members</div>
+                </div>
+              </div>
+
+              {/* Privilege Cards Table */}
+              <div className="admin-table-card">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
+                  <div>
+                    <h3 className="admin-form-title" style={{ margin: 0 }}>Privilege ID Cards Management</h3>
+                    <p style={{ fontSize: '12px', color: 'var(--ad-text-3)', margin: '4px 0 0 0' }}>
+                      Activate, renew, deactivate, or delete user privilege cards.
+                    </p>
+                  </div>
+                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                    <input 
+                      type="text" 
+                      placeholder="Search ID, Name or City..." 
+                      value={cardSearch} 
+                      onChange={e => setCardSearch(e.target.value)}
+                      className="admin-text-input"
+                      style={{ padding: '8px 12px', width: '220px', fontSize: '13px' }}
+                    />
+                    <button onClick={fetchPrivilegeCards} className="admin-submit-btn" style={{ padding: '8px 16px', fontSize: '12.5px' }}>
+                      Refresh
+                    </button>
+                  </div>
+                </div>
+
+                {cardsLoading ? (
+                  <div style={{ textAlign: 'center', padding: '40px', color: 'var(--ad-text-3)' }}>
+                    Loading cards data...
+                  </div>
+                ) : (
+                  <table className="admin-table">
+                    <thead>
+                      <tr>
+                        <th>Photo</th>
+                        <th>Name / Contact</th>
+                        <th>HRM ID</th>
+                        <th>Location</th>
+                        <th>Dates</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {privilegeCards
+                        .filter(card => {
+                          const s = cardSearch.toLowerCase();
+                          return (
+                            (card.name && card.name.toLowerCase().includes(s)) ||
+                            (card.id_no && card.id_no.toLowerCase().includes(s)) ||
+                            (card.city && card.city.toLowerCase().includes(s)) ||
+                            (card.mobile && card.mobile.includes(s))
+                          );
+                        })
+                        .map(card => (
+                          <tr key={card.id}>
+                            <td>
+                              {card.photo_url ? (
+                                <img 
+                                  src={card.photo_url} 
+                                  alt="" 
+                                  style={{ width: '40px', height: '40px', borderRadius: '4px', objectFit: 'cover', border: '1px solid var(--ad-border)' }} 
+                                />
+                              ) : (
+                                <div style={{ width: '40px', height: '40px', borderRadius: '4px', background: '#333', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', color: '#888' }}>
+                                  No Photo
+                                </div>
+                              )}
+                            </td>
+                            <td>
+                              <strong>{card.name}</strong>
+                              <div style={{ fontSize: '11px', color: 'var(--ad-text-3)', marginTop: '2px' }}>{card.mobile || 'No Mobile'}</div>
+                            </td>
+                            <td><code>{card.id_no}</code></td>
+                            <td>{card.city || '—'}</td>
+                            <td>
+                              <div style={{ fontSize: '12px' }}>Join: {card.join_date}</div>
+                              <div style={{ fontSize: '11px', color: 'var(--ad-text-3)', marginTop: '2px' }}>Exp: {card.expire_date}</div>
+                            </td>
+                            <td>
+                              {card.card_status === 'ACTIVE' && (
+                                <span className="admin-perm-badge" style={{ background: 'rgba(46, 204, 113, 0.15)', color: '#2ecc71' }}>
+                                  ACTIVE
+                                </span>
+                              )}
+                              {card.card_status === 'PENDING_ACTIVATION' && (
+                                <span className="admin-perm-badge" style={{ background: 'rgba(243, 156, 18, 0.15)', color: '#f39c12', animation: 'pulse 2s infinite' }}>
+                                  PENDING APPROVAL
+                                </span>
+                              )}
+                              {(card.card_status === 'INACTIVE' || !card.card_status) && (
+                                <span className="admin-perm-badge" style={{ background: 'rgba(149, 165, 166, 0.15)', color: '#95a5a6' }}>
+                                  INACTIVE
+                                </span>
+                              )}
+                            </td>
+                            <td>
+                              <div style={{ display: 'flex', gap: '6px' }}>
+                                {card.card_status !== 'ACTIVE' ? (
+                                  <button 
+                                    onClick={() => handleActivateCard(card.id_no)} 
+                                    className="admin-submit-btn" 
+                                    style={{ padding: '4px 8px', fontSize: '11px', background: '#2ecc71', borderColor: '#2ecc71' }}
+                                  >
+                                    Approve / Activate
+                                  </button>
+                                ) : (
+                                  <button 
+                                    onClick={() => handleActivateCard(card.id_no)} 
+                                    className="admin-submit-btn" 
+                                    style={{ padding: '4px 8px', fontSize: '11px', background: '#3498db', borderColor: '#3498db' }}
+                                  >
+                                    Renew (1 Yr)
+                                  </button>
+                                )}
+                                
+                                {card.card_status === 'ACTIVE' && (
+                                  <button 
+                                    onClick={() => handleDeactivateCard(card.id_no)} 
+                                    className="admin-delete-btn" 
+                                    style={{ padding: '4px 8px', fontSize: '11px', background: '#e67e22', color: '#fff' }}
+                                  >
+                                    Deactivate
+                                  </button>
+                                )}
+                                
+                                <button 
+                                  onClick={() => handleDeleteCard(card.id_no)} 
+                                  className="admin-delete-btn" 
+                                  style={{ padding: '4px 8px', fontSize: '11px' }}
+                                >
+                                  Delete
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      {privilegeCards.length === 0 && (
+                        <tr>
+                          <td colSpan="7" style={{ textAlign: 'center', padding: '36px', color: 'var(--ad-text-3)' }}>
+                            No privilege cards found in database.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                )}
               </div>
             </div>
           )}

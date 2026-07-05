@@ -861,3 +861,22 @@
   width: 100%;
   text-align: center;
 }
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(243, 156, 18, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(243, 156, 18, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(243, 156, 18, 0);
+  }
+}
+
+.activation-tab-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}

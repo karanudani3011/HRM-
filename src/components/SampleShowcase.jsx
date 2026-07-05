@@ -92,14 +92,28 @@ const SampleShowcase = () => {
   const handleDownload = () => {
     const element = cardRef.current;
     const opt = {
-      margin: 0.3,
+      margin: [0.2, 0.3],
       filename: 'HRM_ID_Card.pdf',
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 3, useCORS: true },
-      jsPDF: { unit: 'in', format: [3.5, 6], orientation: 'portrait' }
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: element.scrollWidth,
+        windowHeight: element.scrollHeight
+      },
+      jsPDF: {
+        unit: 'in',
+        format: [7.2, 5.5],   // wide + tall enough: 240px×2 cards + padding, fits in 1 page
+        orientation: 'landscape'
+      },
+      pagebreak: { mode: 'avoid-all' }  // prevent any mid-card page breaks
     };
     html2pdf().set(opt).from(element).save();
   };
+
 
   return (
     <section className="sample-showcase" id="samples">

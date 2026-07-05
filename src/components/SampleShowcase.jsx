@@ -3,7 +3,7 @@ import './SampleShowcase.css';
 import clinicImg from '../assets/premium_clinic.png';
 import qrPartner from '../assets/qr_hrm_partner.png';
 import qrTerms from '../assets/qr_terms.png';
-import { CheckCircle, FileText, LayoutDashboard, HeartPulse, Upload, Download, Edit3 } from 'lucide-react';
+import { CheckCircle, FileText, LayoutDashboard, Upload, Download, Edit3, Camera } from 'lucide-react';
 import html2pdf from 'html2pdf.js';
 import { QRCodeCanvas } from 'qrcode.react';
 import { supabase } from '../lib/supabase';
@@ -11,30 +11,31 @@ import { supabase } from '../lib/supabase';
 const SampleShowcase = () => {
   const [showForm, setShowForm] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [photoPreview, setPhotoPreview] = useState(null);
+  const fileInputRef = useRef(null);
+
   const generateInitialData = () => {
     const today = new Date();
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const year = today.getFullYear();
-    
-    // Read the current sequential ID from localStorage, default to 1001
+    // Always read fresh from localStorage so each new card gets next number
     const currentSequence = parseInt(localStorage.getItem('hrmCardSequence') || '1001', 10);
-    
     return {
-      name: 'Laura Doe',
-      idNo: `HRM8484 ${currentSequence}`,
+      name: 'LAURA DOE',
+      city: 'Rajkot',
+      mobile: '9879450072',
+      cardStatus: 'ACTIVE',
+      idNo: `HRM8484${currentSequence}`,
       expireDate: `${month}/${year + 1}`,
       joinDate: `${month}/${year}`
     };
   };
 
   const [formData, setFormData] = useState(generateInitialData());
-
   const cardRef = useRef(null);
-  const fileInputRef = useRef(null);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    
     if (name === 'joinDate') {
       let newExpire = formData.expireDate;
       const parts = value.split('/');
@@ -44,6 +45,15 @@ const SampleShowcase = () => {
       setFormData(prev => ({ ...prev, [name]: value, expireDate: newExpire }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
+    }
+  };
+
+  const handlePhotoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (ev) => setPhotoPreview(ev.target.result);
+      reader.readAsDataURL(file);
     }
   };
 
@@ -61,7 +71,10 @@ const SampleShowcase = () => {
           id_no: formData.idNo.replace(/\s+/g, ''),
           join_date: formData.joinDate,
           expire_date: formData.expireDate,
-          photo_url: ''
+          city: formData.city,
+          mobile: formData.mobile,
+          card_status: formData.cardStatus,
+          photo_url: photoPreview || ''
         }]);
       if (error) {
         console.error('Error saving to privilege_cards in Supabase:', error);
@@ -71,8 +84,7 @@ const SampleShowcase = () => {
     } catch (err) {
       console.error('Failed to save card:', err);
     }
-    
-    // Increment the sequence for the next card
+
     const currentSequence = parseInt(localStorage.getItem('hrmCardSequence') || '1001', 10);
     localStorage.setItem('hrmCardSequence', (currentSequence + 1).toString());
   };
@@ -80,11 +92,11 @@ const SampleShowcase = () => {
   const handleDownload = () => {
     const element = cardRef.current;
     const opt = {
-      margin: 0.5,
+      margin: 0.3,
       filename: 'HRM_ID_Card.pdf',
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 3, useCORS: true },
-      jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
+      jsPDF: { unit: 'in', format: [3.5, 6], orientation: 'portrait' }
     };
     html2pdf().set(opt).from(element).save();
   };
@@ -94,7 +106,7 @@ const SampleShowcase = () => {
       <div className="container">
         <div className="section-header">
           <h2>HRM <span>ID Card Showcase</span></h2>
-          <p>Preview your personalized HRM Privilege ID Card & Partner Clinic Experience</p>
+          <p>Preview your personalized HRM Privilege ID Card &amp; Partner Clinic Experience</p>
         </div>
 
         <div className="samples-grid">
@@ -103,69 +115,104 @@ const SampleShowcase = () => {
             <h3 className="sample-title">
               <LayoutDashboard size={18} className="red-icon" /> HRM Privilege ID Card
             </h3>
-            
+
             <div className="id-card-interactive-wrapper">
-              
+
               {/* ID CARD VISUAL */}
               <div className="id-card-preview" ref={cardRef}>
                 <div className="id-cards-container">
-                  {/* FRONT SIDE */}
+
+                  {/* ── FRONT SIDE ── */}
                   <div className="vertical-id-card front-card">
-                    <div className="card-bg-pattern"></div>
-                    <div className="id-card-top">
-                      <div className="id-brand-logo">
-                        <img src="/logo.jpeg" alt="HRM Logo" className="id-brand-logo-img" />
+                    {/* Brushed metal overlay */}
+                    <div className="metal-overlay" />
+
+                    {/* Top: HFRM Logo */}
+                    <div className="idc-top">
+                      <div className="idc-logo-wrap">
+                        <img src="/logo.jpeg" alt="HRM Logo" className="idc-logo-img" />
+                      </div>
+                      <p className="idc-tagline">HRM CONSULTANCY / VOLUTORS CHOICE</p>
+                    </div>
+
+                    {/* Person Details */}
+                    <div className="idc-details">
+                      <div className="idc-detail-row">
+                        <span className="idc-label">Name:</span>
+                        <span className="idc-value">{formData.name}</span>
+                      </div>
+                      <div className="idc-detail-row">
+                        <span className="idc-label">City</span>
+                        <span className="idc-value">{formData.city}</span>
+                      </div>
+                      <div className="idc-detail-row">
+                        <span className="idc-label">Card status</span>
+                        <span className="idc-value idc-active">{formData.cardStatus}</span>
+                      </div>
+                      <div className="idc-detail-row">
+                        <span className="idc-label">Mo.</span>
+                        <span className="idc-value">{formData.mobile}</span>
+                      </div>
+                      <div className="idc-detail-row">
+                        <span className="idc-label">HRM ID:</span>
+                        <span className="idc-value">{formData.idNo}</span>
+                      </div>
+                      <div className="idc-detail-row">
+                        <span className="idc-label">Join Date</span>
+                        <span className="idc-value">{formData.joinDate}</span>
+                      </div>
+                      <div className="idc-detail-row">
+                        <span className="idc-label">Expire Date</span>
+                        <span className="idc-value">{formData.expireDate}</span>
                       </div>
                     </div>
-                    
-                    <div className="id-photo-container">
-                      <div className="id-photo-border">
-                        <QRCodeCanvas value={`https://myhrm.co.in/verify/${formData.idNo.replace(/\s+/g, '')}`} size={90} />
+
+                    {/* Photo Section */}
+                    <div className="idc-photo-section">
+                      <div className="idc-photo-frame">
+                        {photoPreview ? (
+                          <img src={photoPreview} alt="Member" className="idc-photo-img" />
+                        ) : (
+                          <div className="idc-photo-placeholder">
+                            <Camera size={24} color="#888" />
+                          </div>
+                        )}
                       </div>
                     </div>
-                    
-                    <div className="id-person-details">
-                      <h2 className="person-name">{formData.name}</h2>
-                    </div>
-                    
-                    <div className="id-validity-bar">
-                      <span>Expire: {formData.expireDate}</span>
-                      <span>Join: {formData.joinDate}</span>
-                    </div>
-                    
-                    <div className="id-card-bottom">
-                      <h2 className="card-type-title">ID CARD</h2>
-                      <div className="id-number">
-                        Id No. : {formData.idNo}
-                      </div>
-                      <div className="card-website">
-                        www.myhrm.co.in
-                      </div>
+
+                    {/* Bottom */}
+                    <div className="idc-bottom">
+                      <div className="idc-terms-label">FOR HRM TERMS</div>
+                      <div className="idc-terms-big">FOR HRM TERMS</div>
+                      <div className="idc-website">www.myhrm.co.in</div>
                     </div>
                   </div>
 
-                  {/* BACK SIDE */}
-                  <div className="vertical-id-card back-card back-card-terms-only">
-                    <div className="card-bg-pattern"></div>
-                    
-                    <div className="back-card-header" style={{ textAlign: 'center', marginTop: '30px', position: 'relative', zIndex: 2 }}>
-                      <h2 style={{ fontSize: '20px', fontWeight: '800', color: '#dc2626', letterSpacing: '2px', margin: 0 }}>HRM PARTNER</h2>
+                  {/* ── BACK SIDE ── */}
+                  <div className="vertical-id-card back-card">
+                    <div className="metal-overlay" />
+
+                    <div className="back-top">
+                      <div className="back-hrm-title">HRM</div>
                     </div>
 
-                    <div className="back-card-qrs" style={{ gap: '15px', padding: '15px' }}>
-                      <div style={{ display: 'flex', gap: '15px', width: '100%', justifyContent: 'center' }}>
-                        <div className="qr-code-box" style={{ padding: '8px' }}>
-                          <span style={{ fontSize: '9px' }}>HRM Partner</span>
-                          <img src={qrPartner} alt="HRM Partner QR" style={{ width: '65px', height: '65px' }} />
-                        </div>
-                        <div className="qr-code-box" style={{ padding: '8px' }}>
-                          <span style={{ fontSize: '9px' }}>Terms</span>
-                          <img src={qrTerms} alt="Terms QR" style={{ width: '65px', height: '65px' }} />
-                        </div>
+                    <div className="back-for-label">FOR</div>
+                    <div className="back-partner-label">FOR HRM NETWORK PARTNER</div>
+
+                    {/* QR Codes stacked */}
+                    <div className="back-qr-stack">
+                      <div className="back-qr-item">
+                        <img src={qrPartner} alt="HRM Partner QR" className="back-qr-img" />
+                      </div>
+                      <div className="back-qr-divider">+</div>
+                      <div className="back-qr-item">
+                        <img src={qrTerms} alt="Terms QR" className="back-qr-img" />
                       </div>
                     </div>
 
+                    <div className="back-terms-label">FOR HRM TERMS</div>
                   </div>
+
                 </div>
               </div>
 
@@ -180,17 +227,36 @@ const SampleShowcase = () => {
                 {showForm && !formSubmitted && (
                   <form className="id-details-form" onSubmit={handleSubmit}>
                     <h4>Enter Card Details</h4>
-                    
+
                     <div className="form-row">
                       <div className="form-group">
-                        <label>Name</label>
-                        <input type="text" name="name" value={formData.name} onChange={handleInputChange} required />
+                        <label>Full Name *</label>
+                        <input type="text" name="name" value={formData.name} onChange={handleInputChange} placeholder="FULL NAME IN CAPS" required />
                       </div>
                     </div>
-                    
+
                     <div className="form-row">
                       <div className="form-group">
-                        <label>ID No.</label>
+                        <label>City *</label>
+                        <input type="text" name="city" value={formData.city} onChange={handleInputChange} placeholder="e.g. Rajkot" required />
+                      </div>
+                      <div className="form-group">
+                        <label>Mobile No. *</label>
+                        <input type="tel" name="mobile" value={formData.mobile} onChange={handleInputChange} placeholder="10-digit number" required />
+                      </div>
+                    </div>
+
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label>Card Status</label>
+                        <select name="cardStatus" value={formData.cardStatus} onChange={handleInputChange}>
+                          <option value="ACTIVE">ACTIVE</option>
+                          <option value="INACTIVE">INACTIVE</option>
+                          <option value="PENDING">PENDING</option>
+                        </select>
+                      </div>
+                      <div className="form-group">
+                        <label>HRM ID No.</label>
                         <input type="text" name="idNo" value={formData.idNo} onChange={handleInputChange} required />
                       </div>
                     </div>
@@ -206,6 +272,24 @@ const SampleShowcase = () => {
                       </div>
                     </div>
 
+                    <div className="form-group full-width">
+                      <label>Member Photo</label>
+                      <div className="photo-upload-area" onClick={() => fileInputRef.current?.click()}>
+                        {photoPreview ? (
+                          <img src={photoPreview} alt="Preview" className="photo-preview-thumb" />
+                        ) : (
+                          <span><Upload size={16} /> Upload Photo (optional)</span>
+                        )}
+                      </div>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        style={{ display: 'none' }}
+                        onChange={handlePhotoChange}
+                      />
+                    </div>
+
                     <button type="submit" className="action-btn success-btn">Generate ID Card</button>
                   </form>
                 )}
@@ -213,7 +297,19 @@ const SampleShowcase = () => {
                 {formSubmitted && (
                   <div className="submitted-actions">
                     <button className="action-btn secondary-btn" onClick={() => { setFormSubmitted(false); setShowForm(true); }}>
-                      <Edit3 size={18} /> Edit Details
+                      <Edit3 size={18} /> Edit This Card
+                    </button>
+                    <button
+                      className="action-btn primary-btn"
+                      onClick={() => {
+                        // Load fresh data with the NEXT sequence number
+                        setFormData(generateInitialData());
+                        setPhotoPreview(null);
+                        setFormSubmitted(false);
+                        setShowForm(true);
+                      }}
+                    >
+                      <Edit3 size={18} /> Create New Card
                     </button>
                     <button className="action-btn download-btn-new" onClick={handleDownload}>
                       <Download size={18} /> Download ID Card PDF
@@ -224,18 +320,20 @@ const SampleShowcase = () => {
             </div>
           </div>
 
-          {/* Sample 2: Clinic */}
+          {/* Sample 2: HRM Health Partner Clinic */}
           <div className="sample-item">
-            <h3 className="sample-title"><LayoutDashboard size={18} className="red-icon" /> HRM Partner Clinic Experience</h3>
+            <h3 className="sample-title">
+              <LayoutDashboard size={18} className="red-icon" /> HRM Network Partner Clinic Sample
+            </h3>
             <div className="clinic-sample-wrapper">
               <img src={clinicImg} alt="HRM Premium Clinic" className="clinic-image" />
-              
+
               <div className="clinic-details">
                 <h4>Premium HRM Branded Clinic Experience</h4>
                 <ul className="feature-list">
                   <li>
                     <CheckCircle size={16} className="red-icon" />
-                    <span>Professional doctors with "HRM HEALTH PARTNER" branded backdrop</span>
+                    <span>Professional doctors with "HRM NETWORK PARTNER" branded backdrop</span>
                   </li>
                   <li>
                     <CheckCircle size={16} className="red-icon" />
@@ -247,14 +345,15 @@ const SampleShowcase = () => {
                   </li>
                 </ul>
                 <div className="sample-note">
-                  <FileText size={16} className="red-icon" /> See how your clinic will look as an HRM Network Partner
-                  <span>PARTNER CLINIC SAMPLE AVAILABLE AS PER REQUEST</span>
+                  <FileText size={16} className="red-icon" /> See how your clinic will look as an HRM Health Partner
+                  <span>HEALTH PARTNER SAMPLE AVAILABLE AS PER REQUEST</span>
                 </div>
               </div>
-              
-              <button className="register-btn">Register as Network Partner</button>
+
+              <button className="register-btn">Register as Health Partner</button>
             </div>
           </div>
+
         </div>
       </div>
     </section>

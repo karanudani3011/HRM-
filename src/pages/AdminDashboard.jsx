@@ -304,7 +304,9 @@ const AdminDashboard = () => {
       {/* ══ SIDEBAR ══ */}
       <aside className="admin-sidebar">
         <div className="admin-sidebar-header">
-          <div className="admin-sidebar-logo">H</div>
+          <div className="admin-sidebar-logo-img-wrap">
+            <img src="/logo.jpeg" alt="HRM" className="admin-sidebar-brand-logo" />
+          </div>
           <div>
             <div className="admin-sidebar-title">HRM Admin</div>
             <div className="admin-sidebar-subtitle">Control Panel</div>
@@ -606,15 +608,35 @@ const AdminDashboard = () => {
                 
                 {adminCardId ? (
                   <>
-                    <div className="qr-code-box-wrap">
-                      <QRCodeCanvas 
-                        value={`https://myhrm.co.in/verify/${adminCardId}`} 
-                        size={160} 
-                        level="H"
-                      />
+                    {/* Dark metallic card preview */}
+                    <div className="admin-id-card-mini">
+                      <div className="admin-id-card-mini-metal" />
+                      <div className="admin-id-mini-logo-row">
+                        <img src="/logo.jpeg" alt="HRM" className="admin-id-mini-logo" />
+                      </div>
+                      <p className="admin-id-mini-tagline">HRM CONSULTANCY · VOLUTORS CHOICE</p>
+                      <div className="admin-id-mini-qr">
+                        <div style={{ background: '#fff', padding: 8, borderRadius: 6, display: 'inline-block' }}>
+                          <QRCodeCanvas 
+                            value={`https://myhrm.co.in/verify/${adminCardId}`} 
+                            size={100} 
+                            level="H"
+                          />
+                        </div>
+                      </div>
+                      <div className="admin-id-mini-detail">
+                        <span className="admin-id-mini-label">HRM ID:</span>
+                        <span className="admin-id-mini-value">{adminCardId}</span>
+                      </div>
+                      <div className="admin-id-mini-detail">
+                        <span className="admin-id-mini-label">Name:</span>
+                        <span className="admin-id-mini-value">{adminName}</span>
+                      </div>
+                      <div className="admin-id-mini-footer">www.myhrm.co.in</div>
                     </div>
-                    <p style={{ fontSize: '11px', color: 'var(--ad-text-3)', margin: 0 }}>
-                      This is the verification QR code printed on the front side of your Privilege ID Card (Card ID: <code>{adminCardId}</code>).
+
+                    <p style={{ fontSize: '11px', color: 'var(--ad-text-3)', margin: 0, textAlign: 'center' }}>
+                      Verification QR linked to Card ID: <code style={{ color: '#e74c3c' }}>{adminCardId}</code>
                     </p>
 
                     <div className="admin-nav-divider" style={{ width: '100%', margin: '10px 0' }} />

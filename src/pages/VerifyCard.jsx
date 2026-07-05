@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { db } from '../firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
-import { ShieldCheck, ShieldAlert, ArrowRight, Loader2 } from 'lucide-react';
+import { ShieldCheck, ShieldAlert, ArrowRight } from 'lucide-react';
 import './VerifyCard.css';
 
 const VerifyCard = () => {
@@ -34,7 +34,7 @@ const VerifyCard = () => {
 
         if (cardData) {
           setCard(cardData);
-          
+
           // Check expiration date (format MM/YYYY)
           const expireStr = cardData.expire_date;
           if (expireStr) {
@@ -93,14 +93,21 @@ const VerifyCard = () => {
 
   return (
     <div className="verify-card-page">
+      {/* Dark metallic background decoration */}
+      <div className="vc-bg-glow vc-glow-1" />
+      <div className="vc-bg-glow vc-glow-2" />
+
       <div className="verify-card-container">
+        {/* Logo */}
         <div className="verify-logo">
           <img src="/logo.jpeg" alt="HRM Logo" className="verify-logo-img" />
         </div>
 
+        <p className="verify-tagline">HRM CONSULTANCY · VOLUTORS CHOICE</p>
+
         {loading ? (
           <div className="verify-loading">
-            <div className="verify-spinner"></div>
+            <div className="verify-spinner" />
             <p>Verifying HRM Privilege ID Card...</p>
           </div>
         ) : (
@@ -113,27 +120,55 @@ const VerifyCard = () => {
 
                 {hospitalName && (
                   <div className="verify-hospital-info">
-                    <h3>🏥 Official Hospital Partner</h3>
-                    <p>This card belongs to or is verified under our premium partner, <strong>{hospitalName}</strong>.</p>
+                    <h3>🏥 Official HRM Network Partner</h3>
+                    <p>Verified under partner: <strong>{hospitalName}</strong></p>
                   </div>
                 )}
 
-                <div className="verify-card-details">
-                  <div className="verify-detail-row">
-                    <span className="verify-detail-label">Card Holder Name</span>
-                    <span className="verify-detail-value">{card.name}</span>
+                {/* Card Preview */}
+                <div className="verify-card-preview">
+                  <div className="vc-metal-overlay" />
+                  <div className="vc-card-logo-row">
+                    <img src="/logo.jpeg" alt="HRM" className="vc-card-logo" />
                   </div>
-                  <div className="verify-detail-row">
-                    <span className="verify-detail-label">ID Number</span>
-                    <span className="verify-detail-value">{card.id_no}</span>
+                  <p className="vc-card-tagline">HRM CONSULTANCY / VOLUTORS CHOICE</p>
+
+                  <div className="vc-detail-list">
+                    <div className="vc-detail-row">
+                      <span className="vc-dl">Name:</span>
+                      <span className="vc-dv">{card.name}</span>
+                    </div>
+                    {card.city && (
+                      <div className="vc-detail-row">
+                        <span className="vc-dl">City</span>
+                        <span className="vc-dv">{card.city}</span>
+                      </div>
+                    )}
+                    <div className="vc-detail-row">
+                      <span className="vc-dl">Card status</span>
+                      <span className="vc-dv vc-active">{card.card_status || 'ACTIVE'}</span>
+                    </div>
+                    {card.mobile && (
+                      <div className="vc-detail-row">
+                        <span className="vc-dl">Mo.</span>
+                        <span className="vc-dv">{card.mobile}</span>
+                      </div>
+                    )}
+                    <div className="vc-detail-row">
+                      <span className="vc-dl">HRM ID:</span>
+                      <span className="vc-dv">{card.id_no}</span>
+                    </div>
                   </div>
-                  <div className="verify-detail-row">
-                    <span className="verify-detail-label">Registration Date</span>
-                    <span className="verify-detail-value">{card.join_date}</span>
-                  </div>
-                  <div className="verify-detail-row">
-                    <span className="verify-detail-label">Valid Up To</span>
-                    <span className="verify-detail-value">{card.expire_date}</span>
+
+                  {card.photo_url && (
+                    <div className="vc-card-photo-row">
+                      <img src={card.photo_url} alt="Member" className="vc-card-photo" />
+                    </div>
+                  )}
+
+                  <div className="vc-card-footer">
+                    <span>FOR HRM TERMS</span>
+                    <span>www.myhrm.co.in</span>
                   </div>
                 </div>
 
@@ -160,9 +195,15 @@ const VerifyCard = () => {
                     <span className="verify-detail-value">{card.name}</span>
                   </div>
                   <div className="verify-detail-row">
-                    <span className="verify-detail-label">ID Number</span>
+                    <span className="verify-detail-label">HRM ID</span>
                     <span className="verify-detail-value">{card.id_no}</span>
                   </div>
+                  {card.city && (
+                    <div className="verify-detail-row">
+                      <span className="verify-detail-label">City</span>
+                      <span className="verify-detail-value">{card.city}</span>
+                    </div>
+                  )}
                   <div className="verify-detail-row">
                     <span className="verify-detail-label">Expired On</span>
                     <span className="verify-detail-value" style={{ color: '#f87171' }}>{card.expire_date}</span>
@@ -170,7 +211,7 @@ const VerifyCard = () => {
                 </div>
 
                 <p style={{ color: '#94a3b8', fontSize: '14px', marginBottom: '30px', lineHeight: 1.6 }}>
-                  This HRM Privilege Card has expired. Please contact support or renew the card details.
+                  This HRM Privilege Card has expired. Please contact support or renew your card.
                 </p>
 
                 <div className="verify-actions">

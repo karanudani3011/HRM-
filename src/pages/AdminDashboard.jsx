@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { db } from '../firebase';
 import { collection, onSnapshot, doc, addDoc, deleteDoc } from 'firebase/firestore';
 import { QRCodeCanvas } from 'qrcode.react';
+import CardScanner from '../components/CardScanner';
 import './AdminDashboard.css';
 
 /* ── Inline SVG Icons ── */
@@ -87,14 +88,14 @@ const AdminDashboard = () => {
   const [newUsername, setNewUsername] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [newDisplayName, setNewDisplayName] = useState('');
-  const [newCardId, setNewCardId] = useState('');
   const [newPermissions, setNewPermissions] = useState({
     dashboard: false,
     services: false,
     leads: false,
     blogs: false,
     qrStats: false,
-    adminAccess: false
+    adminAccess: false,
+    scanner: false
   });
 
   // QR Stats state
@@ -131,6 +132,9 @@ const AdminDashboard = () => {
       } else if (perms.includes('adminAccess')) {
         navigate('/admin/dashboard?tab=accounts', { replace: true });
         setActiveTab('accounts');
+      } else if (perms.includes('scanner')) {
+        navigate('/admin/dashboard?tab=scanner', { replace: true });
+        setActiveTab('scanner');
       } else {
         localStorage.removeItem('adminAuth');
         navigate('/admin/login', { replace: true });
@@ -222,7 +226,6 @@ const AdminDashboard = () => {
         username: newUsername.trim(),
         password: newPassword.trim(),
         name: newDisplayName.trim(),
-        cardId: newCardId.trim().toUpperCase().replace(/\s+/g, ''),
         permissions: permsArray,
         createdAt: new Date()
       });
@@ -230,14 +233,14 @@ const AdminDashboard = () => {
       setNewUsername('');
       setNewPassword('');
       setNewDisplayName('');
-      setNewCardId('');
       setNewPermissions({
         dashboard: false,
         services: false,
         leads: false,
         blogs: false,
         qrStats: false,
-        adminAccess: false
+        adminAccess: false,
+        scanner: false
       });
       alert('Sub-Admin account created successfully!');
     } catch (err) {
@@ -355,6 +358,14 @@ const AdminDashboard = () => {
               Admin Access
             </Link>
           )}
+          {hasPermission('scanner') && (
+            <Link to="/admin/dashboard?tab=scanner" className={`admin-nav-item ${activeTab === 'scanner' ? 'active' : ''}`} onClick={() => setActiveTab('scanner')}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="admin-nav-icon">
+                <path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2" />
+              </svg>
+              Card Scanner
+            </Link>
+          )}
         </nav>
 
         <div className="admin-sidebar-footer">
@@ -373,7 +384,7 @@ const AdminDashboard = () => {
         {/* Top Bar */}
         <header className="admin-topbar">
           <div className="admin-topbar-left">
-            <h1>{activeTab === 'overview' ? 'Overview' : activeTab === 'accounts' ? 'Admin Access' : 'QR Registration Stats'}</h1>
+            <h1>{activeTab === 'overview' ? 'Overview' : activeTab === 'accounts' ? 'Admin Access' : activeTab === 'scanner' ? 'Card Scanner' : 'QR Registration Stats'}</h1>
             <p>HRM Doctors Choice — Admin Panel ({adminName})</p>
           </div>
           <div className="admin-topbar-right">
@@ -525,16 +536,6 @@ const AdminDashboard = () => {
                     />
                   </div>
                   <div className="admin-input-group">
-                    <label>Associated Card ID (QR stats)</label>
-                    <input 
-                      type="text" 
-                      className="admin-text-input" 
-                      placeholder="e.g. HRM84841002" 
-                      value={newCardId} 
-                      onChange={e => setNewCardId(e.target.value)} 
-                    />
-                  </div>
-                  <div className="admin-input-group">
                     <label>Permissions Access</label>
                     <div className="admin-checkbox-list">
                       {Object.keys(newPermissions).map(key => (
@@ -544,7 +545,7 @@ const AdminDashboard = () => {
                             checked={newPermissions[key]} 
                             onChange={e => setNewPermissions({...newPermissions, [key]: e.target.checked})} 
                           />
-                          <span>{key === 'dashboard' ? 'Dashboard / Overview' : key === 'qrStats' ? 'QR Registration Stats' : key === 'adminAccess' ? 'Admin Access Manager' : key.charAt(0).toUpperCase() + key.slice(1)}</span>
+                          <span>{key === 'dashboard' ? 'Dashboard / Overview' : key === 'qrStats' ? 'QR Registration Stats' : key === 'adminAccess' ? 'Admin Access Manager' : key === 'scanner' ? 'Card Scanner (Hospital)' : key.charAt(0).toUpperCase() + key.slice(1)}</span>
                         </label>
                       ))}
                     </div>
@@ -561,7 +562,6 @@ const AdminDashboard = () => {
                     <tr>
                       <th>Display Name</th>
                       <th>Username</th>
-                      <th>Card ID</th>
                       <th>Permissions</th>
                       <th>Actions</th>
                     </tr>
@@ -571,7 +571,6 @@ const AdminDashboard = () => {
                       <tr key={acc.id}>
                         <td><strong>{acc.name || 'Unnamed'}</strong></td>
                         <td>{acc.username}</td>
-                        <td><code>{acc.cardId || '—'}</code></td>
                         <td>
                           {(acc.permissions || []).map(p => (
                             <span key={p} className="admin-perm-badge">{p}</span>
@@ -701,6 +700,13 @@ const AdminDashboard = () => {
                   </tbody>
                 </table>
               </div>
+            </div>
+          )}
+
+          {/* 4. SCANNER TAB */}
+          {activeTab === 'scanner' && hasPermission('scanner') && (
+            <div className="admin-scanner-layout" style={{ height: '100%' }}>
+              <CardScanner />
             </div>
           )}
 

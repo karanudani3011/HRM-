@@ -1,0 +1,230 @@
+.card-scanner-container {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+.card-scanner-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 8px 0;
+}
+
+.card-scanner-subtitle {
+    font-size: 15px;
+    color: #64748b;
+    margin: 0 0 24px 0;
+}
+
+.card-scanner-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+}
+
+@media (max-width: 900px) {
+    .card-scanner-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+.scanner-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.qr-reader-box {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid #e2e8f0;
+}
+
+/* Customizing html5-qrcode UI a bit */
+#qr-reader {
+    width: 100%;
+}
+#qr-reader img {
+    max-width: 100% !important;
+}
+#qr-reader button {
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 600;
+    margin: 10px;
+}
+#qr-reader select {
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    margin: 10px;
+}
+
+.scanner-reset-btn {
+    background: #f1f5f9;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.scanner-reset-btn:hover {
+    background: #e2e8f0;
+}
+
+.results-section {
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 1px solid #f1f5f9;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.results-placeholder {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    text-align: center;
+    color: #94a3b8;
+}
+
+.results-placeholder p {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.results-placeholder .small-text {
+    font-size: 14px;
+    font-weight: 400;
+}
+
+.results-loading {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    color: #64748b;
+    gap: 16px;
+}
+
+.spinning {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    100% { transform: rotate(360deg); }
+}
+
+.results-card {
+    padding: 24px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.status-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 18px;
+}
+
+.status-banner.valid {
+    background: rgba(34, 197, 94, 0.1);
+    color: #15803d;
+    border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.status-banner.expired {
+    background: rgba(239, 68, 68, 0.1);
+    color: #b91c1c;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.status-banner.not-found {
+    background: rgba(245, 158, 11, 0.1);
+    color: #b45309;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.patient-details {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.detail-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    background: white;
+    padding: 16px;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+}
+
+.detail-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    flex-shrink: 0;
+}
+
+.detail-text {
+    flex: 1;
+}
+
+.detail-text label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.detail-text p {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.not-found-msg {
+    text-align: center;
+    padding: 24px;
+    color: #64748b;
+}
+
+.not-found-msg p {
+    margin: 8px 0;
+}

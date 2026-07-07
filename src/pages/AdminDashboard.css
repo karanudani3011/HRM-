@@ -734,3 +734,149 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ── Admin Sidebar Brand Logo ── */
+.admin-sidebar-logo-img-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #111;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.admin-sidebar-brand-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── Dark Metallic Mini ID Card (QR Stats) ── */
+.admin-id-card-mini {
+  width: 100%;
+  max-width: 220px;
+  border-radius: 14px;
+  padding: 14px 14px 10px;
+  position: relative;
+  overflow: hidden;
+
+  background: linear-gradient(
+    160deg,
+    #2a2a2a 0%,
+    #1a1a1a 40%,
+    #222 70%,
+    #161616 100%
+  );
+  border: 1px solid rgba(200,200,200,0.15);
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.7),
+    0 6px 24px rgba(0,0,0,0.5),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.admin-id-card-mini-metal {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    175deg,
+    transparent 0px,
+    rgba(255,255,255,0.01) 1px,
+    transparent 2px,
+    transparent 4px
+  );
+  border-radius: 14px;
+}
+
+.admin-id-mini-logo-row {
+  position: relative;
+  z-index: 1;
+}
+
+.admin-id-mini-logo {
+  height: 32px;
+  max-width: 110px;
+  object-fit: contain;
+  filter: brightness(1.1) drop-shadow(0 2px 5px rgba(220,38,38,0.2));
+}
+
+.admin-id-mini-tagline {
+  font-size: 6.5px;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-align: center;
+  margin: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.admin-id-mini-qr {
+  position: relative;
+  z-index: 1;
+  margin: 4px 0;
+}
+
+.admin-id-mini-detail {
+  width: 100%;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  position: relative;
+  z-index: 1;
+}
+
+.admin-id-mini-label {
+  font-size: 8px;
+  color: rgba(255,255,255,0.5);
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+  white-space: nowrap;
+}
+
+.admin-id-mini-value {
+  font-size: 8.5px;
+  color: #ffffff;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.3px;
+}
+
+.admin-id-mini-footer {
+  font-size: 7px;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 0.8px;
+  text-transform: lowercase;
+  position: relative;
+  z-index: 1;
+  margin-top: 2px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  width: 100%;
+  text-align: center;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(243, 156, 18, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(243, 156, 18, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(243, 156, 18, 0);
+  }
+}
+
+.activation-tab-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}

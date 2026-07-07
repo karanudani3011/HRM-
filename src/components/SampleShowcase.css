@@ -1,3 +1,7 @@
+/* ══════════════════════════════════════════
+   SAMPLE SHOWCASE — Dark Metallic HRM Card
+   ══════════════════════════════════════════ */
+
 .sample-showcase {
   padding: 80px 0;
   background-color: var(--white);
@@ -7,7 +11,7 @@
   display: flex;
   flex-direction: column;
   gap: 60px;
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
 }
 
@@ -22,15 +26,14 @@
 }
 
 .red-icon {
-  color: var(--primary-red);
+  color: var(--primary-red, #dc2626);
 }
 
-/* Interactive ID Card Wrapper */
+/* Interactive wrapper */
 .id-card-interactive-wrapper {
   display: flex;
   flex-direction: column;
   gap: 30px;
-  max-width: 100%;
 }
 
 .id-card-preview {
@@ -41,232 +44,285 @@
 .id-cards-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 24px;
   justify-content: center;
-  background-color: #f8fafc;
-  padding: 30px;
-  border-radius: 12px;
-  border: 1px dashed #cbd5e1;
+  background: #1a1a1a;
+  padding: 36px 28px;
+  border-radius: 16px;
+  border: 1px solid #333;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
 }
 
-/* Vertical ID Card */
+/* ── Base Card ── */
 .vertical-id-card {
-  width: 260px;
-  height: 420px;
-  background-color: #fff0f0; /* Light red/white tint */
-  border-radius: 8px;
+  width: 240px;
+  height: 400px;
+  border-radius: 18px;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+
+  /* Dark gunmetal base */
+  background: linear-gradient(
+    160deg,
+    #2a2a2a 0%,
+    #1a1a1a 35%,
+    #222 60%,
+    #161616 100%
+  );
+  /* Silver border simulating metal edge */
+  border: 1.5px solid rgba(200, 200, 200, 0.25);
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.8),
+    0 6px 30px rgba(0,0,0,0.6),
+    inset 0 1px 0 rgba(255,255,255,0.08);
 }
 
-.card-bg-pattern {
+/* Brushed-metal texture overlay */
+.metal-overlay {
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  opacity: 0.05;
-  background-image: radial-gradient(#dc2626 2px, transparent 2px);
-  background-size: 20px 20px;
+  inset: 0;
   pointer-events: none;
+  z-index: 1;
+  background:
+    repeating-linear-gradient(
+      175deg,
+      transparent 0px,
+      rgba(255,255,255,0.015) 1px,
+      transparent 2px,
+      transparent 4px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      rgba(255,255,255,0.008) 1px,
+      transparent 2px
+    );
 }
 
-/* Top Section */
-.id-card-top {
-  padding: 25px 20px 10px;
-  display: flex;
-  justify-content: center;
+/* ══════════════ FRONT CARD ══════════════ */
+.idc-top {
   position: relative;
   z-index: 2;
-}
-
-.id-brand-logo-img {
-  width: 120px;
-  max-height: 45px;
-  object-fit: contain;
-  mix-blend-mode: multiply; /* Helps blend jpeg white backgrounds if necessary */
-}
-
-/* Photo Section */
-.id-photo-container {
+  padding: 18px 16px 8px;
   display: flex;
-  justify-content: center;
-  padding: 5px 0;
-  position: relative;
-  z-index: 2;
-}
-
-.id-photo-border {
-  width: 100px;
-  height: 115px;
-  border: 4px solid #dc2626;
-  border-radius: 12px;
-  overflow: hidden;
-  background-color: #fff;
-  display: flex;
+  flex-direction: column;
   align-items: center;
+  gap: 4px;
+}
+
+.idc-logo-wrap {
+  display: flex;
   justify-content: center;
 }
 
-.id-photo-img {
+.idc-logo-img {
+  height: 46px;
+  max-width: 140px;
+  object-fit: contain;
+  filter: brightness(1.1) drop-shadow(0 2px 6px rgba(220,38,38,0.3));
+}
+
+.idc-tagline {
+  font-size: 7px;
+  color: rgba(255,255,255,0.55);
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  text-align: center;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Details Section */
+.idc-details {
+  position: relative;
+  z-index: 2;
+  padding: 10px 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.idc-detail-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  line-height: 1.4;
+}
+
+.idc-label {
+  font-size: 9px;
+  color: rgba(255,255,255,0.65);
+  font-weight: 600;
+  white-space: nowrap;
+  font-family: 'Courier New', monospace;
+}
+
+.idc-value {
+  font-size: 9.5px;
+  color: #ffffff;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.3px;
+}
+
+.idc-active {
+  color: #4ade80;
+}
+
+/* Photo section */
+.idc-photo-section {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: flex-start;
+  padding: 8px 16px 0;
+  margin-top: auto;
+}
+
+.idc-photo-frame {
+  width: 76px;
+  height: 88px;
+  border: 2px solid rgba(255,255,255,0.2);
+  border-radius: 4px;
+  overflow: hidden;
+  background: #111;
+}
+
+.idc-photo-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.id-photo-placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #f1f5f9;
+.idc-photo-placeholder {
   width: 100%;
   height: 100%;
-}
-
-/* Bottom Section */
-.id-card-bottom {
-  margin-top: auto;
-  text-align: center;
-  padding-bottom: 10px;
-  position: relative;
-  z-index: 2;
-}
-
-.card-type-title {
-  font-size: 18px;
-  font-weight: 800;
-  color: #1e293b;
-  margin-bottom: 2px;
-  letter-spacing: 1px;
-}
-
-.id-number {
-  font-size: 11px;
-  color: #475569;
-  margin-bottom: 5px;
-  letter-spacing: 0.5px;
-}
-
-.card-website {
-  font-size: 11px;
-  color: #94a3b8;
-  letter-spacing: 0.5px;
-}
-
-/* Back Card Specifics */
-.back-card-terms-only {
+  display: flex;
+  align-items: center;
   justify-content: center;
+  background: #1c1c1c;
 }
 
-.id-person-details {
-  text-align: center;
-  margin-top: 5px;
-  margin-bottom: 15px;
+/* Bottom */
+.idc-bottom {
   position: relative;
   z-index: 2;
+  text-align: center;
+  padding: 8px 12px 10px;
 }
 
-.person-name {
-  font-size: 20px;
+.idc-terms-label {
+  font-size: 7px;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 1px;
+}
+
+.idc-terms-big {
+  font-size: 10px;
   font-weight: 800;
-  color: #1e293b;
-  margin-bottom: 0;
-}
-
-.person-role {
-  font-size: 14px;
-  color: #64748b;
+  color: rgba(255,255,255,0.75);
   letter-spacing: 2px;
   text-transform: uppercase;
+  margin-bottom: 3px;
 }
 
-.id-validity-bar {
-  background-color: #dc2626;
-  color: white;
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 20px;
-  font-size: 11px;
-  font-weight: 600;
+.idc-website {
+  font-size: 8px;
+  color: rgba(255,255,255,0.45);
+  letter-spacing: 0.8px;
+}
+
+/* ══════════════ BACK CARD ══════════════ */
+.back-top {
   position: relative;
   z-index: 2;
-  margin-bottom: 15px;
-}
-
-.id-terms {
-  padding: 0 20px;
+  padding: 22px 16px 0;
   text-align: center;
-  position: relative;
-  z-index: 2;
 }
 
-.id-terms h4 {
-  font-size: 10px;
-  font-weight: 700;
-  color: #1e293b;
-  margin-bottom: 5px;
-}
-
-.id-terms p {
-  font-size: 9px;
-  line-height: 1.4;
-  color: #64748b;
-}
-
-.back-card-qrs {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  gap: 25px;
-  position: relative;
-  z-index: 2;
-  padding: 20px;
-}
-
-.qr-code-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  background: white;
-  padding: 10px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.qr-code-box span {
-  font-size: 11px;
-  font-weight: 700;
-  color: #1e293b;
+.back-hrm-title {
+  font-size: 18px;
+  font-weight: 900;
+  color: rgba(255,255,255,0.85);
+  letter-spacing: 4px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
-.id-socials {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-top: auto;
-  padding-bottom: 25px;
+.back-for-label {
   position: relative;
   z-index: 2;
+  text-align: center;
+  font-size: 9px;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 14px;
 }
 
-.social-icon {
-  width: 20px;
-  height: 20px;
-  background-color: #dc2626;
-  color: white;
-  border-radius: 50%;
+.back-partner-label {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  font-size: 8.5px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.75);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-top: 4px;
+  padding: 0 10px;
+}
+
+/* Stacked QR codes */
+.back-qr-stack {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 20px 0;
+  flex: 1;
+}
+
+.back-qr-item {
+  background: rgba(255,255,255,0.92);
+  border-radius: 6px;
+  padding: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* Form and Controls */
+.back-qr-img {
+  width: 72px;
+  height: 72px;
+  display: block;
+}
+
+.back-qr-divider {
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.back-terms-label {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  font-size: 8px;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 10px 12px 14px;
+}
+
+/* ══════════════ CONTROLS ══════════════ */
 .id-card-controls {
   background: #ffffff;
   border: 1px solid #e2e8f0;
@@ -284,7 +340,7 @@
 .form-row {
   display: flex;
   gap: 15px;
-  margin-bottom: 15px;
+  margin-bottom: 5px;
 }
 
 .form-group {
@@ -292,7 +348,12 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  margin-bottom: 15px;
+  margin-bottom: 14px;
+}
+
+.form-group.full-width {
+  flex: unset;
+  width: 100%;
 }
 
 .form-group label {
@@ -301,16 +362,20 @@
   color: #475569;
 }
 
-.form-group input {
+.form-group input,
+.form-group select {
   padding: 10px 12px;
   border: 1px solid #cbd5e1;
   border-radius: 6px;
   font-size: 14px;
   outline: none;
   transition: border-color 0.2s;
+  background: #fff;
+  color: #1e293b;
 }
 
-.form-group input:focus:not(:read-only) {
+.form-group input:focus:not(:read-only),
+.form-group select:focus {
   border-color: #dc2626;
 }
 
@@ -320,10 +385,35 @@
   cursor: not-allowed;
 }
 
-.file-input {
+/* Photo upload */
+.photo-upload-area {
+  border: 2px dashed #cbd5e1;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  cursor: pointer;
+  color: #64748b;
   font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: border-color 0.2s;
+  min-height: 60px;
 }
 
+.photo-upload-area:hover {
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+.photo-preview-thumb {
+  height: 60px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+/* Buttons */
 .action-btn {
   display: flex;
   align-items: center;
@@ -376,15 +466,15 @@
 }
 
 .download-btn-new {
-  background-color: #1e293b;
+  background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
   color: white;
 }
 
 .download-btn-new:hover {
-  background-color: #0f172a;
+  background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
 }
 
-/* Clinic Sample Styles */
+/* ══════════════ CLINIC SECTION ══════════════ */
 .clinic-sample-wrapper {
   background-color: #f9fafb;
   border-radius: 16px;
@@ -404,6 +494,7 @@
 
 .clinic-details h4 {
   font-size: 16px;
+  font-weight: 700;
   color: #1a1a1a;
   margin-bottom: 20px;
 }
@@ -413,6 +504,8 @@
   flex-direction: column;
   gap: 12px;
   margin-bottom: 25px;
+  list-style: none;
+  padding: 0;
 }
 
 .feature-list li {
@@ -439,22 +532,27 @@
   font-size: 10px;
   color: #b91c1c;
   margin-left: 26px;
+  letter-spacing: 0.5px;
 }
 
 .register-btn {
   width: 100%;
-  background-color: #111827;
+  background: linear-gradient(135deg, #111827, #000);
   color: white;
   padding: 15px;
   font-size: 15px;
   font-weight: 600;
-  transition: background-color 0.3s;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.2s;
+  letter-spacing: 0.3px;
 }
 
 .register-btn:hover {
-  background-color: #000000;
+  opacity: 0.88;
 }
 
+/* ══════════════ RESPONSIVE ══════════════ */
 @media (max-width: 768px) {
   .sample-showcase {
     padding: 40px 0;
@@ -462,17 +560,17 @@
   .id-cards-container {
     flex-direction: column;
     align-items: center;
-    padding: 15px;
+    padding: 20px 16px;
   }
   .form-row {
     flex-direction: column;
     gap: 0;
   }
-  .clinic-image {
-    height: 220px;
-  }
   .samples-grid {
     gap: 40px;
+  }
+  .clinic-image {
+    height: 220px;
   }
 }
 
@@ -481,14 +579,10 @@
     font-size: 16px;
   }
   .vertical-id-card {
-    width: 240px;
-    height: 387px;
-  }
-  .id-photo-border {
-    width: 110px;
-    height: 130px;
+    width: 220px;
+    height: 368px;
   }
   .clinic-details {
-    padding: 15px;
+    padding: 16px;
   }
 }

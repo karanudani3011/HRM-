@@ -1,134 +1,302 @@
+/* ══════════════════════════════════════════
+   VERIFY CARD PAGE — Dark Metallic Theme
+   ══════════════════════════════════════════ */
+
 .verify-card-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  background: linear-gradient(135deg, #0a0a0a 0%, #111 40%, #1a1a1a 100%);
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 20px;
   font-family: 'Outfit', 'Inter', sans-serif;
   color: #f8fafc;
+  position: relative;
+  overflow: hidden;
 }
 
+/* Background glow decorations */
+.vc-bg-glow {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(80px);
+  opacity: 0.15;
+}
+
+.vc-glow-1 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, #dc2626, transparent);
+  top: -100px;
+  right: -100px;
+}
+
+.vc-glow-2 {
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, #1e40af, transparent);
+  bottom: -80px;
+  left: -80px;
+}
+
+/* Container */
 .verify-card-container {
   width: 100%;
   max-width: 480px;
-  background: rgba(30, 41, 59, 0.7);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(26, 26, 26, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 24px;
-  padding: 40px 30px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  padding: 36px 28px;
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.5),
+    0 24px 60px rgba(0, 0, 0, 0.5);
   text-align: center;
   animation: fadeInVerify 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  z-index: 2;
 }
 
 @keyframes fadeInVerify {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
+/* Logo */
 .verify-logo {
-  margin-bottom: 24px;
+  margin-bottom: 10px;
   display: inline-flex;
   justify-content: center;
   align-items: center;
 }
 
 .verify-logo-img {
-  height: 60px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  height: 52px;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.25);
+  filter: brightness(1.05);
 }
 
+/* Tagline */
+.verify-tagline {
+  font-size: 9px;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin: 0 0 24px;
+}
+
+/* Status badge */
 .verify-status-badge {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 16px;
+  padding: 8px 18px;
   border-radius: 30px;
-  font-weight: 600;
-  font-size: 14px;
+  font-weight: 700;
+  font-size: 13px;
   letter-spacing: 0.5px;
-  margin-bottom: 30px;
+  margin-bottom: 24px;
   animation: scaleInVerify 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 @keyframes scaleInVerify {
-  from {
-    transform: scale(0.8);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
+  from { transform: scale(0.8); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
 }
 
 .verify-status-badge.valid {
-  background: rgba(16, 185, 129, 0.15);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  background: rgba(74, 222, 128, 0.12);
+  color: #4ade80;
+  border: 1px solid rgba(74, 222, 128, 0.3);
 }
 
 .verify-status-badge.expired {
-  background: rgba(239, 68, 68, 0.15);
+  background: rgba(239, 68, 68, 0.12);
   color: #f87171;
   border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 .verify-status-badge.not-found {
-  background: rgba(148, 163, 184, 0.15);
+  background: rgba(148, 163, 184, 0.12);
   color: #cbd5e1;
   border: 1px solid rgba(148, 163, 184, 0.3);
 }
 
+/* Hospital info box */
 .verify-hospital-info {
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.05) 100%);
-  border: 1px solid rgba(239, 68, 68, 0.25);
-  border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 30px;
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.1) 0%, rgba(220, 38, 38, 0.03) 100%);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
   text-align: left;
 }
 
 .verify-hospital-info h3 {
-  margin: 0 0 6px 0;
-  font-size: 18px;
+  margin: 0 0 4px;
+  font-size: 14px;
   font-weight: 700;
   color: #f87171;
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }
 
 .verify-hospital-info p {
   margin: 0;
-  font-size: 14px;
+  font-size: 13px;
   color: #94a3b8;
   line-height: 1.5;
 }
 
-.verify-card-details {
-  background: rgba(15, 23, 42, 0.4);
-  border-radius: 18px;
-  padding: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+/* ── Dark Metallic Card Preview ── */
+.verify-card-preview {
+  width: 100%;
+  max-width: 280px;
+  margin: 0 auto 24px;
+  border-radius: 14px;
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+
+  background: linear-gradient(
+    160deg,
+    #2a2a2a 0%,
+    #1a1a1a 40%,
+    #222 70%,
+    #161616 100%
+  );
+  border: 1px solid rgba(200,200,200,0.15);
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.7),
+    0 8px 30px rgba(0,0,0,0.5),
+    inset 0 1px 0 rgba(255,255,255,0.06);
   text-align: left;
-  margin-bottom: 30px;
+}
+
+.vc-metal-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    175deg,
+    transparent 0px,
+    rgba(255,255,255,0.012) 1px,
+    transparent 2px,
+    transparent 4px
+  );
+  border-radius: 14px;
+}
+
+.vc-card-logo-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 4px;
+  position: relative;
+  z-index: 1;
+}
+
+.vc-card-logo {
+  height: 36px;
+  max-width: 120px;
+  object-fit: contain;
+  filter: brightness(1.1) drop-shadow(0 2px 5px rgba(220,38,38,0.25));
+}
+
+.vc-card-tagline {
+  font-size: 7px;
+  color: rgba(255,255,255,0.45);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-align: center;
+  margin: 0 0 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.vc-detail-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+  z-index: 1;
+}
+
+.vc-detail-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.vc-dl {
+  font-size: 9px;
+  color: rgba(255,255,255,0.55);
+  font-weight: 600;
+  white-space: nowrap;
+  font-family: 'Courier New', monospace;
+}
+
+.vc-dv {
+  font-size: 9.5px;
+  color: #ffffff;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.3px;
+}
+
+.vc-active {
+  color: #4ade80;
+}
+
+.vc-card-photo-row {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.vc-card-photo {
+  width: 60px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1.5px solid rgba(255,255,255,0.2);
+}
+
+.vc-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  position: relative;
+  z-index: 1;
+}
+
+.vc-card-footer span {
+  font-size: 7px;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+/* Fallback detail table (for expired / not found states) */
+.verify-card-details {
+  background: rgba(15, 23, 42, 0.5);
+  border-radius: 14px;
+  padding: 20px;
+  border: 1px solid rgba(255,255,255,0.06);
+  text-align: left;
+  margin-bottom: 24px;
 }
 
 .verify-detail-row {
   display: flex;
   justify-content: space-between;
-  padding: 12px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
 }
 
 .verify-detail-row:last-child {
@@ -136,17 +304,18 @@
 }
 
 .verify-detail-label {
-  font-size: 14px;
+  font-size: 13px;
   color: #94a3b8;
   font-weight: 500;
 }
 
 .verify-detail-value {
-  font-size: 15px;
+  font-size: 14px;
   color: #f1f5f9;
   font-weight: 600;
 }
 
+/* Action buttons */
 .verify-actions {
   display: flex;
   flex-direction: column;
@@ -154,16 +323,16 @@
 }
 
 .verify-btn-primary {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
   color: #ffffff;
   border: none;
-  padding: 15px 24px;
-  border-radius: 14px;
-  font-weight: 600;
-  font-size: 16px;
+  padding: 14px 24px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 15px;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+  box-shadow: 0 4px 18px rgba(220, 38, 38, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -172,17 +341,17 @@
 
 .verify-btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+  box-shadow: 0 8px 24px rgba(220, 38, 38, 0.4);
 }
 
 .verify-btn-secondary {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255,255,255,0.05);
   color: #cbd5e1;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 14px 24px;
-  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 13px 24px;
+  border-radius: 12px;
   font-weight: 600;
-  font-size: 15px;
+  font-size: 14px;
   cursor: pointer;
   transition: all 0.2s ease;
   text-decoration: none;
@@ -192,22 +361,24 @@
 }
 
 .verify-btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255,255,255,0.1);
   color: #ffffff;
 }
 
+/* Loading */
 .verify-loading {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 16px;
-  color: #94a3b8;
+  color: #64748b;
+  padding: 20px 0;
 }
 
 .verify-spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid rgba(220, 38, 38, 0.15);
+  width: 42px;
+  height: 42px;
+  border: 3px solid rgba(220, 38, 38, 0.12);
   border-radius: 50%;
   border-top-color: #dc2626;
   animation: verifySpin 0.8s linear infinite;

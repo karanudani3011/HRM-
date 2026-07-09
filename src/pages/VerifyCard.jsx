@@ -189,11 +189,23 @@ const VerifyCard = () => {
                     </div>
                   </div>
 
-                  {card.photo_url && (
+                  <div className="vc-photo-qr-section">
                     <div className="vc-card-photo-row">
-                      <img src={card.photo_url} alt="Member" className="vc-card-photo" />
+                      {card.photo_url ? (
+                        <img src={card.photo_url} alt="Member" className="vc-card-photo" />
+                      ) : (
+                        <div className="vc-photo-placeholder" />
+                      )}
                     </div>
-                  )}
+                    <div className="vc-qr-frame">
+                      <QRCodeCanvas 
+                        value={card.id_no} 
+                        size={54} 
+                        level="H"
+                        includeMargin={true}
+                      />
+                    </div>
+                  </div>
 
                   <div className="vc-card-footer">
                     <span>FOR HRM TERMS</span>
@@ -253,11 +265,23 @@ const VerifyCard = () => {
                     </div>
                   </div>
 
-                  {card.photo_url && (
+                  <div className="vc-photo-qr-section">
                     <div className="vc-card-photo-row">
-                      <img src={card.photo_url} alt="Member" className="vc-card-photo" />
+                      {card.photo_url ? (
+                        <img src={card.photo_url} alt="Member" className="vc-card-photo" />
+                      ) : (
+                        <div className="vc-photo-placeholder" />
+                      )}
                     </div>
-                  )}
+                    <div className="vc-qr-frame">
+                      <QRCodeCanvas 
+                        value={card.id_no} 
+                        size={54} 
+                        level="H"
+                        includeMargin={true}
+                      />
+                    </div>
+                  </div>
 
                   <div className="vc-card-footer">
                     <span>FOR HRM TERMS</span>

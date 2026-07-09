@@ -172,12 +172,13 @@
   color: #4ade80;
 }
 
-/* Photo section */
-.idc-photo-section {
+/* Photo & QR section */
+.idc-photo-qr-section {
   position: relative;
   z-index: 2;
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
+  align-items: center;
   padding: 8px 16px 0;
   margin-top: auto;
 }
@@ -204,6 +205,23 @@
   align-items: center;
   justify-content: center;
   background: #1c1c1c;
+}
+
+.idc-qr-frame {
+  width: 76px;
+  height: 76px;
+  background: #ffffff;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.idc-qr-frame canvas {
+  width: 100% !important;
+  height: 100% !important;
 }
 
 /* Bottom */

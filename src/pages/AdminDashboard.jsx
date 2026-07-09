@@ -97,7 +97,8 @@ const AdminDashboard = () => {
     blogs: false,
     qrStats: false,
     adminAccess: false,
-    scanner: false
+    scanner: false,
+    scanLogs: false
   });
 
   // QR Stats state
@@ -108,6 +109,30 @@ const AdminDashboard = () => {
   const [privilegeCards, setPrivilegeCards] = useState([]);
   const [cardsLoading, setCardsLoading] = useState(false);
   const [cardSearch, setCardSearch] = useState('');
+
+  // Scan Logs state
+  const [scanLogs, setScanLogs] = useState([]);
+  const [logsLoading, setLogsLoading] = useState(false);
+
+  const fetchScanLogs = async () => {
+    setLogsLoading(true);
+    try {
+      let query = supabase.from('card_scans').select('*').order('scanned_at', { ascending: false });
+      
+      // If not super admin, only fetch their own logs
+      if (adminUsername !== 'admin') {
+        query = query.eq('hospital_username', adminUsername);
+      }
+      
+      const { data, error } = await query;
+      if (error) throw error;
+      setScanLogs(data || []);
+    } catch (err) {
+      console.error('Error fetching scan logs:', err);
+    } finally {
+      setLogsLoading(false);
+    }
+  };
 
   const fetchPrivilegeCards = async () => {
     setCardsLoading(true);
@@ -242,7 +267,10 @@ const AdminDashboard = () => {
     if (activeTab === 'activation') {
       fetchPrivilegeCards();
     }
-  }, [activeTab]);
+    if (activeTab === 'scan-logs') {
+      fetchScanLogs();
+    }
+  }, [activeTab, adminUsername]);
 
   /* ── Real-time Firestore stats ── */
   useEffect(() => {
@@ -330,7 +358,8 @@ const AdminDashboard = () => {
         blogs: false,
         qrStats: false,
         adminAccess: false,
-        scanner: false
+        scanner: false,
+        scanLogs: false
       });
       alert('Sub-Admin account created successfully!');
     } catch (err) {
@@ -636,6 +665,14 @@ const AdminDashboard = () => {
               Card Scanner
             </Link>
           )}
+          {hasPermission('scanLogs') && (
+            <Link to="/admin/dashboard?tab=scan-logs" className={`admin-nav-item ${activeTab === 'scan-logs' ? 'active' : ''}`} onClick={() => setActiveTab('scan-logs')}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="admin-nav-icon">
+                <polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+              </svg>
+              Scan Logs
+            </Link>
+          )}
           {hasPermission('dashboard') && (
             <Link to="/admin/dashboard?tab=activation" className={`admin-nav-item ${activeTab === 'activation' ? 'active' : ''}`} onClick={() => setActiveTab('activation')}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="admin-nav-icon">
@@ -666,7 +703,7 @@ const AdminDashboard = () => {
         {/* Top Bar */}
         <header className="admin-topbar">
           <div className="admin-topbar-left">
-            <h1>{activeTab === 'overview' ? 'Overview' : activeTab === 'accounts' ? 'Admin Access' : activeTab === 'scanner' ? 'Card Scanner' : activeTab === 'activation' ? 'Card Activation & Renewals' : 'QR Registration Stats'}</h1>
+            <h1>{activeTab === 'overview' ? 'Overview' : activeTab === 'accounts' ? 'Admin Access' : activeTab === 'scanner' ? 'Card Scanner' : activeTab === 'scan-logs' ? 'Scan Logs' : activeTab === 'activation' ? 'Card Activation & Renewals' : 'QR Registration Stats'}</h1>
             <p>HRM Doctors Choice — Admin Panel ({adminName})</p>
           </div>
           <div className="admin-topbar-right">
@@ -1014,6 +1051,68 @@ const AdminDashboard = () => {
           {activeTab === 'scanner' && hasPermission('scanner') && (
             <div className="admin-scanner-layout" style={{ height: '100%' }}>
               <CardScanner />
+            </div>
+          )}
+
+          {/* 4.5. SCAN LOGS TAB */}
+          {activeTab === 'scan-logs' && hasPermission('scanLogs') && (
+            <div className="admin-table-card">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <div>
+                  <h3 className="admin-form-title" style={{ margin: 0 }}>Card Scan Logs</h3>
+                  <p style={{ fontSize: '12px', color: 'var(--ad-text-3)', margin: '4px 0 0 0' }}>
+                    History of patient cards scanned by hospitals.
+                  </p>
+                </div>
+                <button onClick={fetchScanLogs} className="admin-submit-btn" style={{ padding: '8px 16px', fontSize: '12.5px' }}>
+                  Refresh Logs
+                </button>
+              </div>
+
+              {logsLoading ? (
+                <div style={{ textAlign: 'center', padding: '40px', color: 'var(--ad-text-3)' }}>
+                  Loading scan logs...
+                </div>
+              ) : (
+                <div style={{ overflowX: 'auto' }}>
+                  <table className="admin-table">
+                    <thead>
+                      <tr>
+                        <th>Date & Time</th>
+                        <th>Hospital Name</th>
+                        <th>Patient Name</th>
+                        <th>Card ID</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {scanLogs.map(log => (
+                        <tr key={log.id}>
+                          <td>{new Date(log.scanned_at).toLocaleString('en-IN')}</td>
+                          <td><strong>{log.hospital_name}</strong><div style={{ fontSize: '11px', color: 'var(--ad-text-3)' }}>@{log.hospital_username}</div></td>
+                          <td>{log.patient_name}</td>
+                          <td><code>{log.card_id}</code></td>
+                          <td>
+                            <span className="admin-perm-badge" style={{ 
+                              background: log.status === 'valid' ? 'rgba(46, 204, 113, 0.15)' : log.status === 'expired' ? 'rgba(243, 156, 18, 0.15)' : 'rgba(231, 76, 60, 0.15)', 
+                              color: log.status === 'valid' ? '#2ecc71' : log.status === 'expired' ? '#f39c12' : '#e74c3c' 
+                            }}>
+                              {log.status.toUpperCase()}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                      {scanLogs.length === 0 && (
+                        <tr>
+                          <td colSpan="5" style={{ textAlign: 'center', padding: '36px', color: 'var(--ad-text-3)' }}>
+                            No scan logs found.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           )}
 

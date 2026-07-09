@@ -32,6 +32,7 @@ const CardScanner = () => {
     setLoading(true);
     setStatus(null);
     setPatientData(null);
+    let newStatus = 'not-found';
     try {
       const cleanId = cardId.replace(/\s+/g, '').toUpperCase();
       const { data: cardData, error: cardError } = await supabase
@@ -44,6 +45,7 @@ const CardScanner = () => {
 
       if (cardData) {
         setPatientData(cardData);
+        newStatus = 'valid';
         const expireStr = cardData.expire_date;
         if (expireStr) {
           const parts = expireStr.split('/');
@@ -55,22 +57,47 @@ const CardScanner = () => {
             const nowYear = now.getFullYear();
 
             if (nowYear > expYear || (nowYear === expYear && nowMonth > expMonth)) {
-              setStatus('expired');
-            } else {
-              setStatus('valid');
+              newStatus = 'expired';
             }
-          } else {
-            setStatus('valid');
           }
-        } else {
-          setStatus('valid');
         }
-      } else {
-        setStatus('not-found');
       }
+
+      setStatus(newStatus);
+      
+      // Log the scan to the database
+      const adminUsername = localStorage.getItem('adminUsername') || 'unknown_admin';
+      const adminName = localStorage.getItem('adminName') || 'Unknown Hospital';
+      
+      try {
+        await supabase.from('card_scans').insert([{
+          card_id: cleanId,
+          patient_name: cardData ? cardData.name : 'Unknown',
+          hospital_username: adminUsername,
+          hospital_name: adminName,
+          status: newStatus
+        }]);
+      } catch (logErr) {
+        console.error('Error logging scan:', logErr);
+      }
+      
     } catch (err) {
       console.error('Fetch error:', err);
       setStatus('not-found');
+      
+      // Log failed scan
+      const adminUsername = localStorage.getItem('adminUsername') || 'unknown_admin';
+      const adminName = localStorage.getItem('adminName') || 'Unknown Hospital';
+      try {
+        await supabase.from('card_scans').insert([{
+          card_id: cardId,
+          patient_name: 'Unknown',
+          hospital_username: adminUsername,
+          hospital_name: adminName,
+          status: 'not-found'
+        }]);
+      } catch (logErr) {}
+      
     } finally {
       setLoading(false);
     }

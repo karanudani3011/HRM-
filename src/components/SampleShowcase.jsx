@@ -182,8 +182,8 @@ const SampleShowcase = () => {
                       </div>
                     </div>
 
-                    {/* Photo Section */}
-                    <div className="idc-photo-section">
+                    {/* Photo & QR Section */}
+                    <div className="idc-photo-qr-section">
                       <div className="idc-photo-frame">
                         {photoPreview ? (
                           <img src={photoPreview} alt="Member" className="idc-photo-img" />
@@ -192,6 +192,15 @@ const SampleShowcase = () => {
                             <Camera size={24} color="#888" />
                           </div>
                         )}
+                      </div>
+                      
+                      <div className="idc-qr-frame">
+                        <QRCodeCanvas 
+                          value={formData.idNo} 
+                          size={70} 
+                          level="H"
+                          includeMargin={true}
+                        />
                       </div>
                     </div>
 

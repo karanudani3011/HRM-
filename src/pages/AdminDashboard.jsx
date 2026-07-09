@@ -5,6 +5,7 @@ import { collection, onSnapshot, doc, addDoc, deleteDoc } from 'firebase/firesto
 import { QRCodeCanvas } from 'qrcode.react';
 import CardScanner from '../components/CardScanner';
 import { supabase } from '../lib/supabase';
+import html2pdf from 'html2pdf.js';
 import './AdminDashboard.css';
 
 /* ── Inline SVG Icons ── */
@@ -349,6 +350,184 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleDownloadMOU = (acc) => {
+    const todayDate = new Date().toLocaleDateString('en-IN');
+    const hospitalName = acc.name || 'HOSPITAL';
+    const element = document.createElement('div');
+    element.innerHTML = `
+      <div style="font-family: Arial, sans-serif; font-size: 13px; line-height: 1.6; padding: 40px; color: #000;">
+        <h2 style="text-align: center; text-decoration: underline; margin-bottom: 20px; font-size: 18px;">MEMORANDUM OF UNDERSTANDING (MOU)</h2>
+
+        <p><strong>1. સંબંધની પ્રકૃતિ અને કાનૂની સ્થિતિ</strong></p>
+        <ul style="list-style-type: none; padding-left: 0;">
+          <li>• 1.1 આ MOU માત્ર માર્કેટિંગ ભાગીદારી અને પેશન્ટ રેફરલ સેવાઓ માટે જ છે.</li>
+          <li>• 1.2 HRM એક સ્વતંત્ર માર્કેટિંગ ભાગીદાર છે. HRM એ હોસ્પિટલનું મેનેજમેન્ટ, વહીવટકર્તા, ઓપરેટર, ભાગીદાર કે માલિક નથી.</li>
+          <li>• 1.3 કોઈ ક્લિનિકલ ભૂમિકા નહીં: હોસ્પિટલના કોઈપણ ક્લિનિકલ, તબીબી, વહીવટી, નાણાકીય અથવા ઓપરેશનલ કાર્યોમાં HRM ની કોઈ ભૂમિકા, અધિકાર કે જવાબદારી રહેશે નહીં. સારવારના તમામ નિર્ણયો, સારવારની ગુણવત્તા અને તબીબી પરિણામોની સંપૂર્ણ જવાબદારી માત્ર હોસ્પિટલની રહેશે.</li>
+          <li>• 1.4 માલિક-કર્મચારી/એજન્સી સંબંધ નથી: આ MOU માં કંઈપણ પક્ષકારો વચ્ચે ભાગીદારી, સંયુક્ત સાહસ (Joint Venture), એજન્સી અથવા માલિક-કર્મચારીના સંબંધની રચના કરતું નથી.</li>
+          <li>• 1.5 HRM ની સ્વતંત્રતા: હોસ્પિટલ સ્વીકારે છે કે HRM એક સ્વતંત્ર સંસ્થા છે અને તે માર્કેટિંગ પ્રવૃત્તિઓ અંગે હોસ્પિટલની કોઈપણ આંતરિક SOPs, નીતિઓ, નિયમો કે સૂચનાઓથી બંધાયેલ રહેશે નહીં. HRM પોતાની માર્કેટિંગ વ્યૂહરચના અને શરતો મુજબ કાર્ય કરશે.</li>
+          <li>• 1.6 વૈધાનિક જાહેરાત: હોસ્પિટલ સ્વીકારે છે કે HRM એ CEA Act 2010, NMC Act 2019, અથવા IRDAI Act 1999 હેઠળ નોંધાયેલ નથી, તેથી HRM કોઈ ક્લિનિકલ સેવા પ્રદાન કરી શકશે નહીં અને કરશે પણ નહીં.</li>
+        </ul>
+
+        <p><strong>2. HRM દ્વારા આપવામાં આવતી સેવાઓનો વ્યાપ</strong></p>
+        <ul style="list-style-type: none; padding-left: 0;">
+          <li>• 2.1 દર્દી રેફરલ: HRM હોસ્પિટલમાં દર્દીઓ મોકલવા માટે તેના માર્કેટિંગ નેટવર્કનો ઉપયોગ કરશે. સૂચક ટાર્ગેટ: 30 સર્જિકલ + 70 OPD = 100 દર્દીઓ. એ સ્પષ્ટ કરવામાં આવે છે કે આ માત્ર એક લક્ષ્યાંક (Target) છે અને તેને પ્રાપ્ત કરવા માટે કોઈ નિશ્ચિત સમય મર્યાદા, ડેડલાઇન અથવા લઘુત્તમ ગેરંટી નથી.</li>
+          <li>• 2.2 HRM Privilege Card: HRM તેના સભ્યોને પોતાનું માલિકીનું "HRM Privilege Card" ઈશ્યૂ કરશે. આ કાર્ડ માત્ર એક મેમ્બરશિપ કાર્ડ છે અને કોઈ વીમા (Insurance) પ્રોડક્ટ નથી.</li>
+          <li>• 2.3 માર્કેટિંગ સપોર્ટ: HRM પોતાના ખર્ચે ડિજિટલ, પ્રિન્ટ અને ફિલ્ડ માર્કેટિંગ દ્વારા હોસ્પિટલનો પ્રચાર કરશે.</li>
+          <li>• 2.4 પ્રાયોરિટી OPD: હોસ્પિટલ ડૉક્ટરની ઉપલબ્ધતા અને ઇમરજન્સી કેસોને આધીન, માન્ય HRM કાર્ડ ધરાવતા અને HRM દ્વારા રેફર કરાયેલા દર્દીઓને પ્રાથમિકતાના ધોરણે "Zero Waiting Time" (કોઈ રાહ જોયા વગર) OPD કન્સલ્ટેશન આપવા માટે સંમત થાય છે.</li>
+        </ul>
+
+        <p><strong>3. HRM Privilege Card – નીતિ અને મર્યાદાઓ</strong></p>
+        <ul style="list-style-type: none; padding-left: 0;">
+          <li>• 3.1 ડિસ્કાઉન્ટ માટેની પાત્રતા: આ MOU હેઠળ ડિસ્કાઉન્ટ ત્યારે જ લાગુ થશે જો દર્દી રજિસ્ટ્રેશન અથવા બિલિંગ સમયે અસલ અને માન્ય HRM Privilege Card રજૂ કરશે. કાર્ડ નહીં તો ડિસ્કાઉન્ટ નહીં.</li>
+          <li>• 3.2 ડિસ્કાઉન્ટ માળખું: હોસ્પિટલ માત્ર નીચેની સેવાઓ પર 10% (દસ ટકા) ડિસ્કાઉન્ટ આપવા સંમત થાય છે:
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;a) દવાનું બિલ: માત્ર હોસ્પિટલની અંદરની (In-house) ફાર્મસી બિલિંગ પર.
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;b) In-house Diagnostic Report Bill: હોસ્પિટલની પોતાની લેબોરેટરી/રેડિયોલોજીમાં કરાયેલા ટેસ્ટ પર.
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;c) OPD Consultation Bill: માત્ર હોસ્પિટલના On-roll સ્ટાફ ડૉક્ટરોની કન્સલ્ટેશન ફી પર.
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;d) Surgery Bill: હોસ્પિટલના સર્જિકલ પેકેજ ચાર્જ પર.
+          </li>
+          <li>• 3.4 બિલિંગ પારદર્શિતા: હોસ્પિટલ પાત્ર સેવાઓ માટેના અંતિમ દર્દીના બિલમાં એક અલગ લાઇન આઇટમ તરીકે:
+            <br><strong>“Less: 10% HRM Privilege Card BENEFITS – Rs. XXX”</strong>
+            <br>નો સ્પષ્ટ ઉલ્લેખ કરશે. કમિશનની ગણતરી માટે આ ફરજિયાત છે.
+          </li>
+          <li>• 3.5 નિયમનકારી પાલન: જો કોઈ સરકારી સત્તાધિકારી HRM બ્રાન્ડિંગ અથવા કાર્ડ સામે વાંધો ઉઠાવશે, તો હોસ્પિટલ તેને પોતાના ખર્ચે તરત જ હટાવી દેશે અને HRM ની તેમાં કોઈ જવાબદારી રહેશે નહીં.</li>
+        </ul>
+
+        <div class="html2pdf__page-break"></div>
+
+        <p><strong>4. વ્યાવસાયિક શરતો / આવકની વહેંચણી</strong></p>
+        <ul style="list-style-type: none; padding-left: 0;">
+          <li>• 4.1 ટ્રાયલ પિરિયડ (Trial Period): HRM દ્વારા રેફર કરાયેલા અને હોસ્પિટલ દ્વારા સફળતાપૂર્વક બિલ કરાયેલા પ્રથમ 100 (એકસો) દર્દીઓ માટે, HRM માર્કેટિંગ ફી તરીકે ₹0 (શૂન્ય રૂપિયા) ચાર્જ કરશે. આ પ્રોજેક્ટની સફળતા સાબિત કરવા માટે છે.</li>
+          <li>• 4.2 ટ્રાયલ પછી આવકની વહેંચણી: 101મા દર્દીથી શરૂ કરીને, હોસ્પિટલ દરેક HRM-રેફર કરેલા દર્દીના Gross Billed Value ના 25% (પચ્ચીસ ટકા) માર્કેટિંગ ફી તરીકે HRM ને ચૂકવશે.</li>
+          <li>• 4.3 ગણતરીનો આધાર: આ 25% ની ગણતરી 10% HRM Card Discount બાદ કરવામાં પહેલા અને GST ઉમેર્યા પહેલા ની કુલ રકમ પર કરવામાં આવશે.</li>
+          <li>• 4.4 બિલિંગ અને પેમેન્ટ સાઇકલ: HRM દર મહિનાની 5મી તારીખ સુધીમાં અગાઉના મહિનાના રેફર કરાયેલા દર્દીઓ માટે GST Invoice (બિલ) મોકલશે. હોસ્પિટલ 10 (દસ) કેલેન્ડર દિવસની અંદર NEFT/RTGS દ્વારા Invoice ની ચુકવણી કરશે.</li>
+          <li>• 4.5 દર્દીની ઓળખ: જે દર્દીઓના અંતિમ બિલમાં “HRM Privilege Card BENEFITS” ની લાઇન આઇટમ સામેલ હશે, તેમને જ HRM દ્વારા રેફર કરવામાં આવેલા દર્દી તરીકે ગણવામાં આવશે.</li>
+        </ul>
+
+        <p><strong>5. બ્રાન્ડિંગ, માર્કેટિંગ અને પાલન</strong></p>
+        <ul style="list-style-type: none; padding-left: 0;">
+          <li>• 5.1 પ્રારંભિક બ્રાન્ડિંગ ખર્ચ: હોસ્પિટલ પરિસરની અંદર HRM-મંજૂર બ્રાન્ડિંગ મટીરિયલની ડિઝાઇન અને ઇન્સ્ટોલેશનનો એક વખતનો ખર્ચ હોસ્પિટલ દ્વારા ભોગવવામાં આવશે. ડિઝાઇન HRM દ્વારા લેખિતમાં અગાઉથી મંજૂર થયેલી હોવી જોઈએ.</li>
+          <li>• 5.2 ચાલુ માર્કેટિંગ ખર્ચ: પ્રારંભિક સેટઅપ પછી, હોસ્પિટલના પ્રમોશન માટેના તમામ ઓનલાઇન/ઓફલાઇન માર્કેટિંગ, ઝુંબેશ (Campaign) અને જાહેરાતોનો 100% ખર્ચ HRM દ્વારા ભોગવવામાં આવશે.</li>
+          <li>• 5.3 હોસ્પિટલ દ્વારા આપવાની વિગતો: સાઇન કર્યાના 7 દિવસની અંદર, હોસ્પિટલ HRM ને આ વિગતો આપશે:
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;a) હોસ્પિટલનો High Resolution Logo
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;b) લાયકાત સાથે On-roll Staff Doctors ની યાદી
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;c) સેવાઓ/વિભાગોની યાદી
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;d) CEA Registration Certificate ની નકલ
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;AND ALL GP’S LIST WITH CONTACT NUMBER
+          </li>
+          <li>• 5.4 બ્રાન્ડિંગ પાલન - ફરજિયાત: તમામ બ્રાન્ડિંગ સખત રીતે CEA Act, 2010, IRDAI નિયમો અને NMC માર્ગદર્શિકાનું પાલન કરશે. પક્ષકારો નીચેની બાબતો પર સંમત થાય છે:
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;a) પ્રાથમિક બ્રાન્ડિંગ:<br>
+            હોસ્પિટલનું નામ "<strong>${hospitalName}</strong>" બિલ્ડિંગ પર હંમેશા સૌથી મોટું અને ટોચ પરનું Signage રહેશે.<br>
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;b) HRM બ્રાન્ડિંગ:<br>
+            HRM બ્રાન્ડિંગ માત્ર Ground Floor / Reception Level પર જ<br>
+            "Powered by HRM Consultancy" અથવા "HRM Network Partner: HRM Consultancy"<br>
+            લખાણ સાથે દેખાશે.<br>
+            HRM બ્રાન્ડિંગના ફૉન્ટનું કદ હોસ્પિટલના મુખ્ય નામ બોર્ડના 50% થી વધુ હોવું જોઈએ નહીં.<br>
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;c) ફરજિયાત Disclaimer (અસ્વીકરણ):<br>
+            દરેક માર્કેટિંગ સામગ્રીમાં આ લખાણ હોવું જ જોઈએ:<br>
+            “HRM Privilege Card માત્ર એક Discount Membership Card છે. વીમા પ્રોડક્ટ નથી. IRDAI દ્વારા નિયંત્રિત નથી. તમામ તબીબી સેવાઓ અને જવાબદારીઓ માત્ર હોસ્પિટલની છે. HRM માત્ર એક માર્કેટિંગ Facilitator (મદદકર્તા) છે.”
+          </li>
+        </ul>
+
+        <div class="html2pdf__page-break"></div>
+
+        <p><strong>6. વૈધાનિક પાલન અને લાઇસન્સ જાહેરાત - પૂર્વ શરત</strong></p>
+        <ul style="list-style-type: none; padding-left: 0;">
+          <li>• 6.1 Annexure-A:<br>
+            હોસ્પિટલ "Annexure-A: Hospital License Checklist" ભરીને, સહી કરીને અને સિક્કો મારીને HRM ને સબમિટ કરશે. આ MOU માટે આ એક ફરજિયાત પૂર્વ શરત છે.</li>
+          <li>• 6.2 લેવલ 1 ફરજિયાત (LEVEL 1 Mandatory):<br>
+            જો Annexure-A ના "LEVEL 1" હેઠળ સૂચિબદ્ધ કોઈપણ એક License/Document ગુમ હોય, અમાન્ય હોય અથવા તેની મુદત પૂર્ણ થઈ ગઈ હોય, તો હોસ્પિટલએ તરત જ HRM ને લેખિતમાં તેની જાણ કરવી પડશે.</li>
+          <li>• 6.3 HRM નો નકારવાનો અધિકાર:<br>
+            Annexure-A મળ્યા પછી, HRM 3 કાર્યકારી દિવસોમાં લેખિતમાં<br>
+            "YES - MOU Active" અથવા "NO - MOU Not Active due to ____ license missing" સાથે જવાબ આપશે.<br>
+            આ MOU ત્યારે જ અમલમાં આવશે જ્યારે HRM લેખિતમાં "YES" આપશે. માત્ર MOU પર સહી કરવાથી તે સક્રિય (Effective) બનતું નથી.</li>
+          <li>• 6.4 સખત પાલન:<br>
+            હોસ્પિટલ ખાતરી આપે છે કે તે આ MOU ની મુદત દરમિયાન તમામ LEVEL 1 Licenses માન્ય રાખશે અને તેની મુદત પૂર્ણ થવાના 15 દિવસ પહેલા HRM ને Renew કરાયેલી નકલો આપશે.</li>
+        </ul>
+
+        <p><strong>7. મુદત, સમાપ્તિ અને Lock-in</strong></p>
+        <ul style="list-style-type: none; padding-left: 0;">
+          <li>• 7.1 મુદત: આ MOU ઉપર નિર્દિષ્ટ કરેલી HRM ના લેખિત "YES" ની તારીખથી 36 મહિનાં માટે માન્ય રહેશે.</li>
+          <li>• 7.2 Lock-in: Activation પછીના પ્રથમ 3 મહિના Lock-in Period રહેશે. ગંભીર ઉલ્લંઘન સિવાય આ સમય દરમિયાન કરાર સમાપ્ત કરી શકાશે નહીં.</li>
+          <li>• 7.3 સમાપ્તિ (Termination): Lock-in Period પછી, કોઈપણ પક્ષ બીજા પક્ષને 30 (ત્રીસ) દિવસની લેખિત Notice આપીને આ MOU સમાપ્ત કરી શકશે.</li>
+          <li>• 7.4 HRM દ્વારા તાત્કાલિક સમાપ્તિ: HRM આ કરારને તરત જ સમાપ્ત કરી શકશે જો:<br>
+            a) હોસ્પિટલનું CEA License રદ/સ્થગિત થાય.<br>
+            b) હોસ્પિટલ જરૂરી Licenses ની શરતોનું ઉલ્લંઘન કરે.<br>
+            c) દર્શાવેલ શરતો મુજબ ગંભીર ઉલ્લંઘન થાય.</li>
+          <li>• 7.5 સમાપ્તિના પરિણામો: કરાર સમાપ્ત થવા પર હોસ્પિટલ:<br>
+            a) 7 દિવસની અંદર તમામ HRM બ્રાન્ડિંગ હટાવી દેશે.<br>
+            b) 15 દિવસની અંદર HRM ની તમામ બાકી રકમ ચૂકવી દેશે.<br>
+            c) અગાઉથી દાખલ થયેલા દર્દીઓ માટે HRM Card Discount ચાલુ રાખશે.</li>
+        </ul>
+
+        <div class="html2pdf__page-break"></div>
+
+        <p><strong>8. નુકસાની વળતર, જવાબદારી અને વીમો</strong></p>
+        <ul style="list-style-type: none; padding-left: 0;">
+          <li>• 8.1 હોસ્પિટલની વળતર જવાબદારી: હોસ્પિટલ આથી HRM, તેના Proprietor, કર્મચારીઓ અને Agents ને નીચેની બાબતોથી થતા તમામ દાવાઓ, નુકસાન, જવાબદારીઓ અને ખર્ચોથી મુક્ત રાખશે અને વળતર આપશે:<br>
+            a) Medical Negligence, સેવામાં ખામી અથવા Medico-Legal કેસો.<br>
+            b) હોસ્પિટલ અથવા તેના Doctors/Staff નું કોઈપણ કૃત્ય અથવા બેદરકારી.<br>
+            c) હોસ્પિટલ દ્વારા CEA, NMC, IRDAI, Consumer Protection Act સહિતના કોઈપણ કાયદાનું ઉલ્લંઘન.</li>
+          <li>• 8.2 HRM ની મર્યાદિત જવાબદારી: આ MOU હેઠળ HRM ની મહત્તમ જવાબદારી, જો કોઈ હોય તો, અગાઉના 3 મહિનામાં હોસ્પિટલ પાસેથી મળેલી માર્કેટિંગ ફી પૂરતી મર્યાદિત રહેશે. કોઈપણ તબીબી પરિણામ, દર્દીના મૃત્યુ અથવા ક્લિનિકલ જટિલતાઓ માટે HRM જવાબદાર રહેશે નહીં.</li>
+          <li>• 8.3 વીમો: હોસ્પિટલ રજૂઆત કરે છે કે તેની પાસે તેના ડૉક્ટરો અને હોસ્પિટલને આવરી લેતો માન્ય Professional Indemnity Insurance છે.</li>
+          <li>• 8.4 ડેટા પ્રોટેક્શન (માહિતી સુરક્ષા): દર્દીના તબીબી રેકોર્ડ, સારવારના ડેટા અને બિલિંગ ડેટા હોસ્પિટલની વિશિષ્ટ કસ્ટડીમાં રહેશે. Digital Personal Data Protection Act, 2023 નું પાલન સુનિશ્ચિત કરવા માટે HRM ને ક્લિનિકલ ડેટાની ઍક્સેસ મળશે નહીં.</li>
+        </ul>
+
+        <p><strong>9. ગોપનીયતા અને બાયપાસ ન કરવાની શરત</strong></p>
+        <ul style="list-style-type: none; padding-left: 0;">
+          <li>• 9.1 પક્ષકારો તમામ વ્યાવસાયિક શરતો ગુપ્ત રાખશે.</li>
+          <li>• 9.2 હોસ્પિટલ સંમત થાય છે કે આ કરારની મુદત દરમિયાન અને તે પછીના 12 મહિના સુધી, HRM ને બાયપાસ કરવા (કમિશન બચાવવા) માટે તે HRM ના રેફર કરેલા દર્દીઓ અથવા કોર્પોરેટ ક્લાયન્ટ્સનો સીધો સંપર્ક કરશે નહીં.</li>
+        </ul>
+
+        <p><strong>10. વિવાદ નિવારણ અને અધિકારક્ષેત્ર</strong></p>
+        <ul style="list-style-type: none; padding-left: 0;">
+          <li>• 10.1 પક્ષકારો પહેલા 15 દિવસની અંદર પરસ્પર વિવાદોને સૌહાર્દપૂર્ણ રીતે ઉકેલવાનો પ્રયાસ કરશે.</li>
+          <li>• 10.2 જો ઉકેલ ન આવે, તો વિવાદો માત્ર રાજકોટ, ગુજરાતની અદાલતોના વિશિષ્ટ અધિકારક્ષેત્રને આધીન રહેશે. આમાં Arbitration (મધ્યસ્થતા) લાગુ થશે નહીં.</li>
+        </ul>
+
+        <p><strong>11. પરચૂરણ</strong></p>
+        <ul style="list-style-type: none; padding-left: 0;">
+          <li>• 11.1 સંપૂર્ણ કરાર: આ MOU અને સાથે સામેલ Checklist એ સંપૂર્ણ કરાર બનાવે છે અને અગાઉની તમામ ચર્ચાઓનું સ્થાન લે છે.</li>
+          <li>• 11.2 સુધારો: કોઈપણ સુધારો લેખિતમાં હોવો જોઈએ અને બંને પક્ષો દ્વારા સહી થયેલો હોવો જોઈએ.</li>
+          <li>• 11.3 નોટિસ: તમામ Notices ઉપર દર્શાવેલા સરનામે Registered Post AD અથવા Email દ્વારા મોકલવામાં આવશે.</li>
+          <li>• 11.4 વિભાજ્યતા (Severability): જો કોઈ કલમ અમાન્ય ઠરે, તો પણ બાકીનું MOU અમલમાં રહેશે.</li>
+          <li>• 11.5 Force Majeure (અનિવાર્ય સંજોગો): કુદરતી આપત્તિઓ, મહામારી, સરકારી આદેશો અથવા અન્ય અનિવાર્ય કારણોસર કામગીરીમાં નિષ્ફળતા માટે કોઈપણ પક્ષ જવાબદાર રહેશે નહીં.</li>
+        </ul>
+
+        <p>જેના સાક્ષી તરીકે, પક્ષકારોએ ઉપર જણાવેલ તારીખે આ MOU નો અમલ કર્યો છે.</p>
+
+        <div style="display: flex; justify-content: space-between; margin-top: 40px; page-break-inside: avoid;">
+          <div style="width: 45%;">
+            <strong>હોસ્પિટલ વતી (For ${hospitalName})</strong><br><br>
+            અધિકૃત હસ્તાક્ષરકર્તા<br><br>
+            નામ: ______________________<br><br>
+            હોદ્દો: ______________________<br><br>
+            તારીખ: ${todayDate}<br><br>
+            સિક્કો:
+          </div>
+          <div style="width: 45%;">
+            <strong>એચ.આર.એમ. કન્સલ્ટન્સી ડોક્ટર્સ ચોઈસ વતી<br>(For HRM CONSULTANCY DOCTORS CHOICE)</strong><br><br>
+            અધિકૃત હસ્તાક્ષરકર્તા<br><br>
+            નામ: શ્રી નીરવ પુંડયા<br><br>
+            હોદ્દો: પ્રોપ્રાઈટર<br><br>
+            તારીખ: ${todayDate}<br><br>
+            સિક્કો:
+          </div>
+        </div>
+      </div>
+    `;
+    
+    const opt = {
+      margin:       10,
+      filename:     `MOU_${hospitalName.replace(/\s+/g, '_')}.pdf`,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak:    { mode: 'css', before: '.html2pdf__page-break' }
+    };
+    
+    html2pdf().set(opt).from(element).save();
+  };
+
   const handleExportCSV = () => {
     if (qrUsers.length === 0) {
       alert('No data to export.');
@@ -680,9 +859,14 @@ const AdminDashboard = () => {
                           ))}
                         </td>
                         <td>
-                          <button onClick={() => handleDeleteAccount(acc.id)} className="admin-delete-btn" title="Delete Account">
-                            Delete
-                          </button>
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button onClick={() => handleDownloadMOU(acc)} className="admin-submit-btn" style={{ padding: '6px 12px', fontSize: '11px', background: '#3498db', borderColor: '#3498db' }} title="Download Partner MOU PDF">
+                              Download MOU
+                            </button>
+                            <button onClick={() => handleDeleteAccount(acc.id)} className="admin-delete-btn" title="Delete Account">
+                              Delete
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}

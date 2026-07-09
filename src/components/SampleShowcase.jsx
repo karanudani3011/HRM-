@@ -145,7 +145,7 @@ const SampleShowcase = () => {
                     {/* Top: HFRM Logo */}
                     <div className="idc-top">
                       <div className="idc-logo-wrap">
-                        <img src="/logo.jpeg" alt="HRM Logo" className="idc-logo-img" />
+                        <img src="/logo.png" alt="HRM Logo" className="idc-logo-img" />
                       </div>
                       <p className="idc-tagline">HRM CONSULTANCY / VOLUTORS CHOICE</p>
                     </div>

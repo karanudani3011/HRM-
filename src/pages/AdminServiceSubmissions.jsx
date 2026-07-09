@@ -421,9 +421,121 @@ const AdminServiceSubmissions = () => {
     setTimeout(() => { newWin.print(); }, 500);
   };
 
+  const generateMouContent = (sub) => `
+    <div style="page-break-before: always; font-family: 'Noto Sans Gujarati', 'Arial Unicode MS', Arial, sans-serif; line-height: 1.9; color: #111; padding: 0 20px;">
+      <div style="text-align:center; border-bottom: 3px double #1e3a5f; padding-bottom: 16px; margin-bottom: 24px;">
+        <h2 style="color:#1e3a5f; font-size:20px; margin:0;">HRM CONSULTANCY DOCTORS CHOICE</h2>
+        <p style="margin:4px 0; font-size:13px; color:#555;">Memorandum of Understanding (MOU) – HRM Network Partner</p>
+        <p style="margin:4px 0; font-size:13px;"><strong>Hospital / Partner:</strong> ${sub.hospitalName || sub.name || '___________'} &nbsp;|&nbsp; <strong>License No:</strong> ${sub.licenseNumber || '___________'}</p>
+        <p style="margin:4px 0; font-size:13px;"><strong>Contact:</strong> ${sub.contactPerson || '___________'} &nbsp;|&nbsp; <strong>Email:</strong> ${sub.email || '___________'} &nbsp;|&nbsp; <strong>Phone:</strong> ${sub.phone || '___________'}</p>
+        <p style="margin:4px 0; font-size:13px;"><strong>Specialties:</strong> ${sub.specialties || '___________'} &nbsp;|&nbsp; <strong>Total Beds:</strong> ${sub.totalBeds || '___'} &nbsp;|&nbsp; <strong>ICU Beds:</strong> ${sub.icuBeds || '___'}</p>
+      </div>
+
+      <h3 style="color:#1e3a5f; font-size:15px; border-left:4px solid #3b82f6; padding-left:10px;">1. સંબંધની પ્રકૃતિ અને કાનૂની સ્થિતિ</h3>
+      <ul style="padding-left:20px; font-size:13px;">
+        <li>1.1 આ MOU માત્ર માર્કેટિંગ ભાગીદારી અને પેશન્ટ રેફરલ સેવાઓ માટે જ છે.</li>
+        <li>1.2 HRM એક સ્વતંત્ર માર્કેટિંગ ભાગીદાર છે. HRM એ હોસ્પિટલનું મેનેજમેન્ટ, વહીવટકર્તા, ઓપરેટર, ભાગીદાર કે માલિક નથી.</li>
+        <li>1.3 કોઈ ક્લિનિકલ ભૂમિકા નહીં: તમામ ક્લિનિકલ, તબીબી, વહીવટી, નાણાકીય અથવા ઓપરેશનલ કાર્યોની સંપૂર્ણ જવાબદારી માત્ર હોસ્પિટલની રહેશે.</li>
+        <li>1.4 આ MOU ભાગીદારી, Joint Venture, એજન્સી અથવા માલિક-કર્મચારીના સંબંધની રચના કરતું નથી.</li>
+        <li>1.5 HRM એક સ્વતંત્ર સંસ્થા છે અને હોસ્પિટલની SOPs, નીતિઓ, નિયમો કે સૂચનાઓથી બંધાયેલ રહેશે નહીં.</li>
+        <li>1.6 HRM, CEA Act 2010, NMC Act 2019 અથવા IRDAI Act 1999 હેઠળ નોંધાયેલ નથી અને ક્લિનિકલ સેવા પ્રદાન કરશે નહીં.</li>
+      </ul>
+
+      <h3 style="color:#1e3a5f; font-size:15px; border-left:4px solid #3b82f6; padding-left:10px;">2. HRM દ્વારા આપવામાં આવતી સેવાઓ</h3>
+      <ul style="padding-left:20px; font-size:13px;">
+        <li>2.1 દર્દી રેફરલ: HRM માર્કેટિંગ નેટવર્ક દ્વારા દર્દીઓ મોકલશે. સૂચક ટાર્ગેટ: 30 સર્જિકલ + 70 OPD = 100 દર્દીઓ (ગેરંટી નહીં).</li>
+        <li>2.2 HRM Privilege Card: HRM સભ્યોને "HRM Privilege Card" ઈશ્યૂ કરશે. આ કાર્ડ માત્ર Membership Card છે, Insurance Product નથી.</li>
+        <li>2.3 HRM પોતાના ખર્ચે ડિજિટલ, પ્રિન્ટ અને ફિલ્ડ માર્કેટિંગ દ્વારા હોસ્પિટલનો પ્રચાર કરશે.</li>
+        <li>2.4 HRM કાર્ડ ધારક દર્દીઓને Zero Waiting Time OPD Consultation આપવા માટે હોસ્પિટલ સંમત થાય છે.</li>
+      </ul>
+
+      <h3 style="color:#1e3a5f; font-size:15px; border-left:4px solid #3b82f6; padding-left:10px;">3. HRM Privilege Card – નીતિ અને ડિસ્કાઉન્ટ</h3>
+      <ul style="padding-left:20px; font-size:13px;">
+        <li>3.1 HRM Privilege Card રજૂ કર્યા પછી જ ડિસ્કાઉન્ટ લાગુ. "Card નહીં તો Discount નહીં."</li>
+        <li>3.2 હોસ્પિટલ 10% ડિસ્કાઉન્ટ આ સેવાઓ પર આપશે: (a) In-house ફાર્મસી, (b) In-house Diagnostic/Lab, (c) OPD Consultation, (d) Surgery Package.</li>
+        <li>3.4 બિલમાં અલગ Line Item: "Less: 10% HRM Privilege Card BENEFITS – Rs. XXX" ફરજિયાત.</li>
+        <li>3.5 સરકારી વાંધો પડ્યે હોસ્પિટલ 7 દિવસમાં HRM Branding હટાવી દેશે.</li>
+      </ul>
+
+      <h3 style="color:#1e3a5f; font-size:15px; border-left:4px solid #3b82f6; padding-left:10px;">4. આવકની વહેંચણી</h3>
+      <ul style="padding-left:20px; font-size:13px;">
+        <li>4.1 Trial Period: પ્રથમ 100 HRM-Referred & Billed દર્દીઓ માટે HRM ₹0 ચાર્જ કરશે.</li>
+        <li>4.2 101મા દર્દીથી: Gross Billed Value ના 25% માર્કેટિંગ ફી HRM ને ચૂકવવાની.</li>
+        <li>4.3 ગણતરી: 10% Discount બાદ કરવા પહેલા અને GST ઉમેરતા પહેલાની રકમ પર.</li>
+        <li>4.4 HRM દર મહિને 5 તારીખ સુધીમાં Invoice મોકલશે; હોસ્પિટલ 10 દિવસમાં NEFT/RTGS ચૂકવણી કરશે.</li>
+        <li>4.5 "HRM Privilege Card BENEFITS" Line Item ધરાવતા દર્દીઓ જ HRM-Referred ગણાશે.</li>
+      </ul>
+
+      <h3 style="color:#1e3a5f; font-size:15px; border-left:4px solid #3b82f6; padding-left:10px;">5. બ્રાન્ડિંગ, માર્કેટિંગ અને પાલન</h3>
+      <ul style="padding-left:20px; font-size:13px;">
+        <li>5.1 HRM-Approved Branding Material ની Design & Installation નો એક વખતનો ખર્ચ હોસ્પિટલ ભોગવશે.</li>
+        <li>5.2 Setup પછીના તમામ Marketing/Campaign ખર્ચ 100% HRM ભોગવશે.</li>
+        <li>5.3 સાઇન કર્યાના 7 દિવસમાં હોસ્પિટલ HRM ને આ આપશે: (a) High-Res Logo, (b) On-roll Doctor List, (c) Services List, (d) CEA Certificate & GP List with Contacts.</li>
+        <li>5.4 HRM Branding ફક્ત Ground Floor/Reception Level પર; Font Size મુખ્ય Name Board ના 50% થી વધુ નહીં. Disclaimer ફરજિયાત: "HRM Privilege Card માત્ર Discount Membership Card છે. IRDAI દ્વારા નિયંત્રિત નથી."</li>
+      </ul>
+
+      <h3 style="color:#1e3a5f; font-size:15px; border-left:4px solid #3b82f6; padding-left:10px;">6. વૈધાનિક પાલન – Annexure-A</h3>
+      <ul style="padding-left:20px; font-size:13px;">
+        <li>6.1 Annexure-A: Hospital License Checklist ભરી, સહી-સિક્કો કરી HRM ને Submit કરવી – ફરજિયાત પૂર્વ શરત.</li>
+        <li>6.2 LEVEL 1 License ગુમ/Invalid/Expired હોય તો હોસ્પિટલ તરત HRM ને જાણ કરે.</li>
+        <li>6.3 HRM, Annexure-A મળ્યા પછી 3 Working Days માં "YES – MOU Active" અથવા "NO – MOU Not Active" જવાબ આપશે. MOU ત્યારે જ Effective બને.</li>
+        <li>6.4 LEVEL 1 Licenses Validity Renewal ની Copy 15 દિવસ પહેલા HRM ને આપવી.</li>
+      </ul>
+
+      <h3 style="color:#1e3a5f; font-size:15px; border-left:4px solid #3b82f6; padding-left:10px;">7. મુદત, Lock-in અને સમાપ્તિ</h3>
+      <ul style="padding-left:20px; font-size:13px;">
+        <li>7.1 HRM ના "YES" ની તારીખથી 36 મહિના માટે MOU માન્ય.</li>
+        <li>7.2 Activation પછી 3 મહિના Lock-in Period; ગંભીર ઉલ્લંઘન સિવાય Terminate નહીં.</li>
+        <li>7.3 Lock-in પછી 30 દિવસની Notice આપી MOU સમાપ્ત કરી શકાય.</li>
+        <li>7.4 HRM ને CEA License રદ/ઉલ્લંઘનના કિસ્સામાં Immediate Termination નો અધિકાર.</li>
+        <li>7.5 Termination ઉપર: HRM Branding 7 દિવસ, બાકી રકમ 15 દિવસ.</li>
+      </ul>
+
+      <h3 style="color:#1e3a5f; font-size:15px; border-left:4px solid #3b82f6; padding-left:10px;">8. નુકસાની, જવાબદારી અને ડેટા સુરક્ષા</h3>
+      <ul style="padding-left:20px; font-size:13px;">
+        <li>8.1 Medical Negligence, Medico-Legal Cases, CEA/NMC/IRDAI ઉલ્લંઘન — સંપૂર્ણ જવાબદારી હોસ્પિટલની.</li>
+        <li>8.2 HRM ની મહત્તમ જવાબદારી અગાઉ 3 મહિનાની Marketing Fee પૂરતી. Clinical/Patient death/Outcome માટે HRM જવાબદાર નહીં.</li>
+        <li>8.3 Hospital પાસે Valid Professional Indemnity Insurance હોવો ફરજિયાત.</li>
+        <li>8.4 Patient Medical/Billing Data Hospital ની Custody. HRM ને Clinical Data Access નહીં. DPDP Act 2023 પાલન ફરજિયાત.</li>
+      </ul>
+
+      <h3 style="color:#1e3a5f; font-size:15px; border-left:4px solid #3b82f6; padding-left:10px;">9–11. ગોપનીયતા, વિવાદ અને પરચૂરણ</h3>
+      <ul style="padding-left:20px; font-size:13px;">
+        <li>9.1 બંને પક્ષ તમામ વ્યાવસાયિક શરતો ગુપ્ત રાખશે.</li>
+        <li>9.2 MOU Period + 12 મહિના: HRM Referred Patients/Corporate Clients ને Bypass (Direct Contact) નહીં.</li>
+        <li>10.1 વિવાદો 15 દિવસ Amicably ઉકેલવા. ઉકેલ ન થાય તો Rajkot, Gujarat Court Jurisdiction.</li>
+        <li>11. કોઈ સુધારો Written + Signed હોવો જોઈએ. Force Majeure: Natural Calamity/Pandemic/Government Order ને કારણે Failure માટે કોઈ પક્ષ જવાબદાર નહીં.</li>
+      </ul>
+
+      <div style="margin-top:40px; border-top:2px solid #1e3a5f; padding-top:20px; font-size:13px;">
+        <div style="display:flex; justify-content:space-between; gap:40px;">
+          <div style="flex:1; border:1px solid #ccc; border-radius:8px; padding:20px;">
+            <p style="font-weight:700; color:#1e3a5f; margin-bottom:8px;">હોસ્પિટલ વતી (For HOSPITAL)</p>
+            <p>અધિકૃત હસ્તાક્ષરકર્તા</p>
+            <p>નામ: <span style="border-bottom:1px solid #333; display:inline-block; min-width:160px;">&nbsp;${sub.contactPerson || ''}</span></p>
+            <p>હોદ્દો: <span style="border-bottom:1px solid #333; display:inline-block; min-width:140px;">&nbsp;</span></p>
+            <p>તારીખ: <span style="border-bottom:1px solid #333; display:inline-block; min-width:140px;">&nbsp;</span></p>
+            <p>સિક્કો:</p>
+            <div style="margin-top:60px; border-top:1px solid #333; width:200px;"></div>
+          </div>
+          <div style="flex:1; border:1px solid #ccc; border-radius:8px; padding:20px;">
+            <p style="font-weight:700; color:#1e3a5f; margin-bottom:8px;">એચ.આર.એમ. કન્સલ્ટન્સી ડોક્ટર્સ ચોઈસ વતી</p>
+            <p>અધિકૃત હસ્તાક્ષરકર્તા</p>
+            <p>નામ: <strong>શ્રી નીરવ પુંડ્યા</strong></p>
+            <p>હોદ્દો: <strong>પ્રોપ્રાઈટર</strong></p>
+            <p>તારીખ: <span style="border-bottom:1px solid #333; display:inline-block; min-width:140px;">&nbsp;</span></p>
+            <p>સિક્કો:</p>
+            <div style="margin-top:60px; border-top:1px solid #333; width:200px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
   const downloadSinglePDF = (sub) => {
     if (!sub) return;
     const newWin = window.open('', '_blank');
+    const isPartner = sub.formType === 'Partner Registration';
     
     let reportContent = `
       <div class="submission-block" style="border: 1px solid #e5e7eb; padding: 20px; border-radius: 8px;">
@@ -437,14 +549,11 @@ const AdminServiceSubmissions = () => {
               if (Array.isArray(value)) value = value.join(', ');
               else value = JSON.stringify(value);
             }
-            // Clean up keys for display
             const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
-            
             let displayContent = value || '—';
             if (isImageUrl(key, value)) {
               displayContent = `<img src="${value}" style="max-width: 200px; max-height: 150px; border-radius: 4px; display: block; margin-top: 5px;" />`;
             }
-
             return `
               <tr>
                 <td style="padding: 8px; border-bottom: 1px solid #f3f4f6; font-weight: 600; width: 30%; color: #4b5563;">${label}</td>
@@ -458,6 +567,7 @@ const AdminServiceSubmissions = () => {
           </tr>
         </table>
       </div>
+      ${isPartner ? generateMouContent(sub) : ''}
     `;
 
     const docTitle = `${sub.formType || 'Registration'} - ${sub.name || sub.fullName || sub.hospitalName || sub.contactPerson || 'Detail'}`;

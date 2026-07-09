@@ -7,6 +7,7 @@ import { CheckCircle, FileText, LayoutDashboard, Upload, Download, Edit3, Camera
 import html2pdf from 'html2pdf.js';
 import { QRCodeCanvas } from 'qrcode.react';
 import { supabase } from '../lib/supabase';
+import { Link } from 'react-router-dom';
 
 const SampleShowcase = () => {
   const [showForm, setShowForm] = useState(false);
@@ -364,7 +365,9 @@ const SampleShowcase = () => {
                 </div>
               </div>
 
-              <button className="register-btn">Register as Health Partner</button>
+              <Link to="/portal/hrm-partner/register" className="register-btn" style={{ textDecoration: 'none', display: 'block', textAlign: 'center' }}>
+                Register as Health Partner
+              </Link>
             </div>
           </div>
 

@@ -60,7 +60,7 @@ const ServicePortals = () => {
             </div>
             <h3>Join as HRM Partner</h3>
             <p>Partner with us to expand healthcare access, grow your network & earn with HRM's partner ecosystem</p>
-            <span className="access-link partner-link" style={{ opacity: 0.6, cursor: 'not-allowed' }}>Access Portal &rarr;</span>
+            <Link to="/portal/hrm-partner/register" className="access-link">Access Portal &rarr;</Link>
           </div>
 
         </div>

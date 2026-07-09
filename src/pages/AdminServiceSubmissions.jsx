@@ -80,6 +80,17 @@ const buildSupabasePayload = (item) => {
       hiring_needs: item.hiringNeeds || '',
       selfie_url: item.selfie || ''
     };
+  } else if (item.formType === 'Partner Registration') {
+    return {
+      hospital_name: item.hospitalName || item.name || '',
+      license_number: item.licenseNumber || '',
+      total_beds: parseInt(item.totalBeds) || null,
+      icu_beds: parseInt(item.icuBeds) || null,
+      specialties: item.specialties || '',
+      contact_person: item.contactPerson || '',
+      email: item.email || '',
+      phone: item.phone || ''
+    };
   } else {
     return {
       hospital_name: item.hospitalName || '',
@@ -149,6 +160,20 @@ const mapSupaToFirestore = (item, category) => {
       email: item.email,
       hiringNeeds: item.hiring_needs,
       selfie: item.selfie_url || '',
+      createdAt: new Date(item.created_at)
+    };
+  } else if (category === 'Partner Registration') {
+    return {
+      formType: 'Partner Registration',
+      hospitalName: item.hospital_name,
+      name: item.hospital_name,
+      licenseNumber: item.license_number || '',
+      totalBeds: item.total_beds?.toString() || '',
+      icuBeds: item.icu_beds?.toString() || '',
+      specialties: item.specialties || '',
+      contactPerson: item.contact_person || '',
+      email: item.email,
+      phone: item.phone || '',
       createdAt: new Date(item.created_at)
     };
   } else {
@@ -229,7 +254,8 @@ const AdminServiceSubmissions = () => {
         const categories = [
           { name: 'Doctor Registration', table: 'doctors_registration' },
           { name: 'HR Registration', table: 'hr_registration' },
-          { name: 'Hospital Registration', table: 'hospitals_registration' }
+          { name: 'Hospital Registration', table: 'hospitals_registration' },
+          { name: 'Partner Registration', table: 'partner_registration' }
         ];
 
         for (const cat of categories) {
@@ -617,8 +643,8 @@ const AdminServiceSubmissions = () => {
                       </td>
                       <td>{sub.name || sub.fullName || sub.hospitalName || sub.contactPerson || '—'}</td>
                       <td>{sub.email || '—'}</td>
-                      <td>{sub.mobile || '—'}</td>
-                      <td>{sub.city || sub.currentCity || '—'}</td>
+                      <td>{sub.mobile || sub.phone || '—'}</td>
+                      <td>{sub.city || sub.currentCity || (sub.formType === 'Partner Registration' ? sub.specialties?.split(',')[0]?.trim() : '—') || '—'}</td>
                       <td>{formatDate(sub.createdAt)}</td>
                       <td>
                         <div style={{ display: 'flex', gap: '8px' }}>

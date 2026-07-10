@@ -252,7 +252,7 @@ const SampleShowcase = () => {
                       
                       <div className="idc-qr-frame">
                         <QRCodeCanvas 
-                          value={formData.idNo} 
+                          value={`https://myhrm.co.in/verify/${formData.idNo}`} 
                           size={70} 
                           level="H"
                           includeMargin={true}
@@ -282,11 +282,21 @@ const SampleShowcase = () => {
                     {/* QR Codes stacked */}
                     <div className="back-qr-stack">
                       <div className="back-qr-item">
-                        <img src={qrPartner} alt="HRM Partner QR" className="back-qr-img" />
+                        <QRCodeCanvas 
+                          value={`https://myhrm.co.in/verify/${formData.idNo}`} 
+                          size={70} 
+                          level="H"
+                          includeMargin={true}
+                        />
                       </div>
                       <div className="back-qr-divider">+</div>
                       <div className="back-qr-item">
-                        <img src={qrTerms} alt="Terms QR" className="back-qr-img" />
+                        <QRCodeCanvas 
+                          value={`https://myhrm.co.in/terms`} 
+                          size={70} 
+                          level="H"
+                          includeMargin={true}
+                        />
                       </div>
                     </div>
 

@@ -596,7 +596,7 @@ const AdminDashboard = () => {
   });
 
   // Helper – Super Admin has all permissions; sub-admins only what's in their array
-  const hasPermission = (key) => permissions.includes(key);
+  const hasPermission = (key) => adminUsername === 'admin' || permissions.includes(key);
 
   return (
     <div className="admin-dashboard-layout">
@@ -1242,12 +1242,12 @@ const AdminDashboard = () => {
                               )}
                             </td>
                             <td>
-                              <div style={{ display: 'flex', gap: '6px' }}>
+                              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                                 {card.card_status !== 'ACTIVE' ? (
                                   <button 
                                     onClick={() => handleActivateCard(card.id_no)} 
                                     className="admin-submit-btn" 
-                                    style={{ padding: '4px 8px', fontSize: '11px', background: '#2ecc71', borderColor: '#2ecc71' }}
+                                    style={{ padding: '6px 12px', fontSize: '12px', background: '#2ecc71', borderColor: '#2ecc71', borderRadius: '6px' }}
                                   >
                                     Approve / Activate
                                   </button>
@@ -1255,7 +1255,7 @@ const AdminDashboard = () => {
                                   <button 
                                     onClick={() => handleActivateCard(card.id_no)} 
                                     className="admin-submit-btn" 
-                                    style={{ padding: '4px 8px', fontSize: '11px', background: '#3498db', borderColor: '#3498db' }}
+                                    style={{ padding: '6px 12px', fontSize: '12px', background: '#3498db', borderColor: '#3498db', borderRadius: '6px' }}
                                   >
                                     Renew (1 Yr)
                                   </button>
@@ -1264,19 +1264,27 @@ const AdminDashboard = () => {
                                 {card.card_status === 'ACTIVE' && (
                                   <button 
                                     onClick={() => handleDeactivateCard(card.id_no)} 
-                                    className="admin-delete-btn" 
-                                    style={{ padding: '4px 8px', fontSize: '11px', background: '#e67e22', color: '#fff' }}
+                                    title="Deactivate User"
+                                    style={{ 
+                                      background: '#fff', color: '#f57c00', border: '1px solid #ffcc80',
+                                      width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                      borderRadius: '6px', cursor: 'pointer', flexShrink: 0, fontSize: '16px'
+                                    }}
                                   >
-                                    Deactivate
+                                    🚫
                                   </button>
                                 )}
                                 
                                 <button 
                                   onClick={() => handleDeleteCard(card.id_no)} 
-                                  className="admin-delete-btn" 
-                                  style={{ padding: '4px 8px', fontSize: '11px' }}
+                                  title="Delete User Permanently"
+                                  style={{ 
+                                    background: '#fff', color: '#c62828', border: '1px solid #ef9a9a',
+                                    width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    borderRadius: '6px', cursor: 'pointer', flexShrink: 0, fontSize: '16px'
+                                  }}
                                 >
-                                  Delete
+                                  🗑️
                                 </button>
                               </div>
                             </td>

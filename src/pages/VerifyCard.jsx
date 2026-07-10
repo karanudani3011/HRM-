@@ -78,8 +78,32 @@ const VerifyCard = () => {
               setHospitalName(partnerData.name || partnerData.username);
             }
           }
+
+          // Log this public/native phone scan to the database
+          try {
+            await supabase.from('card_scans').insert([{
+              card_id: cleanId,
+              patient_name: cardData.name,
+              hospital_username: 'Public Scan',
+              hospital_name: 'Phone Camera / Web',
+              status: cardData.card_status === 'INACTIVE' || cardData.card_status === 'PENDING_ACTIVATION' || cardData.card_status === 'PENDING' ? 'expired' : 'valid'
+            }]);
+          } catch (logErr) {
+            console.error('Failed to log public scan:', logErr);
+          }
         } else {
           setStatus('not-found');
+          
+          // Log failed public scan
+          try {
+            await supabase.from('card_scans').insert([{
+              card_id: cleanId,
+              patient_name: 'Unknown',
+              hospital_username: 'Public Scan',
+              hospital_name: 'Phone Camera / Web',
+              status: 'not-found'
+            }]);
+          } catch (logErr) {}
         }
       } catch (err) {
         console.error('Verification error:', err);

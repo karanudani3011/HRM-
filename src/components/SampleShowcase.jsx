@@ -3,11 +3,12 @@ import './SampleShowcase.css';
 import clinicImg from '../assets/premium_clinic.png';
 import qrPartner from '../assets/qr_hrm_partner.png';
 import qrTerms from '../assets/qr_terms.png';
-import { CheckCircle, FileText, LayoutDashboard, Upload, Download, Edit3, Camera } from 'lucide-react';
+import { CheckCircle, FileText, LayoutDashboard, Upload, Download, Edit3, Camera, Mail, RefreshCw, ShieldCheck } from 'lucide-react';
 import html2pdf from 'html2pdf.js';
 import { QRCodeCanvas } from 'qrcode.react';
 import { supabase } from '../lib/supabase';
 import { Link } from 'react-router-dom';
+import emailjs from '@emailjs/browser';
 
 const SampleShowcase = () => {
   // Check if user has already submitted a card (persisted across sessions)
@@ -18,6 +19,14 @@ const SampleShowcase = () => {
   const [formSubmitted, setFormSubmitted] = useState(!!savedCard);
   const [photoPreview, setPhotoPreview] = useState(savedCard?.photoPreview || null);
   const fileInputRef = useRef(null);
+
+  // Email OTP states
+  const [emailInput, setEmailInput] = useState(savedCard?.formData?.email || '');
+  const [otpStep, setOtpStep] = useState('idle'); // 'idle' | 'sending' | 'verify' | 'verified'
+  const [generatedOtp, setGeneratedOtp] = useState(null);
+  const [otpValue, setOtpValue] = useState('');
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false);
 
   const generateInitialData = () => {
     const today = new Date();
@@ -62,14 +71,54 @@ const SampleShowcase = () => {
     }
   };
 
+  // ── Email OTP helpers ──
+  const handleSendOtp = async (e) => {
+    e.preventDefault();
+    if (!emailInput || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput)) {
+      alert('Please enter a valid email address.');
+      return;
+    }
+    setOtpLoading(true);
+    const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    setGeneratedOtp(newOtp);
+    try {
+      const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+      const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+      const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+      await emailjs.send(serviceId, templateId, { to_email: emailInput, otp: newOtp }, publicKey);
+      setOtpStep('verify');
+    } catch (err) {
+      console.error('EmailJS Error:', err);
+      alert('Failed to send OTP. Please check your email and try again.');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = (e) => {
+    e.preventDefault();
+    if (otpValue === generatedOtp) {
+      setEmailVerified(true);
+      setOtpStep('verified');
+      setFormData(prev => ({ ...prev, email: emailInput }));
+    } else {
+      alert('Invalid OTP. Please try again.');
+      setOtpValue('');
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!emailVerified) {
+      alert('Please verify your email before submitting.');
+      return;
+    }
     setFormSubmitted(true);
     setShowForm(false);
 
     // Persist submitted state so user cannot fill again
     localStorage.setItem('hrmCardSubmitted', JSON.stringify({
-      formData: formData,
+      formData: { ...formData, email: emailInput },
       photoPreview: photoPreview
     }));
 
@@ -84,6 +133,7 @@ const SampleShowcase = () => {
           expire_date: formData.expireDate,
           city: formData.city,
           mobile: formData.mobile,
+          email: emailInput,
           card_status: 'PENDING_ACTIVATION',
           photo_url: photoPreview || ''
         }]);
@@ -276,6 +326,95 @@ const SampleShowcase = () => {
                       </div>
                     </div>
 
+                    {/* ── Email + OTP Verification ── */}
+                    <div className="form-group full-width">
+                      <label>
+                        Email Address *
+                        {emailVerified && (
+                          <span style={{ marginLeft: '8px', color: '#16a34a', fontSize: '12px', fontWeight: '600' }}>
+                            <ShieldCheck size={13} style={{ verticalAlign: 'middle', marginRight: '3px' }} />
+                            Verified
+                          </span>
+                        )}
+                      </label>
+
+                      {otpStep === 'idle' && (
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <input
+                            type="email"
+                            value={emailInput}
+                            onChange={e => setEmailInput(e.target.value)}
+                            placeholder="your@email.com"
+                            required
+                            style={{ flex: 1 }}
+                            disabled={emailVerified}
+                          />
+                          <button
+                            type="button"
+                            onClick={handleSendOtp}
+                            disabled={otpLoading || emailVerified}
+                            style={{ whiteSpace: 'nowrap', padding: '8px 14px', background: '#1d4ed8', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '6px' }}
+                          >
+                            {otpLoading ? <RefreshCw size={14} className="spin" /> : <Mail size={14} />}
+                            {otpLoading ? 'Sending...' : 'Send OTP'}
+                          </button>
+                        </div>
+                      )}
+
+                      {otpStep === 'verify' && (
+                        <div>
+                          <div style={{ display: 'flex', gap: '8px', marginBottom: '6px' }}>
+                            <input
+                              type="text"
+                              value={emailInput}
+                              readOnly
+                              style={{ flex: 1, background: '#1a2234', color: '#9ca3af', borderColor: '#374151' }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => { setOtpStep('idle'); setOtpValue(''); }}
+                              style={{ padding: '8px 12px', background: '#374151', color: '#9ca3af', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px' }}
+                            >
+                              Change
+                            </button>
+                          </div>
+                          <div style={{ background: '#0f172a', border: '1px solid #1e3a5f', borderRadius: '8px', padding: '12px', marginTop: '6px' }}>
+                            <p style={{ fontSize: '12px', color: '#60a5fa', margin: '0 0 8px 0' }}>📨 OTP sent to <strong>{emailInput}</strong>. Enter the 6-digit code:</p>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                              <input
+                                type="text"
+                                value={otpValue}
+                                onChange={e => setOtpValue(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                                placeholder="0 0 0 0 0 0"
+                                maxLength={6}
+                                autoFocus
+                                style={{ flex: 1, textAlign: 'center', fontSize: '22px', letterSpacing: '8px', fontWeight: '700', padding: '10px' }}
+                              />
+                              <button
+                                type="button"
+                                onClick={handleVerifyOtp}
+                                style={{ padding: '8px 14px', background: '#16a34a', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '600', whiteSpace: 'nowrap' }}
+                              >
+                                Verify
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {otpStep === 'verified' && (
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                          <input
+                            type="email"
+                            value={emailInput}
+                            readOnly
+                            style={{ flex: 1, background: '#052e16', borderColor: '#16a34a', color: '#86efac' }}
+                          />
+                          <span style={{ color: '#16a34a', fontWeight: '700', fontSize: '13px', whiteSpace: 'nowrap' }}>✓ Verified</span>
+                        </div>
+                      )}
+                    </div>
+
                     <div className="form-row">
                       <div className="form-group">
                         <label>HRM ID No.</label>
@@ -312,7 +451,14 @@ const SampleShowcase = () => {
                       />
                     </div>
 
-                    <button type="submit" className="action-btn success-btn">Generate ID Card</button>
+                    <button
+                      type="submit"
+                      className="action-btn success-btn"
+                      disabled={!emailVerified}
+                      style={{ opacity: emailVerified ? 1 : 0.5, cursor: emailVerified ? 'pointer' : 'not-allowed' }}
+                    >
+                      {emailVerified ? 'Generate ID Card' : 'Verify Email to Continue'}
+                    </button>
                   </form>
                 )}
 

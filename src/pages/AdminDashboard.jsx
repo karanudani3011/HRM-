@@ -1176,6 +1176,7 @@ const AdminDashboard = () => {
                       <tr>
                         <th>Photo</th>
                         <th>Name / Contact</th>
+                        <th>Email</th>
                         <th>HRM ID</th>
                         <th>Location</th>
                         <th>Dates</th>
@@ -1191,7 +1192,8 @@ const AdminDashboard = () => {
                             (card.name && card.name.toLowerCase().includes(s)) ||
                             (card.id_no && card.id_no.toLowerCase().includes(s)) ||
                             (card.city && card.city.toLowerCase().includes(s)) ||
-                            (card.mobile && card.mobile.includes(s))
+                            (card.mobile && card.mobile.includes(s)) ||
+                            (card.email && card.email.toLowerCase().includes(s))
                           );
                         })
                         .map(card => (
@@ -1212,6 +1214,9 @@ const AdminDashboard = () => {
                             <td>
                               <strong>{card.name}</strong>
                               <div style={{ fontSize: '11px', color: 'var(--ad-text-3)', marginTop: '2px' }}>{card.mobile || 'No Mobile'}</div>
+                            </td>
+                            <td>
+                              <div style={{ fontSize: '12px', color: 'var(--ad-text-2)' }}>{card.email || <span style={{ color: 'var(--ad-text-3)', fontStyle: 'italic' }}>No email</span>}</div>
                             </td>
                             <td><code>{card.id_no}</code></td>
                             <td>{card.city || '—'}</td>
@@ -1279,7 +1284,7 @@ const AdminDashboard = () => {
                         ))}
                       {privilegeCards.length === 0 && (
                         <tr>
-                          <td colSpan="7" style={{ textAlign: 'center', padding: '36px', color: 'var(--ad-text-3)' }}>
+                          <td colSpan="8" style={{ textAlign: 'center', padding: '36px', color: 'var(--ad-text-3)' }}>
                             No privilege cards found in database.
                           </td>
                         </tr>

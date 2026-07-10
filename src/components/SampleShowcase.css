@@ -2,6 +2,15 @@
    SAMPLE SHOWCASE — Dark Metallic HRM Card
    ══════════════════════════════════════════ */
 
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.spin {
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
+
 .sample-showcase {
   padding: 80px 0;
   background-color: var(--white);

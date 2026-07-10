@@ -10,9 +10,13 @@ import { supabase } from '../lib/supabase';
 import { Link } from 'react-router-dom';
 
 const SampleShowcase = () => {
+  // Check if user has already submitted a card (persisted across sessions)
+  const savedCardData = localStorage.getItem('hrmCardSubmitted');
+  const savedCard = savedCardData ? JSON.parse(savedCardData) : null;
+
   const [showForm, setShowForm] = useState(false);
-  const [formSubmitted, setFormSubmitted] = useState(false);
-  const [photoPreview, setPhotoPreview] = useState(null);
+  const [formSubmitted, setFormSubmitted] = useState(!!savedCard);
+  const [photoPreview, setPhotoPreview] = useState(savedCard?.photoPreview || null);
   const fileInputRef = useRef(null);
 
   const generateInitialData = () => {
@@ -25,14 +29,14 @@ const SampleShowcase = () => {
       name: 'LAURA DOE',
       city: 'Rajkot',
       mobile: '9879450072',
-      cardStatus: 'ACTIVE',
+      cardStatus: 'PENDING',
       idNo: `HRM8484${currentSequence}`,
       expireDate: `${month}/${year + 1}`,
       joinDate: `${month}/${year}`
     };
   };
 
-  const [formData, setFormData] = useState(generateInitialData());
+  const [formData, setFormData] = useState(savedCard?.formData || generateInitialData());
   const cardRef = useRef(null);
 
   const handleInputChange = (e) => {
@@ -63,6 +67,12 @@ const SampleShowcase = () => {
     setFormSubmitted(true);
     setShowForm(false);
 
+    // Persist submitted state so user cannot fill again
+    localStorage.setItem('hrmCardSubmitted', JSON.stringify({
+      formData: formData,
+      photoPreview: photoPreview
+    }));
+
     try {
       const { error } = await supabase
         .from('privilege_cards')
@@ -74,7 +84,7 @@ const SampleShowcase = () => {
           expire_date: formData.expireDate,
           city: formData.city,
           mobile: formData.mobile,
-          card_status: formData.cardStatus,
+          card_status: 'PENDING',
           photo_url: photoPreview || ''
         }]);
       if (error) {
@@ -272,14 +282,6 @@ const SampleShowcase = () => {
 
                     <div className="form-row">
                       <div className="form-group">
-                        <label>Card Status</label>
-                        <select name="cardStatus" value={formData.cardStatus} onChange={handleInputChange}>
-                          <option value="ACTIVE">ACTIVE</option>
-                          <option value="INACTIVE">INACTIVE</option>
-                          <option value="PENDING">PENDING</option>
-                        </select>
-                      </div>
-                      <div className="form-group">
                         <label>HRM ID No.</label>
                         <input type="text" name="idNo" value={formData.idNo} onChange={handleInputChange} required />
                       </div>
@@ -320,21 +322,10 @@ const SampleShowcase = () => {
 
                 {formSubmitted && (
                   <div className="submitted-actions">
-                    <button className="action-btn secondary-btn" onClick={() => { setFormSubmitted(false); setShowForm(true); }}>
-                      <Edit3 size={18} /> Edit This Card
-                    </button>
-                    <button
-                      className="action-btn primary-btn"
-                      onClick={() => {
-                        // Load fresh data with the NEXT sequence number
-                        setFormData(generateInitialData());
-                        setPhotoPreview(null);
-                        setFormSubmitted(false);
-                        setShowForm(true);
-                      }}
-                    >
-                      <Edit3 size={18} /> Create New Card
-                    </button>
+                    <div className="submitted-message" style={{ textAlign: 'center', padding: '10px 0', color: '#16a34a', fontWeight: '600', fontSize: '14px' }}>
+                      <CheckCircle size={18} style={{ verticalAlign: 'middle', marginRight: '6px' }} />
+                      Your card has been submitted successfully. Status: PENDING (Admin will activate your card.)
+                    </div>
                     <button className="action-btn download-btn-new" onClick={handleDownload}>
                       <Download size={18} /> Download ID Card PDF
                     </button>

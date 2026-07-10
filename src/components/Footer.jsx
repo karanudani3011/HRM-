@@ -79,7 +79,7 @@ const Footer = () => {
                 <li><Link to="/hr-extractor">HR Tools</Link></li>
                 <li><Link to="/blog">Blog</Link></li>
                 <li><Link to="/samples">Samples</Link></li>
-                {!hasRegistered && <li><Link to="/services">Services</Link></li>}
+                <li><Link to="/services">Services</Link></li>
                 <li><Link to="/developers">Developers</Link></li>
               </ul>
             </div>

@@ -39,7 +39,7 @@ const VerifyCard = () => {
           setCard(cardData);
 
           // Force inactive/expired visual if card_status is explicitly set to INACTIVE or PENDING_ACTIVATION
-          if (cardData.card_status === 'INACTIVE' || cardData.card_status === 'PENDING_ACTIVATION') {
+          if (cardData.card_status === 'INACTIVE' || cardData.card_status === 'PENDING_ACTIVATION' || cardData.card_status === 'PENDING') {
             setStatus('expired');
           } else {
             // Check expiration date (format MM/YYYY)
@@ -173,10 +173,6 @@ const VerifyCard = () => {
                         <span className="vc-dv">{card.city}</span>
                       </div>
                     )}
-                    <div className="vc-detail-row">
-                      <span className="vc-dl">Card status</span>
-                      <span className="vc-dv vc-active">{card.card_status || 'ACTIVE'}</span>
-                    </div>
                     {card.mobile && (
                       <div className="vc-detail-row">
                         <span className="vc-dl">Mo.</span>
@@ -249,10 +245,6 @@ const VerifyCard = () => {
                         <span className="vc-dv">{card.city}</span>
                       </div>
                     )}
-                    <div className="vc-detail-row">
-                      <span className="vc-dl">Card status</span>
-                      <span className="vc-dv" style={{ color: '#ef4444' }}>INACTIVE</span>
-                    </div>
                     {card.mobile && (
                       <div className="vc-detail-row">
                         <span className="vc-dl">Mo.</span>

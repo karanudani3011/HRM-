@@ -1129,7 +1129,7 @@ const AdminDashboard = () => {
                 <div className="admin-stat-card amber">
                   <div className="admin-stat-label">Pending Approval</div>
                   <div className="admin-stat-value" style={{ color: '#f39c12' }}>
-                    {privilegeCards.filter(c => c.card_status === 'PENDING_ACTIVATION').length}
+                    {privilegeCards.filter(c => c.card_status === 'PENDING_ACTIVATION' || c.card_status === 'PENDING').length}
                   </div>
                   <div className="admin-stat-sub">Reactivation / renewal requests</div>
                 </div>
@@ -1225,7 +1225,7 @@ const AdminDashboard = () => {
                                   ACTIVE
                                 </span>
                               )}
-                              {card.card_status === 'PENDING_ACTIVATION' && (
+                              {(card.card_status === 'PENDING_ACTIVATION' || card.card_status === 'PENDING') && (
                                 <span className="admin-perm-badge" style={{ background: 'rgba(243, 156, 18, 0.15)', color: '#f39c12', animation: 'pulse 2s infinite' }}>
                                   PENDING APPROVAL
                                 </span>

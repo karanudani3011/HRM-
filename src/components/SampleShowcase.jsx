@@ -84,7 +84,7 @@ const SampleShowcase = () => {
           expire_date: formData.expireDate,
           city: formData.city,
           mobile: formData.mobile,
-          card_status: 'PENDING',
+          card_status: 'PENDING_ACTIVATION',
           photo_url: photoPreview || ''
         }]);
       if (error) {
@@ -169,10 +169,6 @@ const SampleShowcase = () => {
                       <div className="idc-detail-row">
                         <span className="idc-label">City</span>
                         <span className="idc-value">{formData.city}</span>
-                      </div>
-                      <div className="idc-detail-row">
-                        <span className="idc-label">Card status</span>
-                        <span className="idc-value idc-active">{formData.cardStatus}</span>
                       </div>
                       <div className="idc-detail-row">
                         <span className="idc-label">Mo.</span>
@@ -324,11 +320,25 @@ const SampleShowcase = () => {
                   <div className="submitted-actions">
                     <div className="submitted-message" style={{ textAlign: 'center', padding: '10px 0', color: '#16a34a', fontWeight: '600', fontSize: '14px' }}>
                       <CheckCircle size={18} style={{ verticalAlign: 'middle', marginRight: '6px' }} />
-                      Your card has been submitted successfully. Status: PENDING (Admin will activate your card.)
+                      Your card has been submitted successfully. (Admin will activate your card.)
                     </div>
-                    <button className="action-btn download-btn-new" onClick={handleDownload}>
-                      <Download size={18} /> Download ID Card PDF
-                    </button>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px', width: '100%' }}>
+                      <button className="action-btn download-btn-new" onClick={handleDownload}>
+                        <Download size={18} /> Download ID Card PDF
+                      </button>
+                      <button 
+                        type="button"
+                        className="action-btn" 
+                        onClick={() => {
+                          localStorage.removeItem('hrmCardSubmitted');
+                          setFormSubmitted(false);
+                          setShowForm(true);
+                        }}
+                        style={{ background: '#475569', color: '#fff', border: 'none', cursor: 'pointer', padding: '10px', borderRadius: '6px', fontSize: '14px', fontWeight: '600', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                      >
+                        Reset Form & Re-submit Card
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>

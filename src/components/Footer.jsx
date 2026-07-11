@@ -120,7 +120,7 @@ const Footer = () => {
         <div className="container">
           <div className="footer-bottom-inner">
             <p className="footer-copyright">
-              &copy; {new Date().getFullYear()} <strong>HRM Doctors Choice</strong>. All rights reserved.
+              &copy; {new Date().getFullYear()} <strong>HRM Consultancy</strong>. All rights reserved.
             </p>
             <div className="footer-legal-links">
               <Link to="/privacy">Privacy Policy</Link>

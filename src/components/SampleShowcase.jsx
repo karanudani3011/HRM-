@@ -205,9 +205,9 @@ const SampleShowcase = () => {
                     {/* Top: HFRM Logo */}
                     <div className="idc-top">
                       <div className="idc-logo-wrap">
-                        <img src="/logo.png" alt="HRM Logo" className="idc-logo-img" />
+                        <img src="/images/card-logo.png" alt="HRM Logo" className="idc-logo-img" />
                       </div>
-                      <p className="idc-tagline">HRM CONSULTANCY / VOLUTORS CHOICE</p>
+                      <p className="idc-tagline">HRM CONSULTANCY</p>
                     </div>
 
                     {/* Person Details */}
@@ -518,7 +518,7 @@ const SampleShowcase = () => {
                   </li>
                   <li>
                     <CheckCircle size={16} className="red-icon" />
-                    <span>Premium consultation rooms featuring "HRM DOCTORS CHOICE" wall branding</span>
+                    <span>Premium consultation rooms featuring "HRM" wall branding</span>
                   </li>
                   <li>
                     <CheckCircle size={16} className="red-icon" />

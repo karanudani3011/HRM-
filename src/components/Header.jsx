@@ -110,7 +110,7 @@ const Header = () => {
         <Link to="/" className="logo-section" style={{ textDecoration: 'none' }}>
           <img src="/logo.jpeg" alt="HRM Consultancy Logo" className="brand-logo" />
           <div className="logo-text">
-            <h1>HRM Doctors Choice</h1>
+            <h1>HRM Consultancy</h1>
             <p>Premium Healthcare Network</p>
           </div>
         </Link>

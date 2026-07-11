@@ -182,7 +182,7 @@ const VerifyCard = () => {
                 <div className="verify-card-preview">
                   <div className="vc-metal-overlay" />
                   <div className="vc-card-logo-row">
-                    <img src="/logo.png" alt="HRM" className="vc-card-logo" />
+                    <img src="/images/card-logo.png" alt="HRM" className="vc-card-logo" />
                   </div>
                   <p className="vc-card-tagline">HRM CONSULTANCY / VOLUTORS CHOICE</p>
 
@@ -254,7 +254,7 @@ const VerifyCard = () => {
                 <div className="verify-card-preview" style={{ opacity: 0.8, filter: 'grayscale(0.2)' }}>
                   <div className="vc-metal-overlay" />
                   <div className="vc-card-logo-row">
-                    <img src="/logo.png" alt="HRM" className="vc-card-logo" />
+                    <img src="/images/card-logo.png" alt="HRM" className="vc-card-logo" />
                   </div>
                   <p className="vc-card-tagline">HRM CONSULTANCY / VOLUTORS CHOICE</p>
 

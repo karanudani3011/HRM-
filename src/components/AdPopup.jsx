@@ -28,6 +28,13 @@ const ADS = [
     link: 'tel:+918488889194',
     title: 'Professional Web & App Development',
   },
+  {
+    id: 'ad-hotel',
+    src: '/hotel-ad.jpeg',
+    alt: 'Patel Vihar Restaurant – Fix Thali ₹110, Rajkot',
+    link: 'tel:+919924870013',
+    title: 'પટેલ વિહાર રેસ્ટોરન્ટ – ફિક્સ થાળી ₹110',
+  },
 ];
 
 const AdPopup = () => {

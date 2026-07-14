@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import emailjs from '@emailjs/browser';
 import { 
@@ -36,6 +36,51 @@ const HospitalServices = () => {
 
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState({ type: '', message: '' });
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const slides = [
+    {
+      id: 1,
+      title: "Ayushman Bharat (AB PM-JAY)",
+      description: "Maximize your hospital's efficiency and revenue realization under the PM-JAY scheme with our expert claim management and root-cause analysis.",
+      features: [
+        "From patient eligibility verification to follow-up until claim settlement, we handle the entire lifecycle.",
+        "Detailed review of deducted claims, corrective actions, and guidance to reduce future rejections."
+      ],
+      image: "https://images.unsplash.com/photo-1538108149393-fbbd81895907?auto=format&fit=crop&w=1600&q=80"
+    },
+    {
+      id: 2,
+      title: "Hospital Licensing & Compliance",
+      description: "Complete guidance to obtain, renew, and maintain essential statutory licenses.",
+      features: [
+        "Pharmacy & Food (FSSAI) Licenses",
+        "GPCB & Biomedical Waste Auth",
+        "Fire NOC & Clinical Registration",
+        "Regular Compliance Audits"
+      ],
+      image: "https://images.unsplash.com/photo-1581056771107-24ca5f033842?auto=format&fit=crop&w=1600&q=80"
+    },
+    {
+      id: 3,
+      title: "Insurance & TPA Empanelment",
+      description: "Attract more patients by offering cashless treatments. We coordinate with top insurers like Niva Bupa, ICICI Lombard, Care Health, and more.",
+      features: [
+        "Faster documentation and coordination",
+        "Dedicated support from application to approval",
+        "Training for hospital staff on compliance",
+        "Strategic regulatory planning"
+      ],
+      image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=1600&q=80"
+    }
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [slides.length]);
 
   const serviceOptions = [
     "AB PM-JAY Implementation",
@@ -222,39 +267,40 @@ const HospitalServices = () => {
         </div>
       </section>
 
-      {/* DETAILED SECTIONS */}
-      <section className="hs-details-section">
+      {/* SLIDING POSTER SECTION */}
+      <section className="hs-slider-section">
         <div className="container">
-          <div className="hs-detail-row">
-            <div className="hs-detail-content">
-              <h2>AB PM-JAY Support Services</h2>
-              <p>Maximize your hospital's efficiency and revenue realization under the PM-JAY scheme with our expert claim management and root-cause analysis.</p>
-              <div className="hs-info-boxes">
-                <div className="hs-info-box">
-                  <h4>Claim Management</h4>
-                  <p>From patient eligibility verification to follow-up until claim settlement, we handle the entire lifecycle.</p>
-                </div>
-                <div className="hs-info-box">
-                  <h4>Rejection Analysis</h4>
-                  <p>Detailed review of deducted claims, corrective actions, and guidance to reduce future rejections.</p>
+          <div className="hs-slider-container">
+            {slides.map((slide, index) => (
+              <div 
+                key={slide.id} 
+                className={`hs-slide ${index === currentSlide ? 'active' : ''}`}
+                style={{ backgroundImage: `url(${slide.image})` }}
+              >
+                <div className="hs-slide-overlay"></div>
+                <div className="hs-slide-content">
+                  <h2>{slide.title}</h2>
+                  <p>{slide.description}</p>
+                  <ul className="hs-slide-features">
+                    {slide.features.map((feature, i) => (
+                      <li key={i}><CheckCircle2 size={18} /> {feature}</li>
+                    ))}
+                  </ul>
                 </div>
               </div>
+            ))}
+            
+            {/* Slider Navigation */}
+            <div className="hs-slider-nav">
+              {slides.map((_, index) => (
+                <button 
+                  key={index} 
+                  className={`hs-slider-dot ${index === currentSlide ? 'active' : ''}`}
+                  onClick={() => setCurrentSlide(index)}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
+              ))}
             </div>
-            <div className="hs-detail-image img-pmjay"></div>
-          </div>
-
-          <div className="hs-detail-row reverse">
-            <div className="hs-detail-content">
-              <h2>Empanelment & Licensing</h2>
-              <p>Attract more patients by offering cashless treatments. We coordinate with top insurers like Niva Bupa, ICICI Lombard, Care Health, and more.</p>
-              <ul className="hs-large-list">
-                <li>Faster documentation and coordination</li>
-                <li>Dedicated support from application to approval</li>
-                <li>Training for hospital staff on compliance</li>
-                <li>Strategic regulatory planning</li>
-              </ul>
-            </div>
-            <div className="hs-detail-image img-insurance"></div>
           </div>
         </div>
       </section>

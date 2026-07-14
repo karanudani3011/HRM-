@@ -280,6 +280,35 @@
   text-transform: uppercase;
 }
 
+.back-terms-content {
+  position: relative;
+  z-index: 2;
+  padding: 0 12px;
+  margin-top: 6px;
+}
+
+.terms-heading {
+  font-size: 8px;
+  font-weight: 800;
+  text-align: center;
+  color: rgba(255,255,255,0.95);
+  margin-bottom: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.terms-text {
+  font-size: 6px;
+  color: rgba(255,255,255,0.75);
+  line-height: 1.3;
+  text-align: left;
+}
+
+.terms-text strong {
+  color: rgba(255,255,255,0.9);
+  font-weight: 700;
+}
+
 .back-for-label {
   position: relative;
   z-index: 2;

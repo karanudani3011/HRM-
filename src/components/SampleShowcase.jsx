@@ -180,15 +180,15 @@ const SampleShowcase = () => {
     <section className="sample-showcase" id="samples">
       <div className="container">
         <div className="section-header">
-          <h2>HRM <span>ID Card Showcase</span></h2>
-          <p>Preview your personalized HRM Privilege ID Card &amp; Partner Clinic Experience</p>
+          <h2>HRM <span>Privilege Info</span></h2>
+          <p>Preview your personalized HRM Privilege Info &amp; Partner Clinic Experience</p>
         </div>
 
         <div className="samples-grid">
           {/* Sample 1: ID Card */}
           <div className="sample-item id-card-section">
             <h3 className="sample-title">
-              <LayoutDashboard size={18} className="red-icon" /> HRM Privilege ID Card
+              <LayoutDashboard size={18} className="red-icon" /> HRM Privilege Info
             </h3>
 
             <div className="id-card-interactive-wrapper">
@@ -272,35 +272,37 @@ const SampleShowcase = () => {
                   <div className="vertical-id-card back-card">
                     <div className="metal-overlay" />
 
-                    <div className="back-top">
-                      <div className="back-hrm-title">HRM</div>
+                    <div className="back-top" style={{ padding: '12px 16px 0' }}>
+                      <div className="back-hrm-title" style={{ fontSize: '14px' }}>HRM</div>
                     </div>
 
-                    <div className="back-for-label">FOR</div>
-                    <div className="back-partner-label">FOR HRM NETWORK PARTNER</div>
+                    <div className="back-terms-content">
+                      <div className="terms-heading">Member Terms & Conditions</div>
+                      <div className="terms-text">
+                        1. <strong>Private Membership:</strong> PRIVY League Card is a Private Membership Program operated by HRM Consultancy.<br/>
+                        2. <strong>Membership Fee:</strong> The Membership Fee is ₹500 (plus applicable GST, if applicable) and is payable only to HRM Consultancy through authorized payment channels.<br/>
+                        3. <strong>Validity:</strong> The Card is valid for the period mentioned in the Member Account or on the Card from the date of activation.<br/>
+                        4. <strong>Not an Insurance Product:</strong> This Card is not a health insurance policy, mediclaim policy, TPA service, cashless card or financial product.<br/>
+                        5. <strong>Eligible Benefits:</strong> Benefits are available only at participating Network Partner are subject to the applicable policies and these Terms & Conditions.
+                      </div>
+                    </div>
 
-                    {/* QR Codes stacked */}
-                    <div className="back-qr-stack">
-                      <div className="back-qr-item">
+                    <div className="back-partner-label" style={{ marginTop: 'auto', fontSize: '7.5px' }}>FOR HRM NETWORK PARTNER INFO</div>
+
+                    <div className="back-qr-stack" style={{ padding: '4px 20px 0', flex: 'none', marginBottom: '4px' }}>
+                      <div className="back-qr-item" style={{ padding: '4px' }}>
                         <QRCodeCanvas 
                           value={`https://myhrm.co.in/verify/${formData.idNo}`} 
-                          size={70} 
-                          level="H"
-                          includeMargin={true}
-                        />
-                      </div>
-                      <div className="back-qr-divider">+</div>
-                      <div className="back-qr-item">
-                        <QRCodeCanvas 
-                          value={`https://myhrm.co.in/terms`} 
-                          size={70} 
+                          size={55} 
                           level="H"
                           includeMargin={true}
                         />
                       </div>
                     </div>
 
-                    <div className="back-terms-label">FOR HRM TERMS</div>
+                    <div className="back-terms-label" style={{ padding: '0 12px 10px', fontSize: '6px', lineHeight: '1.2' }}>
+                      PARTNER LIST<br/>& BENIFITS UPDATES&HELPLINE INFO
+                    </div>
                   </div>
 
                 </div>

@@ -277,7 +277,7 @@ const SampleShowcase = () => {
                       <div className="idc-logo-text">
                         {formData.cardName || 'HRM'}
                       </div>
-                      <p className="idc-tagline">HRM CONSULTANCY</p>
+                      <p className="idc-tagline">PRIVILEGE INFO</p>
                     </div>
 
                     {/* Person Details */}
@@ -338,8 +338,8 @@ const SampleShowcase = () => {
 
                     {/* Bottom */}
                     <div className="idc-bottom">
-                      <div className="idc-terms-label">FOR HRM TERMS</div>
-                      <div className="idc-terms-big">FOR HRM TERMS</div>
+                      <div className="idc-terms-label">POWERED BY HRM</div>
+                      <div className="idc-terms-big">POWERED BY HRM</div>
                       <div className="idc-website">www.myhrm.co.in</div>
                     </div>
                   </div>

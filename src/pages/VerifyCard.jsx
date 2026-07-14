@@ -184,7 +184,7 @@ const VerifyCard = () => {
                   <div className="vc-card-logo-row">
                     <div className="vc-card-logo-text">{card.card_name || 'HRM'}</div>
                   </div>
-                  <p className="vc-card-tagline">HRM CONSULTANCY / VOLUTORS CHOICE</p>
+                  <p className="vc-card-tagline">PRIVILEGE INFO</p>
 
                   <div className="vc-detail-list">
                     <div className="vc-detail-row">
@@ -228,7 +228,7 @@ const VerifyCard = () => {
                   </div>
 
                   <div className="vc-card-footer">
-                    <span>FOR HRM TERMS</span>
+                    <span>POWERED BY HRM</span>
                     <span>www.myhrm.co.in</span>
                   </div>
                 </div>
@@ -256,7 +256,7 @@ const VerifyCard = () => {
                   <div className="vc-card-logo-row">
                     <div className="vc-card-logo-text">{card.card_name || 'HRM'}</div>
                   </div>
-                  <p className="vc-card-tagline">HRM CONSULTANCY / VOLUTORS CHOICE</p>
+                  <p className="vc-card-tagline">PRIVILEGE INFO</p>
 
                   <div className="vc-detail-list">
                     <div className="vc-detail-row">
@@ -300,7 +300,7 @@ const VerifyCard = () => {
                   </div>
 
                   <div className="vc-card-footer">
-                    <span>FOR HRM TERMS</span>
+                    <span>POWERED BY HRM</span>
                     <span>www.myhrm.co.in</span>
                   </div>
                 </div>

@@ -15,7 +15,8 @@ import {
   MapPin,
   Bed,
   Map,
-  Activity
+  Activity,
+  ArrowRight
 } from 'lucide-react';
 import './HospitalServices.css';
 
@@ -195,20 +196,57 @@ const HospitalServices = () => {
 
   return (
     <div className="hospital-services-page">
-      {/* HERO SECTION */}
-      <section className="hs-hero">
-        <div className="hs-hero-overlay"></div>
-        <div className="container hs-hero-content">
-          <span className="hs-badge">Premium Healthcare Solutions</span>
-          <h1>Comprehensive Hospital <br/> Support & Empanelment</h1>
-          <p>
-            End-to-end professional support for Ayushman Bharat (PM-JAY), 
-            Hospital Licensing, and Insurance & TPA Empanelment. 
-            Focus on patient care while we handle the operational complexities.
-          </p>
-          <button className="hs-cta-btn" onClick={() => formRef.current?.scrollIntoView({ behavior: 'smooth' })}>
-            Inquire Now
-          </button>
+      {/* MODERN HERO SECTION */}
+      <section className="hs-hero-modern">
+        <div className="container hs-hero-modern-container">
+          <div className="hs-hero-text">
+            <div className="hs-hero-badge">
+              <span className="badge-pulse"></span>
+              Premium Healthcare Network
+            </div>
+            <h1>Elevate Your Hospital's <br/> <span>Operational Excellence</span></h1>
+            <p>
+              End-to-end professional support for Ayushman Bharat (PM-JAY), 
+              Hospital Licensing, and Insurance Empanelment. 
+              Focus on patient care while we handle the complexities.
+            </p>
+            <div className="hs-hero-actions">
+              <button className="hs-cta-primary" onClick={() => formRef.current?.scrollIntoView({ behavior: 'smooth' })}>
+                Partner With Us <ArrowRight size={18} />
+              </button>
+              <div className="hs-hero-stats">
+                <div className="stat">
+                  <span className="stat-num">500+</span>
+                  <span className="stat-label">Hospitals</span>
+                </div>
+                <div className="stat-divider"></div>
+                <div className="stat">
+                  <span className="stat-num">100%</span>
+                  <span className="stat-label">Compliance</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="hs-hero-visuals">
+             <div className="hs-hero-image-main">
+                <img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=800&q=80" alt="Hospital Interior" />
+             </div>
+             <div className="hs-hero-floating-card top-right">
+                <ShieldCheck className="icon-shield" />
+                <div>
+                  <strong>AB PM-JAY</strong>
+                  <span>Claim Management</span>
+                </div>
+             </div>
+             <div className="hs-hero-floating-card bottom-left">
+                <Activity className="icon-activity" />
+                <div>
+                  <strong>Empanelment</strong>
+                  <span>Fast Approvals</span>
+                </div>
+             </div>
+          </div>
         </div>
       </section>
 

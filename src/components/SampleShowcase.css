@@ -228,9 +228,11 @@
   box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
-.idc-qr-frame canvas {
+.idc-qr-frame canvas,
+.idc-qr-frame svg {
   width: 100% !important;
   height: 100% !important;
+  display: block;
 }
 
 /* Bottom */
@@ -641,4 +643,64 @@
   .clinic-details {
     padding: 16px;
   }
+}
+
+/* Custom Logo Header Styling */
+.idc-logo-text {
+  font-size: 15px;
+  font-weight: 800;
+  color: #ffffff;
+  text-shadow: 0 2px 8px rgba(220, 38, 38, 0.6);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  text-align: center;
+  max-width: 200px;
+  word-wrap: break-word;
+  font-family: 'Outfit', 'Inter', sans-serif;
+  margin-bottom: 2px;
+}
+
+/* Ensure SVG QR codes behave and scale properly on back side */
+.back-qr-item canvas,
+.back-qr-item svg {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+/* PDF Download Mode layout locking for flawless mobile/desktop PDF outputs */
+.id-card-preview.pdf-download-mode {
+  width: 580px !important;
+  margin: 0 !important;
+  padding: 10px !important;
+  background: #1a1a1a !important;
+  display: block !important;
+}
+
+.id-card-preview.pdf-download-mode .id-cards-container {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  gap: 20px !important;
+  padding: 16px !important;
+  width: 560px !important;
+  box-sizing: border-box !important;
+  background: #1a1a1a !important;
+}
+
+.id-card-preview.pdf-download-mode .vertical-id-card {
+  width: 240px !important;
+  height: 400px !important;
+  flex-shrink: 0 !important;
+  position: relative !important;
+}
+
+.id-card-preview.pdf-download-mode .idc-qr-frame {
+  width: 76px !important;
+  height: 76px !important;
+}
+
+.id-card-preview.pdf-download-mode .back-qr-item {
+  width: 60px !important;
+  height: 60px !important;
 }

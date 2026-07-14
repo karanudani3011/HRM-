@@ -289,9 +289,11 @@
   box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
-.vc-qr-frame canvas {
+.vc-qr-frame canvas,
+.vc-qr-frame svg {
   width: 100% !important;
   height: 100% !important;
+  display: block;
 }
 
 .vc-card-footer {
@@ -416,4 +418,18 @@
 
 @keyframes verifySpin {
   to { transform: rotate(360deg); }
+}
+
+/* Custom logo header text representation on verify view */
+.vc-card-logo-text {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #ffffff;
+  text-shadow: 0 2px 8px rgba(220, 38, 38, 0.6);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  text-align: center;
+  font-family: 'Outfit', 'Inter', sans-serif;
+  position: relative;
+  z-index: 1;
 }

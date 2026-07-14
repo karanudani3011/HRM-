@@ -1,11 +1,11 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import './SampleShowcase.css';
 import clinicImg from '../assets/premium_clinic.png';
 import qrPartner from '../assets/qr_hrm_partner.png';
 import qrTerms from '../assets/qr_terms.png';
 import { CheckCircle, FileText, LayoutDashboard, Upload, Download, Edit3, Camera, Mail, RefreshCw, ShieldCheck } from 'lucide-react';
 import html2pdf from 'html2pdf.js';
-import { QRCodeCanvas } from 'qrcode.react';
+import { QRCodeSVG } from 'qrcode.react';
 import { supabase } from '../lib/supabase';
 import { Link } from 'react-router-dom';
 import emailjs from '@emailjs/browser';
@@ -28,6 +28,8 @@ const SampleShowcase = () => {
   const [otpLoading, setOtpLoading] = useState(false);
   const [emailVerified, setEmailVerified] = useState(false);
 
+  const [isDownloading, setIsDownloading] = useState(false);
+
   const generateInitialData = () => {
     const today = new Date();
     const month = String(today.getMonth() + 1).padStart(2, '0');
@@ -41,12 +43,66 @@ const SampleShowcase = () => {
       cardStatus: 'PENDING',
       idNo: `HRM8484${currentSequence}`,
       expireDate: `${month}/${year + 1}`,
-      joinDate: `${month}/${year}`
+      joinDate: `${month}/${year}`,
+      cardName: ''
     };
   };
 
   const [formData, setFormData] = useState(savedCard?.formData || generateInitialData());
   const cardRef = useRef(null);
+
+  useEffect(() => {
+    const syncCardData = async () => {
+      if (savedCard && savedCard.formData && savedCard.formData.idNo) {
+        try {
+          const { data, error } = await supabase
+            .from('privilege_cards')
+            .select('*')
+            .eq('id_no', savedCard.formData.idNo.replace(/\s+/g, ''))
+            .maybeSingle();
+
+          if (error) {
+            console.error('Error syncing card status:', error);
+            return;
+          }
+
+          if (data) {
+            const updatedFormData = {
+              name: data.name || savedCard.formData.name,
+              city: data.city || savedCard.formData.city,
+              mobile: data.mobile || savedCard.formData.mobile,
+              cardStatus: data.card_status || savedCard.formData.cardStatus,
+              idNo: data.id_no || savedCard.formData.idNo,
+              joinDate: data.join_date || savedCard.formData.joinDate,
+              expireDate: data.expire_date || savedCard.formData.expireDate,
+              cardName: data.card_name || savedCard.formData.cardName || ''
+            };
+            
+            setFormData(updatedFormData);
+            
+            if (data.photo_url) {
+              setPhotoPreview(data.photo_url);
+            }
+
+            if (data.email) {
+              setEmailInput(data.email);
+              setEmailVerified(true);
+              setOtpStep('verified');
+            }
+
+            localStorage.setItem('hrmCardSubmitted', JSON.stringify({
+              formData: updatedFormData,
+              photoPreview: data.photo_url || data.photo_url
+            }));
+          }
+        } catch (err) {
+          console.error('Failed to sync card data:', err);
+        }
+      }
+    };
+
+    syncCardData();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -135,7 +191,8 @@ const SampleShowcase = () => {
           mobile: formData.mobile,
           email: emailInput,
           card_status: 'PENDING_ACTIVATION',
-          photo_url: photoPreview || ''
+          photo_url: photoPreview || '',
+          card_name: formData.cardName || ''
         }]);
       if (error) {
         console.error('Error saving to privilege_cards in Supabase:', error);
@@ -151,28 +208,41 @@ const SampleShowcase = () => {
   };
 
   const handleDownload = () => {
-    const element = cardRef.current;
-    const opt = {
-      margin: [0.2, 0.3],
-      filename: 'HRM_ID_Card.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        scrollX: 0,
-        scrollY: 0,
-        windowWidth: element.scrollWidth,
-        windowHeight: element.scrollHeight
-      },
-      jsPDF: {
-        unit: 'in',
-        format: [7.2, 5.5],   // wide + tall enough: 240px×2 cards + padding, fits in 1 page
-        orientation: 'landscape'
-      },
-      pagebreak: { mode: 'avoid-all' }  // prevent any mid-card page breaks
-    };
-    html2pdf().set(opt).from(element).save();
+    setIsDownloading(true);
+    setTimeout(() => {
+      const element = cardRef.current;
+      const opt = {
+        margin: [0.1, 0.15],
+        filename: `HRM_Card_${(formData.name || 'User').replace(/\s+/g, '_')}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: {
+          scale: 3,
+          useCORS: true,
+          allowTaint: true,
+          scrollX: 0,
+          scrollY: 0,
+          windowWidth: 700,
+          windowHeight: 480
+        },
+        jsPDF: {
+          unit: 'in',
+          format: [8.2, 6.0],
+          orientation: 'landscape'
+        },
+        pagebreak: { mode: 'avoid-all' }
+      };
+      html2pdf()
+        .set(opt)
+        .from(element)
+        .save()
+        .then(() => {
+          setIsDownloading(false);
+        })
+        .catch(err => {
+          console.error(err);
+          setIsDownloading(false);
+        });
+    }, 150);
   };
 
 
@@ -194,7 +264,7 @@ const SampleShowcase = () => {
             <div className="id-card-interactive-wrapper">
 
               {/* ID CARD VISUAL */}
-              <div className="id-card-preview" ref={cardRef}>
+              <div className={`id-card-preview ${isDownloading ? 'pdf-download-mode' : ''}`} ref={cardRef}>
                 <div className="id-cards-container">
 
                   {/* ── FRONT SIDE ── */}
@@ -202,10 +272,10 @@ const SampleShowcase = () => {
                     {/* Brushed metal overlay */}
                     <div className="metal-overlay" />
 
-                    {/* Top: HFRM Logo */}
+                    {/* Top: Custom Title replacing HRM Logo */}
                     <div className="idc-top">
-                      <div className="idc-logo-wrap">
-                        <img src="/images/card-logo.png" alt="HRM Logo" className="idc-logo-img" />
+                      <div className="idc-logo-text">
+                        {formData.cardName || 'HRM'}
                       </div>
                       <p className="idc-tagline">HRM CONSULTANCY</p>
                     </div>
@@ -219,6 +289,12 @@ const SampleShowcase = () => {
                       <div className="idc-detail-row">
                         <span className="idc-label">City</span>
                         <span className="idc-value">{formData.city}</span>
+                      </div>
+                      <div className="idc-detail-row">
+                        <span className="idc-label">Card status:</span>
+                        <span className="idc-value" style={{ color: formData.cardStatus === 'ACTIVE' ? '#4ade80' : '#f39c12', fontWeight: 'bold' }}>
+                          {formData.cardStatus === 'ACTIVE' ? 'ACTIVE' : 'PENDING'}
+                        </span>
                       </div>
                       <div className="idc-detail-row">
                         <span className="idc-label">Mo.</span>
@@ -251,7 +327,7 @@ const SampleShowcase = () => {
                       </div>
                       
                       <div className="idc-qr-frame">
-                        <QRCodeCanvas 
+                        <QRCodeSVG 
                           value={`https://myhrm.co.in/verify/${formData.idNo}`} 
                           size={70} 
                           level="H"
@@ -291,7 +367,7 @@ const SampleShowcase = () => {
 
                     <div className="back-qr-stack" style={{ padding: '4px 20px 0', flex: 'none', marginBottom: '4px' }}>
                       <div className="back-qr-item" style={{ padding: '4px' }}>
-                        <QRCodeCanvas 
+                        <QRCodeSVG 
                           value={`https://myhrm.co.in/verify/${formData.idNo}`} 
                           size={55} 
                           level="H"
@@ -324,6 +400,13 @@ const SampleShowcase = () => {
                       <div className="form-group">
                         <label>Full Name *</label>
                         <input type="text" name="name" value={formData.name} onChange={handleInputChange} placeholder="FULL NAME IN CAPS" required />
+                      </div>
+                    </div>
+
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label>Card Header Name (Replaces HRM Logo) *</label>
+                        <input type="text" name="cardName" value={formData.cardName} onChange={handleInputChange} placeholder="Name to display in place of logo (e.g. HRM or Hospital Name)" required />
                       </div>
                     </div>
 
@@ -476,10 +559,17 @@ const SampleShowcase = () => {
 
                 {formSubmitted && (
                   <div className="submitted-actions">
-                    <div className="submitted-message" style={{ textAlign: 'center', padding: '10px 0', color: '#16a34a', fontWeight: '600', fontSize: '14px' }}>
-                      <CheckCircle size={18} style={{ verticalAlign: 'middle', marginRight: '6px' }} />
-                      Your card has been submitted successfully. (Admin will activate your card.)
-                    </div>
+                    {formData.cardStatus === 'ACTIVE' ? (
+                      <div className="submitted-message" style={{ textAlign: 'center', padding: '10px 0', color: '#16a34a', fontWeight: '600', fontSize: '14px' }}>
+                        <CheckCircle size={18} style={{ verticalAlign: 'middle', marginRight: '6px' }} />
+                        Your HRM Privilege Card is ACTIVE!
+                      </div>
+                    ) : (
+                      <div className="submitted-message" style={{ textAlign: 'center', padding: '10px 0', color: '#f39c12', fontWeight: '600', fontSize: '14px' }}>
+                        <RefreshCw size={18} className="spin" style={{ verticalAlign: 'middle', marginRight: '6px', display: 'inline-block' }} />
+                        Your card is submitted. Admin approval is pending.
+                      </div>
+                    )}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px', width: '100%' }}>
                       <button className="action-btn download-btn-new" onClick={handleDownload}>
                         <Download size={18} /> Download ID Card PDF

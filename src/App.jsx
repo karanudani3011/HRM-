@@ -31,6 +31,7 @@ import DeveloperPage from './pages/DeveloperPage';
 import RegistrationSuccess from './pages/RegistrationSuccess';
 import ResetPassword from './pages/ResetPassword';
 import VerifyCard from './pages/VerifyCard';
+import HospitalServices from './pages/HospitalServices';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -75,6 +76,7 @@ function AppContent() {
         <Route path="/blog" element={<ProtectedRoute><Blog /></ProtectedRoute>} />
         <Route path="/services" element={<ProtectedRoute><Services /></ProtectedRoute>} />
         <Route path="/services/directory" element={<ProtectedRoute><ServicesDirectory /></ProtectedRoute>} />
+        <Route path="/hospital-services" element={<HospitalServices />} />
         <Route path="/samples" element={<ProtectedRoute><Samples /></ProtectedRoute>} />
         <Route path="/find-doctor" element={<ProtectedRoute><FindDoctor /></ProtectedRoute>} />
         <Route path="/verify/:idNo" element={<VerifyCard />} />

@@ -16,12 +16,16 @@ CREATE TABLE IF NOT EXISTS public.privilege_cards (
   email       TEXT,
   card_status TEXT DEFAULT 'PENDING_ACTIVATION',
   photo_url   TEXT,
+  card_name   TEXT,
   created_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 2. If table already exists, add missing email column
+-- 2. If table already exists, add missing columns
 ALTER TABLE public.privilege_cards 
   ADD COLUMN IF NOT EXISTS email TEXT;
+
+ALTER TABLE public.privilege_cards 
+  ADD COLUMN IF NOT EXISTS card_name TEXT;
 
 -- 3. Disable Row Level Security so admin (anon key) can read all rows
 ALTER TABLE public.privilege_cards DISABLE ROW LEVEL SECURITY;

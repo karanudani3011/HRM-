@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 import { db } from '../firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { ShieldCheck, ShieldAlert, ArrowRight } from 'lucide-react';
-import { QRCodeCanvas } from 'qrcode.react';
+import { QRCodeSVG } from 'qrcode.react';
 import './VerifyCard.css';
 
 const VerifyCard = () => {
@@ -182,7 +182,7 @@ const VerifyCard = () => {
                 <div className="verify-card-preview">
                   <div className="vc-metal-overlay" />
                   <div className="vc-card-logo-row">
-                    <img src="/images/card-logo.png" alt="HRM" className="vc-card-logo" />
+                    <div className="vc-card-logo-text">{card.card_name || 'HRM'}</div>
                   </div>
                   <p className="vc-card-tagline">HRM CONSULTANCY / VOLUTORS CHOICE</p>
 
@@ -218,7 +218,7 @@ const VerifyCard = () => {
                       )}
                     </div>
                     <div className="vc-qr-frame">
-                      <QRCodeCanvas 
+                      <QRCodeSVG 
                         value={card.id_no} 
                         size={54} 
                         level="H"
@@ -254,7 +254,7 @@ const VerifyCard = () => {
                 <div className="verify-card-preview" style={{ opacity: 0.8, filter: 'grayscale(0.2)' }}>
                   <div className="vc-metal-overlay" />
                   <div className="vc-card-logo-row">
-                    <img src="/images/card-logo.png" alt="HRM" className="vc-card-logo" />
+                    <div className="vc-card-logo-text">{card.card_name || 'HRM'}</div>
                   </div>
                   <p className="vc-card-tagline">HRM CONSULTANCY / VOLUTORS CHOICE</p>
 
@@ -290,7 +290,7 @@ const VerifyCard = () => {
                       )}
                     </div>
                     <div className="vc-qr-frame">
-                      <QRCodeCanvas 
+                      <QRCodeSVG 
                         value={card.id_no} 
                         size={54} 
                         level="H"
@@ -313,7 +313,7 @@ const VerifyCard = () => {
                   </p>
                   
                   <div className="payment-qr-wrapper" style={{ background: '#fff', padding: '12px', borderRadius: '12px', display: 'inline-block', marginBottom: '12px' }}>
-                    <QRCodeCanvas 
+                    <QRCodeSVG 
                       value={`upi://pay?pa=hrmconsultancy@okaxis&pn=HRM%20Consultancy&am=100&cu=INR`} 
                       size={150}
                       level="M"

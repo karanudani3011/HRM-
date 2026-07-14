@@ -1471,7 +1471,8 @@ const AdminDashboard = () => {
                             (card.id_no && card.id_no.toLowerCase().includes(s)) ||
                             (card.city && card.city.toLowerCase().includes(s)) ||
                             (card.mobile && card.mobile.includes(s)) ||
-                            (card.email && card.email.toLowerCase().includes(s))
+                            (card.email && card.email.toLowerCase().includes(s)) ||
+                            (card.card_name && card.card_name.toLowerCase().includes(s))
                           );
                         })
                         .map(card => (
@@ -1491,6 +1492,11 @@ const AdminDashboard = () => {
                             </td>
                             <td>
                               <strong>{card.name}</strong>
+                              {card.card_name && (
+                                <div style={{ fontSize: '11.5px', color: '#2563eb', fontWeight: '600', marginTop: '2px' }}>
+                                  Header: {card.card_name}
+                                </div>
+                              )}
                               <div style={{ fontSize: '11px', color: 'var(--ad-text-3)', marginTop: '2px' }}>{card.mobile || 'No Mobile'}</div>
                             </td>
                             <td>

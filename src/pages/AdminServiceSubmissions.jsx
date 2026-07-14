@@ -308,7 +308,7 @@ const AdminServiceSubmissions = () => {
     return () => unsubscribe();
   }, []);
 
-  const formTypes = ['All', 'Doctor Registration', 'Hospital Registration', 'HR Registration', 'Partner Registration', 'Contact Inquiry'];
+  const formTypes = ['All', 'Doctor Registration', 'Hospital Registration', 'HR Registration', 'Partner Registration', 'Hospital Service Inquiry', 'Contact Inquiry'];
 
   const filtered = filter === 'All' ? submissions : submissions.filter(s => s.formType === filter);
 

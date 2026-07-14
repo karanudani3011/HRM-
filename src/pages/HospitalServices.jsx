@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import { db } from '../firebase';
+import { collection, addDoc } from 'firebase/firestore';
 import emailjs from '@emailjs/browser';
 import { 
   Building2, 
@@ -143,6 +145,26 @@ const HospitalServices = () => {
       if (dbError) {
         // If the table doesn't exist yet, we still proceed to send email
         console.warn("Supabase insert error (table might not exist):", dbError);
+      }
+
+      // 1.5 Save to Firestore for Admin Dashboard view
+      try {
+        await addDoc(collection(db, 'serviceForms'), {
+          formType: 'Hospital Service Inquiry',
+          name: formData.name,
+          mobile: formData.mobile,
+          email: formData.email,
+          city: formData.city,
+          address: formData.address,
+          hospitalName: formData.hospitalName,
+          registeredAddress: formData.registeredAddress,
+          beddedHospital: formData.beddedHospital,
+          servicesRequired: formData.servicesRequired,
+          licensesChecked: formData.licensesChecked,
+          createdAt: new Date()
+        });
+      } catch (fsErr) {
+        console.warn("Firestore insert error:", fsErr);
       }
 
       // 2. Send via EmailJS to outside user without giving admin access

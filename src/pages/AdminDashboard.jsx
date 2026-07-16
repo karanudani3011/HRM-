@@ -140,21 +140,31 @@ const AdminDashboard = () => {
 
   const handleBillSubmit = async (e) => {
     e.preventDefault();
-    const { hospitalName, patientName, hrmId, billAmount, discount, afterDiscount, billDate } = billForm;
+    const { hospitalName, patientName, hrmId, billAmount, discount, billDate } = billForm;
     if (!hospitalName || !patientName || !hrmId || !billAmount || !billDate) {
       return alert('Please fill all required fields.');
     }
     setBillsLoading(true);
     try {
+      const amt = parseFloat(billAmount) || 0;
+      let finalDiscount = 0;
+      if (String(discount).includes('%')) {
+        finalDiscount = (amt * parseFloat(discount)) / 100;
+      } else {
+        finalDiscount = parseFloat(discount) || 0;
+      }
+      const finalAfterDiscount = amt - finalDiscount;
+
       const { error: dbError } = await supabase.from('patient_bills').insert([{
         hospital_name: hospitalName,
         hospital_username: adminUsername,
         patient_name: patientName,
         hrm_id: hrmId,
-        bill_amount: parseFloat(billAmount) || 0,
-        discount: parseFloat(discount) || 0,
-        after_discount: parseFloat(afterDiscount) || (parseFloat(billAmount) - parseFloat(discount || 0)),
-        bill_date: billDate
+        bill_amount: amt,
+        discount: finalDiscount,
+        after_discount: finalAfterDiscount > 0 ? finalAfterDiscount : 0,
+        bill_date: billDate,
+        file_url: "" // Provide default to fix the not-null constraint
       }]);
 
       if (dbError) throw dbError;
@@ -1601,9 +1611,8 @@ const AdminDashboard = () => {
                 </button>
               </div>
 
-              {/* ── Hospital submits a new bill ── */}
-              {adminUsername !== 'admin' && (
-                <div className="admin-form-card" style={{ marginBottom: '24px' }}>
+              {/* ── Hospital or Super Admin submits a new bill ── */}
+              <div className="admin-form-card" style={{ marginBottom: '24px' }}>
                   <h3 className="admin-form-title" style={{ fontSize: '15px', marginBottom: '20px' }}>Submit Patient Bill</h3>
                   {billSubmitSuccess && (
                     <div style={{ background: 'rgba(46,204,113,0.12)', border: '1px solid #2ecc71', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px', color: '#2ecc71', fontWeight: '600', fontSize: '13px' }}>
@@ -1639,22 +1648,34 @@ const AdminDashboard = () => {
                       <input type="number" min="0" step="0.01" className="admin-text-input" required value={billForm.billAmount}
                         onChange={e => {
                           const amt = e.target.value;
-                          const disc = parseFloat(billForm.discount) || 0;
-                          const after = (parseFloat(amt) || 0) - disc;
+                          const discVal = String(billForm.discount || '');
+                          let discAmount = 0;
+                          if (discVal.includes('%')) {
+                            discAmount = ((parseFloat(amt) || 0) * parseFloat(discVal)) / 100;
+                          } else {
+                            discAmount = parseFloat(discVal) || 0;
+                          }
+                          const after = (parseFloat(amt) || 0) - (discAmount || 0);
                           setBillForm({...billForm, billAmount: amt, afterDiscount: after > 0 ? after.toFixed(2) : '0.00'});
                         }}
                         placeholder="0.00" />
                     </div>
                     <div className="admin-input-group">
-                      <label>Discount (₹)</label>
-                      <input type="number" min="0" step="0.01" className="admin-text-input" value={billForm.discount}
+                      <label>Discount (₹ or %)</label>
+                      <input type="text" className="admin-text-input" value={billForm.discount}
                         onChange={e => {
-                          const disc = e.target.value;
+                          const discVal = e.target.value;
                           const amt = parseFloat(billForm.billAmount) || 0;
-                          const after = amt - (parseFloat(disc) || 0);
-                          setBillForm({...billForm, discount: disc, afterDiscount: after > 0 ? after.toFixed(2) : '0.00'});
+                          let discAmount = 0;
+                          if (discVal.includes('%')) {
+                            discAmount = (amt * parseFloat(discVal)) / 100;
+                          } else {
+                            discAmount = parseFloat(discVal) || 0;
+                          }
+                          const after = amt - (discAmount || 0);
+                          setBillForm({...billForm, discount: discVal, afterDiscount: after > 0 ? after.toFixed(2) : '0.00'});
                         }}
-                        placeholder="0.00" />
+                        placeholder="e.g. 100 or 10%" />
                     </div>
                     <div className="admin-input-group" style={{ gridColumn: '1 / -1' }}>
                       <label>Amount After Discount (₹)</label>
@@ -1669,7 +1690,6 @@ const AdminDashboard = () => {
                     </div>
                   </form>
                 </div>
-              )}
 
               {/* ── Super Admin: hospital list + double-click to reveal ── */}
               {adminUsername === 'admin' && (

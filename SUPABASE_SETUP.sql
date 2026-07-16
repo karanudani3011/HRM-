@@ -37,3 +37,35 @@ GRANT USAGE, SELECT ON SEQUENCE public.privilege_cards_id_seq TO anon;
 GRANT USAGE, SELECT ON SEQUENCE public.privilege_cards_id_seq TO authenticated;
 
 -- Done! The admin dashboard should now show all submitted cards.
+
+-- ============================================================
+-- Patient Bills Table — Run if not already created
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS public.patient_bills (
+  id                BIGSERIAL PRIMARY KEY,
+  hospital_name     TEXT,
+  hospital_username TEXT,
+  patient_name      TEXT,
+  hrm_id            TEXT,
+  bill_amount       NUMERIC(10, 2) DEFAULT 0,
+  discount          NUMERIC(10, 2) DEFAULT 0,
+  after_discount    NUMERIC(10, 2) DEFAULT 0,
+  bill_date         TEXT,
+  created_at        TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- If table already exists, add new columns
+ALTER TABLE public.patient_bills ADD COLUMN IF NOT EXISTS bill_amount    NUMERIC(10, 2) DEFAULT 0;
+ALTER TABLE public.patient_bills ADD COLUMN IF NOT EXISTS discount       NUMERIC(10, 2) DEFAULT 0;
+ALTER TABLE public.patient_bills ADD COLUMN IF NOT EXISTS after_discount NUMERIC(10, 2) DEFAULT 0;
+
+-- Disable RLS so admin can read all rows
+ALTER TABLE public.patient_bills DISABLE ROW LEVEL SECURITY;
+
+-- Grant access
+GRANT ALL ON public.patient_bills TO anon;
+GRANT ALL ON public.patient_bills TO authenticated;
+GRANT USAGE, SELECT ON SEQUENCE public.patient_bills_id_seq TO anon;
+GRANT USAGE, SELECT ON SEQUENCE public.patient_bills_id_seq TO authenticated;
+

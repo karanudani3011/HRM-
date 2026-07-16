@@ -12,13 +12,15 @@ CREATE TABLE IF NOT EXISTS public.privilege_cards (
   expire_date text,
   city text,
   mobile text,
+  email text,
   card_status text DEFAULT 'PENDING_ACTIVATION',
   photo_url text,
   card_name text
 );
 
--- Alter table to ensure card_name column exists if table is already created
+-- Alter table to ensure columns exist if table is already created
 ALTER TABLE public.privilege_cards ADD COLUMN IF NOT EXISTS card_name text;
+ALTER TABLE public.privilege_cards ADD COLUMN IF NOT EXISTS email text;
 
 -- Enable Row Level Security (RLS)
 ALTER TABLE public.privilege_cards ENABLE ROW LEVEL SECURITY;

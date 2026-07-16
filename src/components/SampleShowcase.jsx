@@ -30,18 +30,23 @@ const SampleShowcase = () => {
 
   const [isDownloading, setIsDownloading] = useState(false);
 
+  const generateUniqueCardId = () => {
+    // Generate a truly unique card ID using timestamp + random — prevents duplicate IDs across users/devices
+    const ts = Date.now().toString(36).toUpperCase().slice(-5);
+    const rand = Math.random().toString(36).substring(2, 6).toUpperCase();
+    return `HRM${ts}${rand}`;
+  };
+
   const generateInitialData = () => {
     const today = new Date();
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const year = today.getFullYear();
-    // Always read fresh from localStorage so each new card gets next number
-    const currentSequence = parseInt(localStorage.getItem('hrmCardSequence') || '1001', 10);
     return {
       name: 'LAURA DOE',
       city: 'Rajkot',
       mobile: '9879450072',
       cardStatus: 'PENDING',
-      idNo: `HRM8484${currentSequence}`,
+      idNo: generateUniqueCardId(),
       expireDate: `${month}/${year + 1}`,
       joinDate: `${month}/${year}`,
       cardName: ''
@@ -169,15 +174,8 @@ const SampleShowcase = () => {
       alert('Please verify your email before submitting.');
       return;
     }
-    setFormSubmitted(true);
-    setShowForm(false);
 
-    // Persist submitted state so user cannot fill again
-    localStorage.setItem('hrmCardSubmitted', JSON.stringify({
-      formData: { ...formData, email: emailInput },
-      photoPreview: photoPreview
-    }));
-
+    // Attempt DB insert FIRST — only mark submitted if it succeeds
     try {
       const { error } = await supabase
         .from('privilege_cards')
@@ -194,17 +192,57 @@ const SampleShowcase = () => {
           photo_url: photoPreview || '',
           card_name: formData.cardName || ''
         }]);
+
       if (error) {
+        // Duplicate ID conflict or other DB error
         console.error('Error saving to privilege_cards in Supabase:', error);
+        if (error.code === '23505') {
+          // Unique constraint violation — regenerate ID and try once more
+          const newId = generateUniqueCardId();
+          const updatedFormData = { ...formData, idNo: newId };
+          setFormData(updatedFormData);
+          const { error: retryError } = await supabase
+            .from('privilege_cards')
+            .insert([{
+              name: updatedFormData.name,
+              role: 'user',
+              id_no: newId,
+              join_date: updatedFormData.joinDate,
+              expire_date: updatedFormData.expireDate,
+              city: updatedFormData.city,
+              mobile: updatedFormData.mobile,
+              email: emailInput,
+              card_status: 'PENDING_ACTIVATION',
+              photo_url: photoPreview || '',
+              card_name: updatedFormData.cardName || ''
+            }]);
+          if (retryError) {
+            alert('Submission failed due to a conflict error. Please try again.');
+            return;
+          }
+          // Retry succeeded — save updated form data
+          const savedData = { formData: { ...updatedFormData, email: emailInput }, photoPreview };
+          localStorage.setItem('hrmCardSubmitted', JSON.stringify(savedData));
+        } else {
+          alert('Submission failed: ' + error.message + '. Please try again.');
+          return;
+        }
       } else {
         console.log('Successfully saved privilege card to Supabase');
+        // Persist submitted state only after successful insert
+        localStorage.setItem('hrmCardSubmitted', JSON.stringify({
+          formData: { ...formData, email: emailInput },
+          photoPreview: photoPreview
+        }));
       }
+
+      // Mark as submitted in UI only after successful DB save
+      setFormSubmitted(true);
+      setShowForm(false);
     } catch (err) {
       console.error('Failed to save card:', err);
+      alert('Network error. Please check your connection and try again.');
     }
-
-    const currentSequence = parseInt(localStorage.getItem('hrmCardSequence') || '1001', 10);
-    localStorage.setItem('hrmCardSequence', (currentSequence + 1).toString());
   };
 
   const handleDownload = () => {
@@ -579,6 +617,14 @@ const SampleShowcase = () => {
                         className="action-btn" 
                         onClick={() => {
                           localStorage.removeItem('hrmCardSubmitted');
+                          // Generate a fresh unique card ID on reset to avoid conflicts
+                          const freshData = generateInitialData();
+                          setFormData(freshData);
+                          setPhotoPreview(null);
+                          setEmailInput('');
+                          setEmailVerified(false);
+                          setOtpStep('idle');
+                          setOtpValue('');
                           setFormSubmitted(false);
                           setShowForm(true);
                         }}

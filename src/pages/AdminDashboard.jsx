@@ -117,7 +117,9 @@ const AdminDashboard = () => {
   // Patient Bills state
   const [patientBills, setPatientBills] = useState([]);
   const [billsLoading, setBillsLoading] = useState(false);
-  const [billForm, setBillForm] = useState({ patientName: '', hrmId: '', date: '', file: null });
+  const [billForm, setBillForm] = useState({ hospitalName: '', patientName: '', hrmId: '', billAmount: '', discount: '', afterDiscount: '', billDate: '' });
+  const [selectedHospitalBill, setSelectedHospitalBill] = useState(null); // bill revealed on double-click
+  const [billSubmitSuccess, setBillSubmitSuccess] = useState(false);
 
   const fetchPatientBills = async () => {
     setBillsLoading(true);
@@ -138,38 +140,32 @@ const AdminDashboard = () => {
 
   const handleBillSubmit = async (e) => {
     e.preventDefault();
-    if (!billForm.patientName || !billForm.hrmId || !billForm.date || !billForm.file) {
-      return alert('Please fill all fields and select a PDF file.');
+    const { hospitalName, patientName, hrmId, billAmount, discount, afterDiscount, billDate } = billForm;
+    if (!hospitalName || !patientName || !hrmId || !billAmount || !billDate) {
+      return alert('Please fill all required fields.');
     }
     setBillsLoading(true);
     try {
-      const fileExt = billForm.file.name.split('.').pop();
-      const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
-      const { error: uploadError } = await supabase.storage
-        .from('patient-bills')
-        .upload(fileName, billForm.file);
-        
-      if (uploadError) throw uploadError;
-      
-      const fileUrl = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/patient-bills/${fileName}`;
-      
       const { error: dbError } = await supabase.from('patient_bills').insert([{
-        hospital_name: adminName,
+        hospital_name: hospitalName,
         hospital_username: adminUsername,
-        patient_name: billForm.patientName,
-        hrm_id: billForm.hrmId,
-        bill_date: billForm.date,
-        file_url: fileUrl
+        patient_name: patientName,
+        hrm_id: hrmId,
+        bill_amount: parseFloat(billAmount) || 0,
+        discount: parseFloat(discount) || 0,
+        after_discount: parseFloat(afterDiscount) || (parseFloat(billAmount) - parseFloat(discount || 0)),
+        bill_date: billDate
       }]);
-      
+
       if (dbError) throw dbError;
-      
-      alert('Patient bill uploaded successfully!');
-      setBillForm({ patientName: '', hrmId: '', date: '', file: null });
+
+      setBillSubmitSuccess(true);
+      setBillForm({ hospitalName: '', patientName: '', hrmId: '', billAmount: '', discount: '', afterDiscount: '', billDate: '' });
       fetchPatientBills();
+      setTimeout(() => setBillSubmitSuccess(false), 3000);
     } catch (err) {
       console.error('Error submitting bill:', err);
-      alert('Error uploading bill: ' + err.message);
+      alert('Error submitting bill: ' + err.message);
     } finally {
       setBillsLoading(false);
     }
@@ -1591,95 +1587,449 @@ const AdminDashboard = () => {
           {/* 6. PATIENT BILLS TAB */}
           {activeTab === 'patient-bills' && hasPermission('scanner') && (
             <div className="activation-tab-layout">
+
+              {/* Header */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                 <div>
-                  <h2 className="admin-form-title" style={{ margin: 0 }}>Patient Bills Management</h2>
+                  <h2 className="admin-form-title" style={{ margin: 0 }}>Patient Bills</h2>
                   <p style={{ fontSize: '13px', color: 'var(--ad-text-3)', margin: '4px 0 0 0' }}>
-                    Upload and manage patient bills securely.
+                    {adminUsername !== 'admin'
+                      ? 'Fill in bill details below, then double-click an entry to view it.'
+                      : 'Double-click a hospital entry to reveal full bill details.'}
                   </p>
                 </div>
+                <button onClick={fetchPatientBills} className="admin-submit-btn" style={{ padding: '8px 16px', fontSize: '12.5px' }}>
+                  Refresh
+                </button>
               </div>
-              
+
+              {/* ── Submit Form (Hospital only) ── */}
               {adminUsername !== 'admin' && (
-                <div className="admin-table-card" style={{ marginBottom: '24px' }}>
-                  <h3 className="admin-form-title" style={{ fontSize: '15px', marginBottom: '16px' }}>Upload New Patient Bill</h3>
+                <div className="admin-form-card" style={{ marginBottom: '24px' }}>
+                  <h3 className="admin-form-title" style={{ fontSize: '15px', marginBottom: '20px' }}>
+                    Submit Patient Bill
+                  </h3>
+                  {billSubmitSuccess && (
+                    <div style={{ background: 'rgba(46,204,113,0.12)', border: '1px solid #2ecc71', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px', color: '#2ecc71', fontWeight: '600', fontSize: '13px' }}>
+                      ✅ Bill submitted successfully!
+                    </div>
+                  )}
                   <form onSubmit={handleBillSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                    <div>
-                      <label className="admin-form-label">Patient Name *</label>
-                      <input type="text" className="admin-form-input" required value={billForm.patientName} onChange={e => setBillForm({...billForm, patientName: e.target.value})} placeholder="e.g. John Doe" />
+                    <div className="admin-input-group">
+                      <label>Hospital Name *</label>
+                      <input type="text" className="admin-text-input" required value={billForm.hospitalName}
+                        onChange={e => setBillForm({...billForm, hospitalName: e.target.value})}
+                        placeholder="e.g. Apollo Hospital" />
                     </div>
-                    <div>
-                      <label className="admin-form-label">HRM ID *</label>
-                      <input type="text" className="admin-form-input" required value={billForm.hrmId} onChange={e => setBillForm({...billForm, hrmId: e.target.value})} placeholder="e.g. HRM12345" />
+                    <div className="admin-input-group">
+                      <label>Patient Name *</label>
+                      <input type="text" className="admin-text-input" required value={billForm.patientName}
+                        onChange={e => setBillForm({...billForm, patientName: e.target.value})}
+                        placeholder="e.g. Rahul Sharma" />
                     </div>
-                    <div>
-                      <label className="admin-form-label">Bill Date *</label>
-                      <input type="date" className="admin-form-input" required value={billForm.date} onChange={e => setBillForm({...billForm, date: e.target.value})} />
+                    <div className="admin-input-group">
+                      <label>HRM Card ID *</label>
+                      <input type="text" className="admin-text-input" required value={billForm.hrmId}
+                        onChange={e => setBillForm({...billForm, hrmId: e.target.value})}
+                        placeholder="e.g. HRM1A2B3C" />
                     </div>
-                    <div>
-                      <label className="admin-form-label">Upload Bill (PDF) *</label>
-                      <input type="file" accept="application/pdf,image/*" className="admin-form-input" required onChange={e => setBillForm({...billForm, file: e.target.files[0]})} />
+                    <div className="admin-input-group">
+                      <label>Bill Date *</label>
+                      <input type="date" className="admin-text-input" required value={billForm.billDate}
+                        onChange={e => setBillForm({...billForm, billDate: e.target.value})} />
+                    </div>
+                    <div className="admin-input-group">
+                      <label>Bill Amount (₹) *</label>
+                      <input type="number" min="0" step="0.01" className="admin-text-input" required value={billForm.billAmount}
+                        onChange={e => {
+                          const amt = e.target.value;
+                          const disc = parseFloat(billForm.discount) || 0;
+                          const after = (parseFloat(amt) || 0) - disc;
+                          setBillForm({...billForm, billAmount: amt, afterDiscount: after >= 0 ? after.toFixed(2) : '0.00'});
+                        }}
+                        placeholder="0.00" />
+                    </div>
+                    <div className="admin-input-group">
+                      <label>Discount (₹)</label>
+                      <input type="number" min="0" step="0.01" className="admin-text-input" value={billForm.discount}
+                        onChange={e => {
+                          const disc = e.target.value;
+                          const amt = parseFloat(billForm.billAmount) || 0;
+                          const after = amt - (parseFloat(disc) || 0);
+                          setBillForm({...billForm, discount: disc, afterDiscount: after >= 0 ? after.toFixed(2) : '0.00'});
+                        }}
+                        placeholder="0.00" />
+                    </div>
+                    <div className="admin-input-group" style={{ gridColumn: '1 / -1' }}>
+                      <label>Amount After Discount (₹)</label>
+                      <input type="number" className="admin-text-input" readOnly value={billForm.afterDiscount}
+                        style={{ background: 'rgba(46,204,113,0.07)', borderColor: '#2ecc71', color: '#2ecc71', fontWeight: '700', cursor: 'default' }}
+                        placeholder="Auto-calculated" />
                     </div>
                     <div style={{ gridColumn: '1 / -1', display: 'flex', justifyContent: 'flex-end' }}>
-                      <button type="submit" className="admin-submit-btn" disabled={billsLoading} style={{ padding: '8px 24px' }}>
-                        {billsLoading ? 'Uploading...' : 'Submit Patient Bill'}
+                      <button type="submit" className="admin-submit-btn" disabled={billsLoading} style={{ padding: '10px 28px' }}>
+                        {billsLoading ? 'Submitting...' : 'Submit Bill'}
                       </button>
                     </div>
                   </form>
                 </div>
               )}
 
-              <div className="admin-table-card">
-                <h3 className="admin-form-title" style={{ fontSize: '15px', marginBottom: '16px' }}>
-                  {adminUsername === 'admin' ? 'All Submitted Bills' : 'Your Submitted Bills'}
-                </h3>
-                {billsLoading && patientBills.length === 0 ? (
-                  <p style={{ color: 'var(--ad-text-3)' }}>Loading bills...</p>
-                ) : (
-                  <div className="admin-table-container">
-                    <table className="admin-table">
-                      <thead>
-                        <tr>
-                          <th>Date</th>
-                          {adminUsername === 'admin' && <th>Hospital Name</th>}
-                          <th>Patient Name</th>
-                          <th>HRM ID</th>
-                          <th>Bill Date</th>
-                          <th>Document</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {patientBills.map(bill => (
-                          <tr key={bill.id}>
-                            <td>{new Date(bill.created_at).toLocaleDateString()}</td>
-                            {adminUsername === 'admin' && (
-                              <td>
-                                <strong>{bill.hospital_name}</strong>
-                                <div style={{ fontSize: '11px', color: 'var(--ad-text-3)' }}>@{bill.hospital_username}</div>
-                              </td>
-                            )}
-                            <td>{bill.patient_name}</td>
-                            <td><code>{bill.hrm_id}</code></td>
-                            <td>{bill.bill_date}</td>
-                            <td>
-                              <a href={bill.file_url} target="_blank" rel="noopener noreferrer" className="admin-submit-btn" style={{ textDecoration: 'none', padding: '4px 8px', fontSize: '11px', display: 'inline-block' }}>
-                                View Bill
-                              </a>
-                            </td>
-                          </tr>
-                        ))}
-                        {patientBills.length === 0 && (
-                          <tr>
-                            <td colSpan={adminUsername === 'admin' ? 6 : 5} style={{ textAlign: 'center', padding: '30px', color: 'var(--ad-text-3)' }}>
-                              No patient bills found.
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
+              {/* ── Shared: Bill List + Double-click Detail Panel (BOTH admin & hospital) ── */}
+              <div style={{ display: 'grid', gridTemplateColumns: selectedHospitalBill ? '280px 1fr' : '1fr', gap: '20px', alignItems: 'start' }}>
+
+                {/* Left: Clickable list */}
+                <div className="admin-table-card">
+                  <h3 className="admin-form-title" style={{ fontSize: '14px', marginBottom: '4px' }}>
+                    {adminUsername === 'admin' ? 'All Hospital Entries' : 'Your Submitted Bills'}
+                  </h3>
+                  <p style={{ fontSize: '11px', color: 'var(--ad-text-3)', margin: '0 0 14px 0' }}>
+                    💡 Double-click an entry to view full bill details
+                  </p>
+                  {billsLoading ? (
+                    <p style={{ color: 'var(--ad-text-3)', fontSize: '13px' }}>Loading...</p>
+                  ) : patientBills.length === 0 ? (
+                    <p style={{ color: 'var(--ad-text-3)', fontSize: '13px', textAlign: 'center', padding: '20px 0' }}>
+                      {adminUsername !== 'admin' ? 'No bills submitted yet. Use the form above.' : 'No bills submitted yet.'}
+                    </p>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '480px', overflowY: 'auto' }}>
+                      {patientBills.map(bill => (
+                        <div
+                          key={bill.id}
+                          onDoubleClick={() => setSelectedHospitalBill(bill)}
+                          title="Double-click to view bill details"
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: '10px',
+                            padding: '10px 14px', borderRadius: '8px', cursor: 'pointer',
+                            border: selectedHospitalBill?.id === bill.id ? '1px solid #e74c3c' : '1px solid var(--ad-border)',
+                            background: selectedHospitalBill?.id === bill.id ? 'rgba(231,76,60,0.08)' : 'var(--ad-card)',
+                            transition: 'all 0.2s', userSelect: 'none'
+                          }}
+                        >
+                          <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(231,76,60,0.15)', color: '#e74c3c', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '13px', flexShrink: 0 }}>
+                            {(bill.hospital_name || 'H').charAt(0).toUpperCase()}
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--ad-text-1)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              {bill.hospital_name || 'Unknown'}
+                            </div>
+                            <div style={{ fontSize: '11px', color: 'var(--ad-text-3)' }}>
+                              {bill.patient_name} · {bill.bill_date || new Date(bill.created_at).toLocaleDateString()}
+                            </div>
+                          </div>
+                          {selectedHospitalBill?.id === bill.id && (
+                            <span style={{ fontSize: '10px', color: '#e74c3c', fontWeight: '700', flexShrink: 0 }}>● OPEN</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Right: Detail Panel — shown on double-click for BOTH roles */}
+                {selectedHospitalBill && (
+                  <div className="admin-form-card" style={{ position: 'relative' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                      <div>
+                        <h3 className="admin-form-title" style={{ margin: 0, fontSize: '15px' }}>Bill Details</h3>
+                        <p style={{ fontSize: '11px', color: 'var(--ad-text-3)', margin: '4px 0 0 0' }}>
+                          Submitted by {selectedHospitalBill.hospital_name}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => setSelectedHospitalBill(null)}
+                        style={{ background: 'var(--ad-card)', border: '1px solid var(--ad-border)', color: 'var(--ad-text-3)', width: '28px', height: '28px', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        title="Close"
+                      >✕</button>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                      {[
+                        { label: 'Hospital Name', value: selectedHospitalBill.hospital_name, icon: '🏥' },
+                        { label: 'Patient Name', value: selectedHospitalBill.patient_name, icon: '👤' },
+                        { label: 'HRM Card ID', value: selectedHospitalBill.hrm_id, icon: '🪪', mono: true },
+                        { label: 'Bill Date', value: selectedHospitalBill.bill_date, icon: '📅' },
+                        { label: 'Bill Amount (₹)', value: selectedHospitalBill.bill_amount != null ? `₹ ${parseFloat(selectedHospitalBill.bill_amount).toFixed(2)}` : '—', icon: '💰', highlight: 'blue' },
+                        { label: 'Discount (₹)', value: selectedHospitalBill.discount != null ? `₹ ${parseFloat(selectedHospitalBill.discount).toFixed(2)}` : '—', icon: '🏷️', highlight: 'amber' },
+                      ].map(({ label, value, icon, mono, highlight }) => (
+                        <div key={label} className="admin-input-group" style={{ marginBottom: 0 }}>
+                          <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--ad-text-3)' }}>
+                            {icon} {label}
+                          </label>
+                          <div style={{
+                            padding: '10px 14px', borderRadius: '8px',
+                            border: '1px solid var(--ad-border)',
+                            background: highlight === 'blue' ? 'rgba(52,152,219,0.07)' : highlight === 'amber' ? 'rgba(243,156,18,0.07)' : 'var(--ad-input)',
+                            color: highlight === 'blue' ? '#3498db' : highlight === 'amber' ? '#f39c12' : 'var(--ad-text-1)',
+                            fontWeight: highlight ? '700' : '500', fontSize: '13px',
+                            fontFamily: mono ? 'monospace' : 'inherit'
+                          }}>
+                            {value || '—'}
+                          </div>
+                        </div>
+                      ))}
+
+                      {/* After Discount — full width, prominent */}
+                      <div className="admin-input-group" style={{ gridColumn: '1 / -1', marginBottom: 0 }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.04em', color: '#2ecc71' }}>
+                          ✅ Amount After Discount (₹)
+                        </label>
+                        <div style={{
+                          padding: '14px 18px', borderRadius: '10px',
+                          border: '2px solid #2ecc71', background: 'rgba(46,204,113,0.08)',
+                          color: '#2ecc71', fontWeight: '800', fontSize: '24px', textAlign: 'center'
+                        }}>
+                          {selectedHospitalBill.after_discount != null
+                            ? `₹ ${parseFloat(selectedHospitalBill.after_discount).toFixed(2)}`
+                            : selectedHospitalBill.bill_amount != null
+                              ? `₹ ${(parseFloat(selectedHospitalBill.bill_amount) - (parseFloat(selectedHospitalBill.discount) || 0)).toFixed(2)}`
+                              : '—'}
+                        </div>
+                      </div>
+
+                      <div style={{ gridColumn: '1 / -1', textAlign: 'right', fontSize: '11px', color: 'var(--ad-text-3)', marginTop: '4px' }}>
+                        Submitted on {new Date(selectedHospitalBill.created_at).toLocaleString('en-IN')}
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
+
+            </div>
+          )}
+            <div className="activation-tab-layout">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <div>
+                  <h2 className="admin-form-title" style={{ margin: 0 }}>Patient Bills</h2>
+                  <p style={{ fontSize: '13px', color: 'var(--ad-text-3)', margin: '4px 0 0 0' }}>
+                    {adminUsername !== 'admin'
+                      ? 'Submit patient bill details for HRM card holders.'
+                      : 'Double-click a hospital name to reveal its bill details.'}
+                  </p>
+                </div>
+                <button onClick={fetchPatientBills} className="admin-submit-btn" style={{ padding: '8px 16px', fontSize: '12.5px' }}>
+                  Refresh
+                </button>
+              </div>
+
+              {/* ── Hospital submits a new bill ── */}
+              {adminUsername !== 'admin' && (
+                <div className="admin-form-card" style={{ marginBottom: '24px' }}>
+                  <h3 className="admin-form-title" style={{ fontSize: '15px', marginBottom: '20px' }}>Submit Patient Bill</h3>
+                  {billSubmitSuccess && (
+                    <div style={{ background: 'rgba(46,204,113,0.12)', border: '1px solid #2ecc71', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px', color: '#2ecc71', fontWeight: '600', fontSize: '13px' }}>
+                      ✅ Bill submitted successfully!
+                    </div>
+                  )}
+                  <form onSubmit={handleBillSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <div className="admin-input-group">
+                      <label>Hospital Name *</label>
+                      <input type="text" className="admin-text-input" required value={billForm.hospitalName}
+                        onChange={e => setBillForm({...billForm, hospitalName: e.target.value})}
+                        placeholder="e.g. Apollo Hospital" />
+                    </div>
+                    <div className="admin-input-group">
+                      <label>Patient Name *</label>
+                      <input type="text" className="admin-text-input" required value={billForm.patientName}
+                        onChange={e => setBillForm({...billForm, patientName: e.target.value})}
+                        placeholder="e.g. Rahul Sharma" />
+                    </div>
+                    <div className="admin-input-group">
+                      <label>HRM Card ID *</label>
+                      <input type="text" className="admin-text-input" required value={billForm.hrmId}
+                        onChange={e => setBillForm({...billForm, hrmId: e.target.value})}
+                        placeholder="e.g. HRM1A2B3C" />
+                    </div>
+                    <div className="admin-input-group">
+                      <label>Bill Date *</label>
+                      <input type="date" className="admin-text-input" required value={billForm.billDate}
+                        onChange={e => setBillForm({...billForm, billDate: e.target.value})} />
+                    </div>
+                    <div className="admin-input-group">
+                      <label>Bill Amount (₹) *</label>
+                      <input type="number" min="0" step="0.01" className="admin-text-input" required value={billForm.billAmount}
+                        onChange={e => {
+                          const amt = e.target.value;
+                          const disc = parseFloat(billForm.discount) || 0;
+                          const after = (parseFloat(amt) || 0) - disc;
+                          setBillForm({...billForm, billAmount: amt, afterDiscount: after > 0 ? after.toFixed(2) : '0.00'});
+                        }}
+                        placeholder="0.00" />
+                    </div>
+                    <div className="admin-input-group">
+                      <label>Discount (₹)</label>
+                      <input type="number" min="0" step="0.01" className="admin-text-input" value={billForm.discount}
+                        onChange={e => {
+                          const disc = e.target.value;
+                          const amt = parseFloat(billForm.billAmount) || 0;
+                          const after = amt - (parseFloat(disc) || 0);
+                          setBillForm({...billForm, discount: disc, afterDiscount: after > 0 ? after.toFixed(2) : '0.00'});
+                        }}
+                        placeholder="0.00" />
+                    </div>
+                    <div className="admin-input-group" style={{ gridColumn: '1 / -1' }}>
+                      <label>Amount After Discount (₹)</label>
+                      <input type="number" min="0" step="0.01" className="admin-text-input" readOnly value={billForm.afterDiscount}
+                        style={{ background: 'rgba(46,204,113,0.07)', borderColor: '#2ecc71', color: '#2ecc71', fontWeight: '700', cursor: 'default' }}
+                        placeholder="Auto-calculated" />
+                    </div>
+                    <div style={{ gridColumn: '1 / -1', display: 'flex', justifyContent: 'flex-end' }}>
+                      <button type="submit" className="admin-submit-btn" disabled={billsLoading} style={{ padding: '10px 28px' }}>
+                        {billsLoading ? 'Submitting...' : 'Submit Bill'}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
+
+              {/* ── Super Admin: hospital list + double-click to reveal ── */}
+              {adminUsername === 'admin' && (
+                <div style={{ display: 'grid', gridTemplateColumns: selectedHospitalBill ? '280px 1fr' : '1fr', gap: '20px', alignItems: 'start' }}>
+
+                  {/* Hospital Name List */}
+                  <div className="admin-table-card">
+                    <h3 className="admin-form-title" style={{ fontSize: '14px', marginBottom: '4px' }}>Hospital Entries</h3>
+                    <p style={{ fontSize: '11px', color: 'var(--ad-text-3)', margin: '0 0 14px 0' }}>💡 Double-click a hospital name to view its bill details</p>
+                    {billsLoading ? (
+                      <p style={{ color: 'var(--ad-text-3)', fontSize: '13px' }}>Loading...</p>
+                    ) : patientBills.length === 0 ? (
+                      <p style={{ color: 'var(--ad-text-3)', fontSize: '13px', textAlign: 'center', padding: '20px 0' }}>No bills submitted yet.</p>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '480px', overflowY: 'auto' }}>
+                        {patientBills.map((bill, idx) => (
+                          <div
+                            key={bill.id}
+                            onDoubleClick={() => setSelectedHospitalBill(bill)}
+                            title="Double-click to reveal bill details"
+                            style={{
+                              display: 'flex', alignItems: 'center', gap: '10px',
+                              padding: '10px 14px', borderRadius: '8px', cursor: 'pointer',
+                              border: selectedHospitalBill?.id === bill.id
+                                ? '1px solid #e74c3c'
+                                : '1px solid var(--ad-border)',
+                              background: selectedHospitalBill?.id === bill.id
+                                ? 'rgba(231,76,60,0.08)'
+                                : 'var(--ad-card)',
+                              transition: 'all 0.2s',
+                              userSelect: 'none'
+                            }}
+                          >
+                            <div style={{
+                              width: '32px', height: '32px', borderRadius: '50%',
+                              background: 'rgba(231,76,60,0.15)', color: '#e74c3c',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              fontWeight: '700', fontSize: '13px', flexShrink: 0
+                            }}>
+                              {(bill.hospital_name || 'H').charAt(0).toUpperCase()}
+                            </div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--ad-text-1)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                {bill.hospital_name || 'Unknown'}
+                              </div>
+                              <div style={{ fontSize: '11px', color: 'var(--ad-text-3)' }}>
+                                {bill.bill_date || new Date(bill.created_at).toLocaleDateString()}
+                              </div>
+                            </div>
+                            {selectedHospitalBill?.id === bill.id && (
+                              <span style={{ fontSize: '10px', color: '#e74c3c', fontWeight: '600' }}>● OPEN</span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Bill Detail Panel — only shown when a hospital is double-clicked */}
+                  {selectedHospitalBill && (
+                    <div className="admin-form-card" style={{ position: 'relative' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                        <div>
+                          <h3 className="admin-form-title" style={{ margin: 0, fontSize: '15px' }}>Bill Details</h3>
+                          <p style={{ fontSize: '11px', color: 'var(--ad-text-3)', margin: '4px 0 0 0' }}>Submitted by {selectedHospitalBill.hospital_name}</p>
+                        </div>
+                        <button
+                          onClick={() => setSelectedHospitalBill(null)}
+                          style={{ background: 'var(--ad-card)', border: '1px solid var(--ad-border)', color: 'var(--ad-text-3)', width: '28px', height: '28px', borderRadius: '6px', cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                          title="Close"
+                        >✕</button>
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                        {[
+                          { label: 'Hospital Name', value: selectedHospitalBill.hospital_name, icon: '🏥' },
+                          { label: 'Patient Name', value: selectedHospitalBill.patient_name, icon: '👤' },
+                          { label: 'HRM Card ID', value: selectedHospitalBill.hrm_id, icon: '🪪', mono: true },
+                          { label: 'Bill Date', value: selectedHospitalBill.bill_date, icon: '📅' },
+                          { label: 'Bill Amount (₹)', value: selectedHospitalBill.bill_amount != null ? `₹ ${parseFloat(selectedHospitalBill.bill_amount).toFixed(2)}` : '—', icon: '💰', highlight: 'blue' },
+                          { label: 'Discount (₹)', value: selectedHospitalBill.discount != null ? `₹ ${parseFloat(selectedHospitalBill.discount).toFixed(2)}` : '—', icon: '🏷️', highlight: 'amber' },
+                        ].map(({ label, value, icon, mono, highlight }) => (
+                          <div key={label} className="admin-input-group" style={{ marginBottom: 0 }}>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11.5px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--ad-text-3)' }}>
+                              {icon} {label}
+                            </label>
+                            <div style={{
+                              padding: '10px 14px', borderRadius: '8px',
+                              border: '1px solid var(--ad-border)',
+                              background: highlight === 'blue' ? 'rgba(52,152,219,0.07)' : highlight === 'amber' ? 'rgba(243,156,18,0.07)' : 'var(--ad-input)',
+                              color: highlight === 'blue' ? '#3498db' : highlight === 'amber' ? '#f39c12' : 'var(--ad-text-1)',
+                              fontWeight: highlight ? '700' : '500',
+                              fontSize: '13px',
+                              fontFamily: mono ? 'monospace' : 'inherit',
+                              letterSpacing: mono ? '0.05em' : 'normal'
+                            }}>
+                              {value || '—'}
+                            </div>
+                          </div>
+                        ))}
+
+                        {/* After Discount — full width, prominent */}
+                        <div className="admin-input-group" style={{ gridColumn: '1 / -1', marginBottom: 0 }}>
+                          <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11.5px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.04em', color: '#2ecc71' }}>
+                            ✅ Amount After Discount (₹)
+                          </label>
+                          <div style={{
+                            padding: '14px 18px', borderRadius: '10px',
+                            border: '2px solid #2ecc71',
+                            background: 'rgba(46,204,113,0.08)',
+                            color: '#2ecc71', fontWeight: '800', fontSize: '22px',
+                            letterSpacing: '0.02em', textAlign: 'center'
+                          }}>
+                            {selectedHospitalBill.after_discount != null
+                              ? `₹ ${parseFloat(selectedHospitalBill.after_discount).toFixed(2)}`
+                              : selectedHospitalBill.bill_amount != null
+                                ? `₹ ${(parseFloat(selectedHospitalBill.bill_amount) - (parseFloat(selectedHospitalBill.discount) || 0)).toFixed(2)}`
+                                : '—'}
+                          </div>
+                        </div>
+
+                        {/* Submitted timestamp */}
+                        <div style={{ gridColumn: '1 / -1', textAlign: 'right', fontSize: '11px', color: 'var(--ad-text-3)', marginTop: '4px' }}>
+                          Submitted on {new Date(selectedHospitalBill.created_at).toLocaleString('en-IN')}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ── Hospital's own submitted bills (read-only view) ── */}
+              {adminUsername !== 'admin' && patientBills.length > 0 && (
+                <div className="admin-table-card" style={{ marginTop: '24px' }}>
+                  <h3 className="admin-form-title" style={{ fontSize: '14px', marginBottom: '14px' }}>Your Submitted Bills</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {patientBills.map(bill => (
+                      <div key={bill.id} style={{ background: 'var(--ad-input)', borderRadius: '10px', padding: '14px 18px', border: '1px solid var(--ad-border)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 20px' }}>
+                        <div style={{ fontSize: '12px', color: 'var(--ad-text-3)' }}>Patient: <span style={{ color: 'var(--ad-text-1)', fontWeight: '600' }}>{bill.patient_name}</span></div>
+                        <div style={{ fontSize: '12px', color: 'var(--ad-text-3)' }}>HRM ID: <code style={{ color: '#3498db' }}>{bill.hrm_id}</code></div>
+                        <div style={{ fontSize: '12px', color: 'var(--ad-text-3)' }}>Bill Amt: <span style={{ color: '#3498db', fontWeight: '700' }}>₹{bill.bill_amount}</span></div>
+                        <div style={{ fontSize: '12px', color: 'var(--ad-text-3)' }}>Discount: <span style={{ color: '#f39c12', fontWeight: '700' }}>₹{bill.discount || 0}</span></div>
+                        <div style={{ fontSize: '12px', color: 'var(--ad-text-3)', gridColumn: '1 / -1' }}>Final: <span style={{ color: '#2ecc71', fontWeight: '800', fontSize: '14px' }}>₹{bill.after_discount || (bill.bill_amount - (bill.discount || 0))}</span> &nbsp;·&nbsp; Date: {bill.bill_date}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

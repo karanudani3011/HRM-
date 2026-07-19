@@ -95,10 +95,10 @@ const AdminDashboard = () => {
     services: false,
     leads: false,
     blogs: false,
-    qrStats: false,
     adminAccess: false,
     scanner: false,
-    scanLogs: false
+    scanLogs: false,
+    activation: false
   });
 
   // QR Stats state
@@ -426,10 +426,10 @@ const AdminDashboard = () => {
         services: false,
         leads: false,
         blogs: false,
-        qrStats: false,
         adminAccess: false,
         scanner: false,
-        scanLogs: false
+        scanLogs: false,
+        activation: false
       });
       alert('Sub-Admin account created successfully!');
     } catch (err) {
@@ -912,15 +912,7 @@ const AdminDashboard = () => {
               <IconEdit /> Blog Manager
             </a>
           )}
-          {hasPermission('qrStats') && (
-            <Link to="/admin/dashboard?tab=qr-stats" className={`admin-nav-item ${activeTab === 'qr-stats' ? 'active' : ''}`} onClick={() => setActiveTab('qr-stats')}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="admin-nav-icon">
-                <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" />
-                <rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" />
-              </svg>
-              QR Stats
-            </Link>
-          )}
+
           {hasPermission('adminAccess') && (
             <Link to="/admin/dashboard?tab=accounts" className={`admin-nav-item ${activeTab === 'accounts' ? 'active' : ''}`} onClick={() => setActiveTab('accounts')}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="admin-nav-icon">
@@ -954,10 +946,10 @@ const AdminDashboard = () => {
                 <line x1="16" y1="17" x2="8" y2="17"></line>
                 <polyline points="10 9 9 9 8 9"></polyline>
               </svg>
-              Patient Bills
+              Member Bills
             </Link>
           )}
-          {hasPermission('dashboard') && (
+          {hasPermission('activation') && (
             <Link to="/admin/dashboard?tab=activation" className={`admin-nav-item ${activeTab === 'activation' ? 'active' : ''}`} onClick={() => setActiveTab('activation')}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="admin-nav-icon">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -966,7 +958,7 @@ const AdminDashboard = () => {
                 <line x1="16" y1="17" x2="8" y2="17" />
                 <polyline points="10 9 9 9 8 9" />
               </svg>
-              Card Activation / Renew
+              Card Activation & Renewals
             </Link>
           )}
         </nav>
@@ -987,7 +979,7 @@ const AdminDashboard = () => {
         {/* Top Bar */}
         <header className="admin-topbar">
           <div className="admin-topbar-left">
-            <h1>{activeTab === 'overview' ? 'Overview' : activeTab === 'accounts' ? 'Admin Access' : activeTab === 'scanner' ? 'Card Scanner' : activeTab === 'scan-logs' ? 'Scan Logs' : activeTab === 'activation' ? 'Card Activation & Renewals' : 'QR Registration Stats'}</h1>
+            <h1>{activeTab === 'overview' ? 'Overview' : activeTab === 'accounts' ? 'Admin Access' : activeTab === 'scanner' ? 'Card Scanner' : activeTab === 'scan-logs' ? 'Scan Logs' : activeTab === 'activation' ? 'Card Activation & Renewals' : activeTab === 'patient-bills' ? 'Member Bills' : 'QR Registration Stats'}</h1>
             <p>HRM Doctors Choice — Admin Panel ({adminName})</p>
           </div>
           <div className="admin-topbar-right">
@@ -1148,7 +1140,7 @@ const AdminDashboard = () => {
                             checked={newPermissions[key]} 
                             onChange={e => setNewPermissions({...newPermissions, [key]: e.target.checked})} 
                           />
-                          <span>{key === 'dashboard' ? 'Dashboard / Overview' : key === 'qrStats' ? 'QR Registration Stats' : key === 'adminAccess' ? 'Admin Access Manager' : key === 'scanner' ? 'Card Scanner (Hospital)' : key.charAt(0).toUpperCase() + key.slice(1)}</span>
+                          <span>{key === 'dashboard' ? 'Dashboard / Overview' : key === 'qrStats' ? 'QR Registration Stats' : key === 'adminAccess' ? 'Admin Access Manager' : key === 'scanner' ? 'Card Scanner (Hospital)' : key === 'activation' ? 'Card Activation & Renewals' : key === 'scanLogs' ? 'Scan Logs' : key.charAt(0).toUpperCase() + key.slice(1)}</span>
                         </label>
                       ))}
                     </div>
@@ -1345,7 +1337,7 @@ const AdminDashboard = () => {
                 <div>
                   <h3 className="admin-form-title" style={{ margin: 0 }}>Card Scan Logs</h3>
                   <p style={{ fontSize: '12px', color: 'var(--ad-text-3)', margin: '4px 0 0 0' }}>
-                    History of patient cards scanned by hospitals.
+                    History of member cards scanned by hospitals.
                   </p>
                 </div>
                 <button onClick={fetchScanLogs} className="admin-submit-btn" style={{ padding: '8px 16px', fontSize: '12.5px' }}>
@@ -1364,7 +1356,7 @@ const AdminDashboard = () => {
                       <tr>
                         <th>Date & Time</th>
                         <th>Hospital Name</th>
-                        <th>Patient Name</th>
+                        <th>Member Name</th>
                         <th>Card ID</th>
                         <th>Status</th>
                       </tr>
@@ -1594,15 +1586,15 @@ const AdminDashboard = () => {
             </div>
           )}
 
-          {/* 6. PATIENT BILLS TAB */}
+          {/* 6. MEMBER BILLS TAB */}
           {activeTab === 'patient-bills' && hasPermission('scanner') && (
             <div className="activation-tab-layout">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                 <div>
-                  <h2 className="admin-form-title" style={{ margin: 0 }}>Patient Bills</h2>
+                  <h2 className="admin-form-title" style={{ margin: 0 }}>Member Bills</h2>
                   <p style={{ fontSize: '13px', color: 'var(--ad-text-3)', margin: '4px 0 0 0' }}>
                     {adminUsername !== 'admin'
-                      ? 'Submit patient bill details for HRM card holders.'
+                      ? 'Submit member bill details for HRM card holders.'
                       : 'Double-click a hospital name to reveal its bill details.'}
                   </p>
                 </div>
@@ -1613,7 +1605,7 @@ const AdminDashboard = () => {
 
               {/* ── Hospital or Super Admin submits a new bill ── */}
               <div className="admin-form-card" style={{ marginBottom: '24px' }}>
-                  <h3 className="admin-form-title" style={{ fontSize: '15px', marginBottom: '20px' }}>Submit Patient Bill</h3>
+                  <h3 className="admin-form-title" style={{ fontSize: '15px', marginBottom: '20px' }}>Submit Member Bill</h3>
                   {billSubmitSuccess && (
                     <div style={{ background: 'rgba(46,204,113,0.12)', border: '1px solid #2ecc71', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px', color: '#2ecc71', fontWeight: '600', fontSize: '13px' }}>
                       ✅ Bill submitted successfully!
@@ -1627,7 +1619,7 @@ const AdminDashboard = () => {
                         placeholder="e.g. Apollo Hospital" />
                     </div>
                     <div className="admin-input-group">
-                      <label>Patient Name *</label>
+                      <label>Member Name *</label>
                       <input type="text" className="admin-text-input" required value={billForm.patientName}
                         onChange={e => setBillForm({...billForm, patientName: e.target.value})}
                         placeholder="e.g. Rahul Sharma" />
@@ -1698,7 +1690,7 @@ const AdminDashboard = () => {
                   {/* Hospital Name List */}
                   <div className="admin-table-card">
                     <h3 className="admin-form-title" style={{ fontSize: '14px', marginBottom: '4px' }}>Hospital Entries</h3>
-                    <p style={{ fontSize: '11px', color: 'var(--ad-text-3)', margin: '0 0 14px 0' }}>💡 Double-click a hospital name to view its bill details</p>
+
                     {billsLoading ? (
                       <p style={{ color: 'var(--ad-text-3)', fontSize: '13px' }}>Loading...</p>
                     ) : patientBills.length === 0 ? (
@@ -1766,7 +1758,7 @@ const AdminDashboard = () => {
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                         {[
                           { label: 'Hospital Name', value: selectedHospitalBill.hospital_name, icon: '🏥' },
-                          { label: 'Patient Name', value: selectedHospitalBill.patient_name, icon: '👤' },
+                          { label: 'Member Name', value: selectedHospitalBill.patient_name, icon: '👤' },
                           { label: 'HRM Card ID', value: selectedHospitalBill.hrm_id, icon: '🪪', mono: true },
                           { label: 'Bill Date', value: selectedHospitalBill.bill_date, icon: '📅' },
                           { label: 'Bill Amount (₹)', value: selectedHospitalBill.bill_amount != null ? `₹ ${parseFloat(selectedHospitalBill.bill_amount).toFixed(2)}` : '—', icon: '💰', highlight: 'blue' },
@@ -1828,7 +1820,7 @@ const AdminDashboard = () => {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     {patientBills.map(bill => (
                       <div key={bill.id} style={{ background: 'var(--ad-input)', borderRadius: '10px', padding: '14px 18px', border: '1px solid var(--ad-border)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 20px' }}>
-                        <div style={{ fontSize: '12px', color: 'var(--ad-text-3)' }}>Patient: <span style={{ color: 'var(--ad-text-1)', fontWeight: '600' }}>{bill.patient_name}</span></div>
+                        <div style={{ fontSize: '12px', color: 'var(--ad-text-3)' }}>Member: <span style={{ color: 'var(--ad-text-1)', fontWeight: '600' }}>{bill.patient_name}</span></div>
                         <div style={{ fontSize: '12px', color: 'var(--ad-text-3)' }}>HRM ID: <code style={{ color: '#3498db' }}>{bill.hrm_id}</code></div>
                         <div style={{ fontSize: '12px', color: 'var(--ad-text-3)' }}>Bill Amt: <span style={{ color: '#3498db', fontWeight: '700' }}>₹{bill.bill_amount}</span></div>
                         <div style={{ fontSize: '12px', color: 'var(--ad-text-3)' }}>Discount: <span style={{ color: '#f39c12', fontWeight: '700' }}>₹{bill.discount || 0}</span></div>

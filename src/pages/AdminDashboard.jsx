@@ -87,6 +87,7 @@ const AdminDashboard = () => {
 
   // Sub-Admin Management state
   const [accounts, setAccounts] = useState([]);
+  const [accountsSearch, setAccountsSearch] = useState('');
   const [newUsername, setNewUsername] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [newDisplayName, setNewDisplayName] = useState('');
@@ -113,10 +114,12 @@ const AdminDashboard = () => {
   // Scan Logs state
   const [scanLogs, setScanLogs] = useState([]);
   const [logsLoading, setLogsLoading] = useState(false);
+  const [scanLogsSearch, setScanLogsSearch] = useState('');
 
   // Patient Bills state
   const [patientBills, setPatientBills] = useState([]);
   const [billsLoading, setBillsLoading] = useState(false);
+  const [patientBillsSearch, setPatientBillsSearch] = useState('');
   const [billForm, setBillForm] = useState({ hospitalName: '', patientName: '', hrmId: '', billAmount: '', discount: '', afterDiscount: '', billDate: '' });
   const [selectedHospitalBill, setSelectedHospitalBill] = useState(null); // bill revealed on double-click
   const [billSubmitSuccess, setBillSubmitSuccess] = useState(false);
@@ -1151,7 +1154,17 @@ const AdminDashboard = () => {
 
               {/* Table card */}
               <div className="admin-table-card">
-                <h3 className="admin-form-title" style={{ marginBottom: '16px' }}>Manage Sub-Admin Accounts</h3>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                  <h3 className="admin-form-title" style={{ margin: 0 }}>Manage Sub-Admin Accounts</h3>
+                  <input 
+                    type="text" 
+                    placeholder="Search accounts..." 
+                    value={accountsSearch} 
+                    onChange={e => setAccountsSearch(e.target.value)}
+                    className="admin-text-input"
+                    style={{ padding: '8px 12px', width: '220px', fontSize: '13px' }}
+                  />
+                </div>
                 <table className="admin-table">
                   <thead>
                     <tr>
@@ -1162,7 +1175,13 @@ const AdminDashboard = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {accounts.map(acc => (
+                    {accounts.filter(acc => {
+                      const s = accountsSearch.toLowerCase();
+                      return (
+                        (acc.name && acc.name.toLowerCase().includes(s)) ||
+                        (acc.username && acc.username.toLowerCase().includes(s))
+                      );
+                    }).map(acc => (
                       <tr key={acc.id}>
                         <td><strong>{acc.name || 'Unnamed'}</strong></td>
                         <td>{acc.username}</td>
@@ -1340,9 +1359,19 @@ const AdminDashboard = () => {
                     History of member cards scanned by hospitals.
                   </p>
                 </div>
-                <button onClick={fetchScanLogs} className="admin-submit-btn" style={{ padding: '8px 16px', fontSize: '12.5px' }}>
-                  Refresh Logs
-                </button>
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                  <input 
+                    type="text" 
+                    placeholder="Search logs..." 
+                    value={scanLogsSearch} 
+                    onChange={e => setScanLogsSearch(e.target.value)}
+                    className="admin-text-input"
+                    style={{ padding: '8px 12px', width: '220px', fontSize: '13px' }}
+                  />
+                  <button onClick={fetchScanLogs} className="admin-submit-btn" style={{ padding: '8px 16px', fontSize: '12.5px' }}>
+                    Refresh Logs
+                  </button>
+                </div>
               </div>
 
               {logsLoading ? (
@@ -1362,7 +1391,16 @@ const AdminDashboard = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {scanLogs.map(log => (
+                      {scanLogs.filter(log => {
+                        const s = scanLogsSearch.toLowerCase();
+                        return (
+                          (log.hospital_name && log.hospital_name.toLowerCase().includes(s)) ||
+                          (log.hospital_username && log.hospital_username.toLowerCase().includes(s)) ||
+                          (log.patient_name && log.patient_name.toLowerCase().includes(s)) ||
+                          (log.card_id && log.card_id.toLowerCase().includes(s)) ||
+                          (log.status && log.status.toLowerCase().includes(s))
+                        );
+                      }).map(log => (
                         <tr key={log.id}>
                           <td>{new Date(log.scanned_at).toLocaleString('en-IN')}</td>
                           <td><strong>{log.hospital_name}</strong><div style={{ fontSize: '11px', color: 'var(--ad-text-3)' }}>@{log.hospital_username}</div></td>
@@ -1598,9 +1636,19 @@ const AdminDashboard = () => {
                       : 'Double-click a hospital name to reveal its bill details.'}
                   </p>
                 </div>
-                <button onClick={fetchPatientBills} className="admin-submit-btn" style={{ padding: '8px 16px', fontSize: '12.5px' }}>
-                  Refresh
-                </button>
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                  <input 
+                    type="text" 
+                    placeholder="Search bills..." 
+                    value={patientBillsSearch} 
+                    onChange={e => setPatientBillsSearch(e.target.value)}
+                    className="admin-text-input"
+                    style={{ padding: '8px 12px', width: '220px', fontSize: '13px' }}
+                  />
+                  <button onClick={fetchPatientBills} className="admin-submit-btn" style={{ padding: '8px 16px', fontSize: '12.5px' }}>
+                    Refresh
+                  </button>
+                </div>
               </div>
 
               {/* ── Hospital or Super Admin submits a new bill ── */}
@@ -1697,7 +1745,14 @@ const AdminDashboard = () => {
                       <p style={{ color: 'var(--ad-text-3)', fontSize: '13px', textAlign: 'center', padding: '20px 0' }}>No bills submitted yet.</p>
                     ) : (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '480px', overflowY: 'auto' }}>
-                        {patientBills.map((bill, idx) => (
+                        {patientBills.filter(bill => {
+                          const s = patientBillsSearch.toLowerCase();
+                          return (
+                            (bill.hospital_name && bill.hospital_name.toLowerCase().includes(s)) ||
+                            (bill.patient_name && bill.patient_name.toLowerCase().includes(s)) ||
+                            (bill.hrm_id && bill.hrm_id.toLowerCase().includes(s))
+                          );
+                        }).map((bill, idx) => (
                           <div
                             key={bill.id}
                             onDoubleClick={() => setSelectedHospitalBill(bill)}
@@ -1818,7 +1873,15 @@ const AdminDashboard = () => {
                 <div className="admin-table-card" style={{ marginTop: '24px' }}>
                   <h3 className="admin-form-title" style={{ fontSize: '14px', marginBottom: '14px' }}>Your Submitted Bills</h3>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    {patientBills.map(bill => (
+                    {patientBills.filter(bill => {
+                      const s = patientBillsSearch.toLowerCase();
+                      return (
+                        (bill.patient_name && bill.patient_name.toLowerCase().includes(s)) ||
+                        (bill.hrm_id && bill.hrm_id.toLowerCase().includes(s)) ||
+                        (bill.bill_date && bill.bill_date.includes(s)) ||
+                        (bill.hospital_name && bill.hospital_name.toLowerCase().includes(s))
+                      );
+                    }).map(bill => (
                       <div key={bill.id} style={{ background: 'var(--ad-input)', borderRadius: '10px', padding: '14px 18px', border: '1px solid var(--ad-border)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 20px' }}>
                         <div style={{ fontSize: '12px', color: 'var(--ad-text-3)' }}>Member: <span style={{ color: 'var(--ad-text-1)', fontWeight: '600' }}>{bill.patient_name}</span></div>
                         <div style={{ fontSize: '12px', color: 'var(--ad-text-3)' }}>HRM ID: <code style={{ color: '#3498db' }}>{bill.hrm_id}</code></div>

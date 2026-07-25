@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { db } from '../firebase';
 import { collection, addDoc } from 'firebase/firestore';
@@ -18,11 +19,61 @@ import {
   Bed,
   Map,
   Activity,
-  ArrowRight
+  ArrowRight,
+  Clock,
+  ShieldAlert,
+  ArrowLeft,
+  Sparkles
 } from 'lucide-react';
 import './HospitalServices.css';
 
 const HospitalServices = () => {
+  // ============================================================================
+  // MAINTENANCE MODE TOGGLE
+  // Set `IS_TEMPORARILY_CLOSED = true` to close the page temporarily.
+  // Set `IS_TEMPORARILY_CLOSED = false` to re-open the page normally.
+  // ============================================================================
+  const IS_TEMPORARILY_CLOSED = true;
+
+  if (IS_TEMPORARILY_CLOSED) {
+    return (
+      <div className="hospital-services-page">
+        <div className="hs-maintenance-wrapper">
+          <div className="hs-maintenance-card">
+            <div className="hs-maintenance-icon-box">
+              <Clock size={40} />
+            </div>
+            <div className="hs-maintenance-badge">
+              <Sparkles size={14} /> Scheduled Service Upgrade
+            </div>
+            <h1>Hospital Services Temporarily Unavailable</h1>
+            <p>
+              We are currently enhancing our Hospital Partner portal and service integration network to bring you a faster, more secure, and comprehensive healthcare experience. This service is temporarily paused and will be back online shortly.
+            </p>
+
+            <div className="hs-maintenance-contact-box">
+              <h4><ShieldAlert size={18} color="#2563eb" /> Need Urgent Assistance?</h4>
+              <p>For immediate hospital partnerships, network support, or urgent inquiries, please contact our administrative desk directly:</p>
+              <div className="hs-maintenance-contact-links">
+                <a href="mailto:director@myhrm.co.in">📧 director@myhrm.co.in</a>
+                <a href="tel:+919879450072">📞 +91 98794 50072</a>
+              </div>
+            </div>
+
+            <div className="hs-maintenance-actions">
+              <Link to="/" className="hs-maint-btn-primary">
+                <ArrowLeft size={16} /> Back to Homepage
+              </Link>
+              <Link to="/services" className="hs-maint-btn-secondary">
+                Explore Other Services &rarr;
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const formRef = useRef(null);
   const [formData, setFormData] = useState({
     name: '',

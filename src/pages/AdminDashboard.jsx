@@ -298,7 +298,16 @@ const AdminDashboard = () => {
     const tab = params.get('tab') || 'overview';
     
     if (tab === 'overview' && !perms.includes('dashboard')) {
-      if (perms.includes('qrStats')) {
+      if (perms.includes('activation')) {
+        navigate('/admin/dashboard?tab=activation', { replace: true });
+        setActiveTab('activation');
+      } else if (perms.includes('scanner')) {
+        navigate('/admin/dashboard?tab=scanner', { replace: true });
+        setActiveTab('scanner');
+      } else if (perms.includes('scanLogs')) {
+        navigate('/admin/dashboard?tab=scan-logs', { replace: true });
+        setActiveTab('scan-logs');
+      } else if (perms.includes('qrStats')) {
         navigate('/admin/dashboard?tab=qr-stats', { replace: true });
         setActiveTab('qr-stats');
       } else if (perms.includes('services')) {
@@ -310,9 +319,6 @@ const AdminDashboard = () => {
       } else if (perms.includes('adminAccess')) {
         navigate('/admin/dashboard?tab=accounts', { replace: true });
         setActiveTab('accounts');
-      } else if (perms.includes('scanner')) {
-        navigate('/admin/dashboard?tab=scanner', { replace: true });
-        setActiveTab('scanner');
       } else {
         localStorage.removeItem('adminAuth');
         navigate('/admin/login', { replace: true });
@@ -1431,7 +1437,7 @@ const AdminDashboard = () => {
           )}
 
           {/* 5. CARD ACTIVATION / RENEWAL TAB */}
-          {activeTab === 'activation' && hasPermission('dashboard') && (
+          {activeTab === 'activation' && hasPermission('activation') && (
             <div className="activation-tab-layout">
               {/* Stats Panel */}
               <div className="admin-stats-grid" style={{ marginBottom: '24px' }}>

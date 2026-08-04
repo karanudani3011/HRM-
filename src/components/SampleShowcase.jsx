@@ -44,7 +44,7 @@ const SampleShowcase = () => {
     return {
       name: 'LAURA DOE',
       city: 'Rajkot',
-      mobile: '9879450072',
+      mobile: '',
       cardStatus: 'PENDING',
       idNo: generateUniqueCardId(),
       expireDate: `${month}/${year + 1}`,
@@ -443,7 +443,7 @@ const SampleShowcase = () => {
 
                     <div className="form-row">
                       <div className="form-group">
-                        <label>Card Header Name (Replaces HRM Logo) *</label>
+                        <label>Hospital Name *</label>
                         <input type="text" name="cardName" value={formData.cardName} onChange={handleInputChange} placeholder="Name to display in place of logo (e.g. HRM or Hospital Name)" required />
                       </div>
                     </div>
@@ -551,7 +551,7 @@ const SampleShowcase = () => {
                     <div className="form-row">
                       <div className="form-group">
                         <label>HRM ID No.</label>
-                        <input type="text" name="idNo" value={formData.idNo} onChange={handleInputChange} required />
+                        <input type="text" name="idNo" value={formData.idNo} onChange={handleInputChange} readOnly className="readonly-input" required />
                       </div>
                     </div>
 

@@ -63,6 +63,16 @@ const ServicePortals = () => {
             <Link to="/portal/hrm-partner/register" className="access-link">Access Portal &rarr;</Link>
           </div>
 
+          {/* Card 6 */}
+          <div className="portal-card-large deversh-card" style={{ border: '1px solid #e2e8f0' }}>
+            <div className="icon-box" style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}>
+              <Users size={24} color="white" />
+            </div>
+            <h3>Deversh</h3>
+            <p>Register on the exclusive Deversh portal with secure email verification.</p>
+            <Link to="/portal/deversh/register" className="access-link">Access Portal &rarr;</Link>
+          </div>
+
         </div>
 
 

@@ -12,7 +12,7 @@ const PaymentModal = ({ onClose, mode = 'hr' }) => {
     {
       id: 'premium_dir',
       name: 'Premium Directory Access',
-      price: '599',
+      price: '2599',
       label: 'One-Time Lifetime Plan',
       features: [
         '∞ Unlimited Profile Views',
@@ -27,21 +27,21 @@ const PaymentModal = ({ onClose, mode = 'hr' }) => {
     {
       id: 'bronze',
       name: 'Bronze',
-      price: '199',
+      price: '1199',
       searches: 5,
       icon: <Award size={32} />
     },
     {
       id: 'silver',
       name: 'Silver',
-      price: '399',
+      price: '1399',
       searches: 10,
       icon: <Zap size={32} />
     },
     {
       id: 'gold',
       name: 'Gold',
-      price: '599',
+      price: '1599',
       searches: 20,
       icon: <ShieldAlert size={32} />
     }
@@ -52,7 +52,7 @@ const PaymentModal = ({ onClose, mode = 'hr' }) => {
   const userDisplayName = user?.displayName ? ` (${user.displayName})` : "";
   const whatsappText = encodeURIComponent(
     mode === 'premium'
-      ? `Hello Admin,\n\nI am selecting the Premium Directory plan (₹599) on Services Directory.\nMy registered email: ${userIdentifier}${userDisplayName}\n\nHere is my successful payment screenshot.`
+      ? `Hello Admin,\n\nI am selecting the Premium Directory plan (₹2599) on Services Directory.\nMy registered email: ${userIdentifier}${userDisplayName}\n\nHere is my successful payment screenshot.`
       : `Hello Admin,\n\nI am selecting the ${activeTier?.name} plan (₹${activeTier?.price}) on HRM Extractor.\nMy registered email: ${userIdentifier}${userDisplayName}\n\nHere is my successful payment screenshot.`
   );
 
@@ -63,7 +63,7 @@ const PaymentModal = ({ onClose, mode = 'hr' }) => {
           <h2><span>HRM</span> Premium Access</h2>
           <button className="close-btn" onClick={onClose}><X size={24} /></button>
         </div>
-        
+
         <div className="payment-modal-body">
           <div className="limit-reached-msg">
             {mode === 'premium' ? (
@@ -79,8 +79,8 @@ const PaymentModal = ({ onClose, mode = 'hr' }) => {
 
           <div className="pricing-tiers">
             {tiers.map(tier => (
-              <div 
-                key={tier.id} 
+              <div
+                key={tier.id}
                 className={`tier-card ${tier.class || tier.id} ${selectedTier === tier.id ? 'selected' : ''}`}
                 onClick={() => setSelectedTier(tier.id)}
               >
@@ -91,13 +91,13 @@ const PaymentModal = ({ onClose, mode = 'hr' }) => {
                 <ul className="tier-features">
                   {tier.features ? (
                     tier.features.map((f, i) => (
-                      <li key={i}><CheckCircle2 size={16} className="green-icon"/> {f}</li>
+                      <li key={i}><CheckCircle2 size={16} className="green-icon" /> {f}</li>
                     ))
                   ) : (
                     <>
-                      <li><CheckCircle2 size={16} className="green-icon"/> {tier.searches} Premium Searches</li>
-                      <li><CheckCircle2 size={16} className="green-icon"/> Export to CSV</li>
-                      <li><CheckCircle2 size={16} className="green-icon"/> Auto-Verified Contacts</li>
+                      <li><CheckCircle2 size={16} className="green-icon" /> {tier.searches} Premium Searches</li>
+                      <li><CheckCircle2 size={16} className="green-icon" /> Export to CSV</li>
+                      <li><CheckCircle2 size={16} className="green-icon" /> Auto-Verified Contacts</li>
                     </>
                   )}
                 </ul>
@@ -113,11 +113,11 @@ const PaymentModal = ({ onClose, mode = 'hr' }) => {
                   as payment-qr.png in the public/ folder 
                 */}
                 <img src="/payment-qr.png" alt="Payment QR Code" onError={(e) => {
-                  e.target.onerror = null; 
+                  e.target.onerror = null;
                   e.target.src = "https://via.placeholder.com/200x200.png?text=Place+QR+in+Public+Folder"
-                }}/>
+                }} />
               </div>
-              
+
               <div className="payment-instructions">
                 <h4>How to Upgrade</h4>
                 <div className="step-list">
@@ -135,10 +135,10 @@ const PaymentModal = ({ onClose, mode = 'hr' }) => {
                   </div>
                 </div>
 
-                <a 
-                  href={`https://wa.me/919879450072?text=${whatsappText}`} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
+                <a
+                  href={`https://wa.me/919879450072?text=${whatsappText}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="whatsapp-btn"
                 >
                   <Phone size={18} /> Send Screenshot on WhatsApp
@@ -149,7 +149,7 @@ const PaymentModal = ({ onClose, mode = 'hr' }) => {
         </div>
       </div>
     </div>
-  , document.body);
+    , document.body);
 };
 
 export default PaymentModal;

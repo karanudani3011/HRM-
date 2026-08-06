@@ -24,6 +24,75 @@
   margin: 0 auto;
 }
 
+/* ══════════════ HOSPITAL TICKER BAR ══════════════ */
+.hospital-ticker-wrapper {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  margin: 0 auto 35px auto;
+  max-width: 900px;
+  border: 1px solid #334155;
+}
+
+.hospital-ticker-label {
+  background: #dc2626;
+  color: #ffffff;
+  padding: 12px 18px;
+  font-weight: 700;
+  font-size: 13px;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  z-index: 2;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.hospital-ticker-content {
+  overflow: hidden;
+  white-space: nowrap;
+  width: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.hospital-ticker-track {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  white-space: nowrap;
+  animation: hospitalMarquee 25s linear infinite;
+  will-change: transform;
+}
+
+.hospital-ticker-track:hover {
+  animation-play-state: paused;
+}
+
+.hospital-ticker-track span {
+  font-size: 14px;
+  font-weight: 600;
+  color: #f8fafc;
+  letter-spacing: 0.3px;
+}
+
+.ticker-bullet {
+  color: #dc2626 !important;
+  font-size: 16px !important;
+}
+
+@keyframes hospitalMarquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
 .sample-title {
   display: flex;
   align-items: center;

@@ -125,7 +125,7 @@ const Header = () => {
             <li><Link to="/blog" onClick={closeMenu}>Blog</Link></li>
             <li><Link to="/services" onClick={closeMenu}>Services</Link></li>
             <li><Link to="/hospital-services" onClick={closeMenu}>Hospital Services</Link></li>
-            <li><Link to="/samples" onClick={closeMenu}>Samples</Link></li>
+            <li><Link to="/samples" onClick={closeMenu}>Privilege Card</Link></li>
             <li><Link to="/hr-extractor" onClick={closeMenu}>HR Tools</Link></li>
             <li><Link to="/find-doctor" onClick={closeMenu}>Find Doctor</Link></li>
             <li><Link to="/developers" onClick={closeMenu}>Developers</Link></li>

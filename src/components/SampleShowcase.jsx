@@ -82,9 +82,9 @@ const SampleShowcase = () => {
               expireDate: data.expire_date || savedCard.formData.expireDate,
               cardName: data.card_name || savedCard.formData.cardName || ''
             };
-            
+
             setFormData(updatedFormData);
-            
+
             if (data.photo_url) {
               setPhotoPreview(data.photo_url);
             }
@@ -292,6 +292,45 @@ const SampleShowcase = () => {
           <p>Preview your personalized HRM Privilege Info &amp; Partner Clinic Experience</p>
         </div>
 
+        {/* Network Partner Hospitals Ticker */}
+        <div className="hospital-ticker-wrapper">
+          <div className="hospital-ticker-label">Network Partner :</div>
+          <div className="hospital-ticker-content">
+            <div className="hospital-ticker-track">
+              <span>1. Vedant Multispeciality Hospital</span>
+              <span className="ticker-bullet">•</span>
+              <span>2. Pulse+ Multi Speciality</span>
+              <span className="ticker-bullet">•</span>
+              <span>3. Dev Multi Speciality</span>
+              <span className="ticker-bullet">•</span>
+              <span>4. Unicare</span>
+              <span className="ticker-bullet">•</span>
+              <span>5. Shiv Multi Speciality</span>
+              <span className="ticker-bullet">•</span>
+              <span>6. Plexus</span>
+              <span className="ticker-bullet">•</span>
+              <span>7. Olympus SuperSpeciality</span>
+              <span className="ticker-bullet">•</span>
+
+              {/* Duplicated set for seamless infinite loop */}
+              <span>1. Vedant Multispeciality Hospital</span>
+              <span className="ticker-bullet">•</span>
+              <span>2. Pulse+ Multi Speciality</span>
+              <span className="ticker-bullet">•</span>
+              <span>3. Dev Multi Speciality</span>
+              <span className="ticker-bullet">•</span>
+              <span>4. Unicare</span>
+              <span className="ticker-bullet">•</span>
+              <span>5. Shiv Multi Speciality</span>
+              <span className="ticker-bullet">•</span>
+              <span>6. Plexus</span>
+              <span className="ticker-bullet">•</span>
+              <span>7. Olympus SuperSpeciality</span>
+              <span className="ticker-bullet">•</span>
+            </div>
+          </div>
+        </div>
+
         <div className="samples-grid">
           {/* Sample 1: ID Card */}
           <div className="sample-item id-card-section">
@@ -363,11 +402,11 @@ const SampleShowcase = () => {
                           </div>
                         )}
                       </div>
-                      
+
                       <div className="idc-qr-frame">
-                        <QRCodeSVG 
-                          value={`https://myhrm.co.in/verify/${formData.idNo}`} 
-                          size={70} 
+                        <QRCodeSVG
+                          value={`https://myhrm.co.in/verify/${formData.idNo}`}
+                          size={70}
                           level="H"
                           includeMargin={true}
                         />
@@ -393,10 +432,10 @@ const SampleShowcase = () => {
                     <div className="back-terms-content">
                       <div className="terms-heading">Member Terms & Conditions</div>
                       <div className="terms-text">
-                        1. <strong>Private Membership:</strong> PRIVY League Card is a Private Membership Program operated by HRM Consultancy.<br/>
-                        2. <strong>Membership Fee:</strong> The Membership Fee is ₹500 (plus applicable GST, if applicable) and is payable only to HRM Consultancy through authorized payment channels.<br/>
-                        3. <strong>Validity:</strong> The Card is valid for the period mentioned in the Member Account or on the Card from the date of activation.<br/>
-                        4. <strong>Not an Insurance Product:</strong> This Card is not a health insurance policy, mediclaim policy, TPA service, cashless card or financial product.<br/>
+                        1. <strong>Private Membership:</strong> PRIVY League Card is a Private Membership Program operated by HRM Consultancy.<br />
+                        2. <strong>Membership Fee:</strong> The Membership Fee is ₹500 (plus applicable GST, if applicable) and is payable only to HRM Consultancy through authorized payment channels.<br />
+                        3. <strong>Validity:</strong> The Card is valid for the period mentioned in the Member Account or on the Card from the date of activation.<br />
+                        4. <strong>Not an Insurance Product:</strong> This Card is not a health insurance policy, mediclaim policy, TPA service, cashless card or financial product.<br />
                         5. <strong>Eligible Benefits:</strong> Benefits are available only at participating Network Partner are subject to the applicable policies and these Terms & Conditions.
                       </div>
                     </div>
@@ -405,9 +444,9 @@ const SampleShowcase = () => {
 
                     <div className="back-qr-stack" style={{ padding: '4px 20px 0', flex: 'none', marginBottom: '4px' }}>
                       <div className="back-qr-item" style={{ padding: '4px' }}>
-                        <QRCodeSVG 
-                          value={`https://myhrm.co.in/verify/${formData.idNo}`} 
-                          size={55} 
+                        <QRCodeSVG
+                          value={`https://myhrm.co.in/verify/${formData.idNo}`}
+                          size={55}
                           level="H"
                           includeMargin={true}
                         />
@@ -415,7 +454,7 @@ const SampleShowcase = () => {
                     </div>
 
                     <div className="back-terms-label" style={{ padding: '0 12px 10px', fontSize: '6px', lineHeight: '1.2' }}>
-                      PARTNER LIST<br/>& BENIFITS UPDATES&HELPLINE INFO
+                      PARTNER LIST<br />& BENIFITS UPDATES&HELPLINE INFO
                     </div>
                   </div>
 
@@ -612,9 +651,9 @@ const SampleShowcase = () => {
                       <button className="action-btn download-btn-new" onClick={handleDownload}>
                         <Download size={18} /> Download ID Card PDF
                       </button>
-                      <button 
+                      <button
                         type="button"
-                        className="action-btn" 
+                        className="action-btn"
                         onClick={() => {
                           localStorage.removeItem('hrmCardSubmitted');
                           // Generate a fresh unique card ID on reset to avoid conflicts

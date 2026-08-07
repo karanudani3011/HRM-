@@ -1,36 +1,96 @@
 import React, { useState, useEffect } from 'react';
-import { Users, ShieldCheck, Activity, Video, Crown, FileText, Settings, Layout, Bell, User } from 'lucide-react';
+import { Users, ShieldCheck, Activity, Video, Crown, FileText, Settings, Layout, Bell, User, Check, X } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 import './DoctorMatrimonialTabs.css';
 
 // 1. Doctor Registrations
 export const DocMatrimonialRegistrations = () => {
+  const [profiles, setProfiles] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchProfiles();
+  }, []);
+
+  const fetchProfiles = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('deversh_matrimony_profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      setProfiles(data || []);
+    } catch (err) {
+      console.error('Error fetching profiles:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateStatus = async (id, newStatus) => {
+    try {
+      const { error } = await supabase.from('deversh_matrimony_profiles').update({ status: newStatus }).eq('id', id);
+      if (error) throw error;
+      fetchProfiles();
+    } catch (err) {
+      alert('Error updating status');
+    }
+  };
+
   return (
     <div className="admin-table-card">
       <h3 className="admin-form-title">Doctor Registrations</h3>
       <p style={{ fontSize: '12px', color: 'var(--ad-text-3)', marginBottom: '16px' }}>Manage all registered doctors in the Matrimonial system.</p>
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
-        <input type="text" placeholder="Search by name, hospital, city..." className="admin-text-input" style={{ width: '300px' }} />
-        <button className="admin-submit-btn">Filter</button>
+      
+      <div style={{ overflowX: 'auto' }}>
+        <table className="admin-table">
+          <thead>
+            <tr>
+              <th>Name & Mobile</th>
+              <th>City & Hospital</th>
+              <th>Specialization</th>
+              <th>Reg Date</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>Loading profiles...</td></tr>
+            ) : profiles.length === 0 ? (
+              <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px', color: '#64748b' }}>No records found.</td></tr>
+            ) : (
+              profiles.map(p => (
+                <tr key={p.id}>
+                  <td>
+                    <strong>{p.full_name}</strong><br/>
+                    <small style={{ color: '#64748b' }}>{p.mobile_number}</small>
+                  </td>
+                  <td>
+                    {p.place_of_birth}<br/>
+                    <small style={{ color: '#64748b' }}>{p.hospital_clinic_name}</small>
+                  </td>
+                  <td>{p.education}</td>
+                  <td>{new Date(p.created_at).toLocaleDateString()}</td>
+                  <td>
+                    <span className="admin-perm-badge" style={{ 
+                      background: p.status === 'verified' ? '#dcfce7' : p.status === 'rejected' ? '#fee2e2' : '#fef9c3',
+                      color: p.status === 'verified' ? '#166534' : p.status === 'rejected' ? '#991b1b' : '#854d0e'
+                    }}>
+                      {p.status.toUpperCase()}
+                    </span>
+                  </td>
+                  <td style={{ display: 'flex', gap: '5px' }}>
+                    <button onClick={() => updateStatus(p.id, 'verified')} className="admin-submit-btn" style={{ background: '#22c55e', borderColor: '#22c55e', padding: '4px 8px', minWidth: 'auto' }} title="Verify"><Check size={14}/></button>
+                    <button onClick={() => updateStatus(p.id, 'rejected')} className="admin-submit-btn" style={{ background: '#ef4444', borderColor: '#ef4444', padding: '4px 8px', minWidth: 'auto' }} title="Reject"><X size={14}/></button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
-      <table className="admin-table">
-        <thead>
-          <tr>
-            <th>Photo</th>
-            <th>Name & Mobile</th>
-            <th>City & Hospital</th>
-            <th>Specialization</th>
-            <th>Reg Date</th>
-            <th>Status</th>
-            <th>Premium</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td colSpan="8" style={{ textAlign: 'center', padding: '20px', color: '#64748b' }}>No records found.</td>
-          </tr>
-        </tbody>
-      </table>
     </div>
   );
 };
@@ -222,76 +282,12 @@ export const DocMatrimonialAnalytics = () => {
   );
 };
 
-// 9. Settings
+// 9. Settings (Mocked since backend is removed)
 export const DocMatrimonialSettings = () => {
-  const [settings, setSettings] = useState(null);
-
-  useEffect(() => {
-    fetch('http://localhost:5000/api/settings')
-      .then(res => res.json())
-      .then(data => setSettings(data));
-  }, []);
-
-  const handleSave = (e) => {
-    e.preventDefault();
-    const data = {
-      freeVideoTime: parseInt(e.target.freeVideoTime.value),
-      premiumVideoTime: parseInt(e.target.premiumVideoTime.value),
-      minAge: parseInt(e.target.minAge.value),
-      maxAge: parseInt(e.target.maxAge.value),
-      enableRandomMatch: e.target.enableRandomMatch.checked,
-      enableVideoCalls: e.target.enableVideoCalls.checked,
-      enablePremiumOnlyMode: e.target.enablePremiumOnlyMode.checked,
-      enableGenderPreference: e.target.enableGenderPreference.checked,
-      enableCityPreference: e.target.enableCityPreference.checked,
-      enableNotifications: e.target.enableNotifications.checked,
-      maintenanceMode: e.target.maintenanceMode.checked,
-    };
-
-    fetch('http://localhost:5000/api/settings', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    }).then(res => res.json()).then(newData => {
-      setSettings(newData);
-      alert('Settings updated successfully!');
-    });
-  };
-
-  if (!settings) return <div className="admin-table-card">Loading settings...</div>;
-
   return (
     <div className="admin-table-card">
       <h3 className="admin-form-title">Matrimonial Platform Settings</h3>
-      <form onSubmit={handleSave} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-        <div>
-          <h4 style={{ marginBottom: '10px', color: '#1e293b' }}>Time & Age Limits</h4>
-          <div className="admin-input-group"><label>Free Video Time (seconds)</label><input type="number" name="freeVideoTime" defaultValue={settings.freeVideoTime} className="admin-text-input" /></div>
-          <div className="admin-input-group"><label>Premium Video Time (seconds)</label><input type="number" name="premiumVideoTime" defaultValue={settings.premiumVideoTime} className="admin-text-input" /></div>
-          <div className="admin-input-group"><label>Minimum Age</label><input type="number" name="minAge" defaultValue={settings.minAge} className="admin-text-input" /></div>
-          <div className="admin-input-group"><label>Maximum Age</label><input type="number" name="maxAge" defaultValue={settings.maxAge} className="admin-text-input" /></div>
-        </div>
-        <div>
-          <h4 style={{ marginBottom: '10px', color: '#1e293b' }}>Feature Toggles</h4>
-          {[
-            { name: 'enableRandomMatch', label: 'Enable Random Match', checked: settings.enableRandomMatch },
-            { name: 'enableVideoCalls', label: 'Enable Video Calls', checked: settings.enableVideoCalls },
-            { name: 'enablePremiumOnlyMode', label: 'Enable Premium Only Mode', checked: settings.enablePremiumOnlyMode },
-            { name: 'enableGenderPreference', label: 'Enable Gender Preference', checked: settings.enableGenderPreference },
-            { name: 'enableCityPreference', label: 'Enable City Preference', checked: settings.enableCityPreference },
-            { name: 'enableNotifications', label: 'Enable Notifications', checked: settings.enableNotifications },
-            { name: 'maintenanceMode', label: 'Maintenance Mode', checked: settings.maintenanceMode },
-          ].map(toggle => (
-            <div className="admin-input-group" key={toggle.name} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <input type="checkbox" name={toggle.name} defaultChecked={toggle.checked} id={toggle.name} />
-              <label htmlFor={toggle.name} style={{ margin: 0 }}>{toggle.label}</label>
-            </div>
-          ))}
-        </div>
-        <div style={{ gridColumn: '1 / -1' }}>
-          <button type="submit" className="admin-submit-btn">Save All Settings</button>
-        </div>
-      </form>
+      <p style={{ color: '#64748b' }}>Settings module is offline (backend removed as requested).</p>
     </div>
   );
 };

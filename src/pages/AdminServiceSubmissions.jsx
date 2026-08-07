@@ -213,7 +213,8 @@ const mapSupaToFirestore = (item, category) => {
 
 const AdminServiceSubmissions = () => {
   const navigate = useNavigate();
-  const [submissions, setSubmissions] = useState([]);
+  const [firestoreSubmissions, setFirestoreSubmissions] = useState([]);
+  const [devershSubmissions, setDevershSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('All');
   const [selectedSub, setSelectedSub] = useState(null);
@@ -297,7 +298,7 @@ const AdminServiceSubmissions = () => {
       snap.forEach(doc => {
         data.push({ id: doc.id, ...doc.data() });
       });
-      setSubmissions(data);
+      setFirestoreSubmissions(data);
       setLoading(false);
     }, (err) => {
       console.error('Snapshot error:', err);
@@ -308,13 +309,83 @@ const AdminServiceSubmissions = () => {
     return () => unsubscribe();
   }, []);
 
-  const formTypes = ['All', 'Doctor Registration', 'Hospital Registration', 'HR Registration', 'Partner Registration', 'Hospital Service Inquiry', 'Contact Inquiry'];
+  useEffect(() => {
+    const fetchDeversh = async () => {
+      try {
+        const { data: devershData, error: devershErr } = await supabase
+          .from('deversh_matrimony_profiles')
+          .select('*');
+        
+        if (!devershErr && devershData) {
+          const mapped = devershData.map(d => ({
+            id: 'deversh_' + d.id,
+            formType: 'Deversh Registration',
+            fullName: d.full_name,
+            name: d.full_name,
+            mobile: d.mobile_number,
+            city: d.place_of_birth,
+            caste: d.caste_community,
+            dob: d.dob,
+            timeOfBirth: d.time_of_birth,
+            height: d.height,
+            weight: d.weight,
+            address: d.address,
+            education: d.education,
+            hospitalName: d.hospital_clinic_name,
+            income: d.income_annual,
+            jobTitle: d.job_details,
+            fatherDetails: d.father_name_occupation,
+            motherDetails: d.mother_name_occupation,
+            brotherDetails: d.brother_details,
+            sisterDetails: d.sister_details,
+            astrologerMatch: d.astrologer_match_required ? 'Yes' : 'No',
+            habits: Array.isArray(d.habits) ? d.habits.join(', ') : d.habits,
+            partnerExpectations: d.partner_expectations,
+            createdAt: new Date(d.created_at)
+          }));
+          setDevershSubmissions(mapped);
+        } else if (devershErr) {
+          console.error('Supabase fetch error:', devershErr);
+        }
+      } catch (e) {
+        console.error('Error fetching Deversh profiles:', e);
+      }
+    };
 
-  const filtered = filter === 'All' ? submissions : submissions.filter(s => s.formType === filter);
+    fetchDeversh();
+  }, []);
+
+  const formTypes = ['All', 'Doctor Registration', 'Hospital Registration', 'HR Registration', 'Partner Registration', 'Hospital Service Inquiry', 'Contact Inquiry', 'Deversh Registration'];
+
+  const combinedSubmissions = [...firestoreSubmissions, ...devershSubmissions].sort((a, b) => {
+    const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(a.createdAt);
+    const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt);
+    return dateB - dateA;
+  });
+
+  const filtered = filter === 'All' ? combinedSubmissions : combinedSubmissions.filter(s => s.formType === filter);
 
   const handleDelete = async (sub) => {
     if (window.confirm('Are you sure you want to delete this submission? This action cannot be undone.')) {
       try {
+        if (sub.formType === 'Deversh Registration' && sub.id.startsWith('deversh_')) {
+          // Delete from Supabase specifically for Deversh
+          const supaId = sub.id.replace('deversh_', '');
+          const { error: supaDeleteErr } = await supabase
+            .from('deversh_matrimony_profiles')
+            .delete()
+            .eq('id', supaId);
+            
+          if (supaDeleteErr) {
+            console.error('Error deleting from Supabase:', supaDeleteErr);
+            throw supaDeleteErr;
+          }
+          
+          // Update local state since Deversh might not auto-refresh via Firestore listener
+          setDevershSubmissions(prev => prev.filter(s => s.id !== sub.id));
+          return;
+        }
+
         // 1. Delete from Firestore — also delete ALL duplicate Firestore docs with same email+formType
         const allDocsQ = query(collection(db, 'serviceForms'));
         const allSnap = await getDocs(allDocsQ);
@@ -322,9 +393,12 @@ const AdminServiceSubmissions = () => {
         allSnap.forEach(d => {
           const data = d.data();
           if (
+            data.email &&
             data.email?.toLowerCase() === sub.email?.toLowerCase() &&
             data.formType === sub.formType
           ) {
+            deletePromises.push(deleteDoc(doc(db, 'serviceForms', d.id)));
+          } else if (d.id === sub.id) {
             deletePromises.push(deleteDoc(doc(db, 'serviceForms', d.id)));
           }
         });
@@ -340,7 +414,7 @@ const AdminServiceSubmissions = () => {
           const { error: supaDeleteErr } = await supabase
             .from(tableName)
             .delete()
-            .filter('email', 'ilike', sub.email);
+            .ilike('email', sub.email);
 
           if (supaDeleteErr) {
             console.error('Error deleting from Supabase:', supaDeleteErr);
@@ -857,6 +931,7 @@ const AdminServiceSubmissions = () => {
     if (type.includes('HR')) return 'badge badge-hr';
     if (type.includes('Partner')) return 'badge badge-partner';
     if (type.includes('Contact')) return 'badge badge-contact';
+    if (type.includes('Deversh')) return 'badge badge-deversh';
     return 'badge';
   };
 

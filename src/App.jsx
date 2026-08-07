@@ -33,8 +33,6 @@ import ResetPassword from './pages/ResetPassword';
 import VerifyCard from './pages/VerifyCard';
 import HospitalServices from './pages/HospitalServices';
 import DevershRegistration from './pages/DevershRegistration';
-import DevershLiveGrid from './pages/DevershLiveGrid';
-import SwapCalling from './pages/SwapCalling';
 import SideChat from './components/SideChat';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -71,7 +69,6 @@ function AppContent() {
         <Route path="/portal/hr/register" element={<HRRegistration />} />
         <Route path="/portal/hrm-partner/register" element={<PartnerRegistration />} />
         <Route path="/portal/deversh/register" element={<DevershRegistration />} />
-        <Route path="/deversh-live" element={<DevershLiveGrid />} />
         <Route path="/portal/linkedin-callback" element={<LinkedInCallback />} />
         <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
         <Route path="/contact" element={<ProtectedRoute><ContactUs /></ProtectedRoute>} />
@@ -95,7 +92,6 @@ function AppContent() {
         <Route path="/admin/blogs" element={<AdminBlogs />} />
         <Route path="/hr-extractor" element={<ProtectedRoute><HRExtractor /></ProtectedRoute>} />
         <Route path="/consultation/:roomId" element={<ProtectedRoute><VideoConsultation /></ProtectedRoute>} />
-        <Route path="/swap-call" element={<ProtectedRoute><SwapCalling /></ProtectedRoute>} />
         <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>
       {!isCleanPage && <Footer />}

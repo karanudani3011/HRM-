@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Upload, Camera, ShieldCheck, CheckCircle2, Video } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 import './DevershRegistration.css';
 
 const DevershRegistration = () => {
@@ -15,11 +16,12 @@ const DevershRegistration = () => {
   const [photoFile, setPhotoFile] = useState(null);
   const [certFile, setCertFile] = useState(null);
 
-  useEffect(() => {
-    if (localStorage.getItem('hasDevershProfile')) {
-      navigate('/deversh-live');
-    }
-  }, [navigate]);
+  // useEffect(() => {
+  //   if (localStorage.getItem('hasDevershProfile')) {
+  //     alert('You have already registered your profile. We will contact you soon.');
+  //     navigate('/');
+  //   }
+  // }, [navigate]);
 
   const [habits, setHabits] = useState([]);
   const habitOptions = ['Non-Smoker', 'Non-Drinker', 'Vegetarian', 'Occasionally Non-Veg', 'Fitness Enthusiast'];
@@ -31,32 +33,47 @@ const DevershRegistration = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const payload = { ...formData, habits };
-      const response = await fetch('http://localhost:5000/api/matrimony/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (response.ok) {
-        alert('Profile submitted successfully!');
-        localStorage.setItem('hasDevershProfile', 'true');
-        navigate('/deversh-live');
-      } else {
-        alert('Error submitting profile');
+      const { data, error } = await supabase
+        .from('deversh_matrimony_profiles')
+        .insert([{
+          full_name: formData.fullName,
+          mobile_number: formData.mobile,
+          caste_community: formData.caste,
+          dob: formData.dob || null, 
+          time_of_birth: formData.timeOfBirth ? formData.timeOfBirth + ':00' : null,
+          place_of_birth: formData.placeOfBirth,
+          height: formData.height,
+          weight: formData.weight,
+          address: formData.address,
+          education: formData.education,
+          hospital_clinic_name: formData.hospitalName,
+          income_annual: formData.income,
+          job_details: formData.jobTitle,
+          father_name_occupation: formData.fatherDetails,
+          mother_name_occupation: formData.motherDetails,
+          brother_details: formData.brotherDetails,
+          sister_details: formData.sisterDetails,
+          astrologer_match_required: formData.astrologerMatch === 'Yes',
+          habits: habits,
+          partner_expectations: formData.partnerExpectations
+        }]);
+
+      if (error) {
+        console.error('Supabase Error:', error);
+        alert(`Database Error: ${error.message}`);
+        return;
       }
+      
+      alert('Profile submitted successfully! We will contact you soon.');
+      // localStorage.setItem('hasDevershProfile', 'true');
+      navigate('/');
     } catch (error) {
       console.error(error);
       alert('Network error');
     }
   };
 
-  const dummyLiveDoctors = [
-    { name: 'Dr Priya Sharma - 28', spec: 'Cardiologist • Ahmedabad' },
-    { name: 'Dr Neha Patel - 27', spec: 'Dermatologist • Rajkot' },
-    { name: 'Dr Ayesha Khan - 28', spec: 'Gynecologist • Jamnagar' },
-    { name: 'Dr Riya Mehta - 26', spec: 'Pediatrician • Surat' },
-    { name: 'Dr Sneha Desai - 30', spec: 'Physician • Vadodara' }
-  ];
+
 
   return (
     <div className="deversh-reg-page">
@@ -64,10 +81,6 @@ const DevershRegistration = () => {
         <div className="logo-section">
           <ShieldCheck size={24} color="#3b82f6" />
           <span className="brand-name">Doctor Matrimonial</span>
-        </div>
-        <div className="header-actions">
-          <span className="live-count"><span className="dot"></span> 50 Doctors Online Now</span>
-          <button className="btn-verified"><ShieldCheck size={16} /> Verified</button>
         </div>
       </div>
 
@@ -223,48 +236,7 @@ const DevershRegistration = () => {
           </form>
         </div>
 
-        {/* Right Side: Info & Live List */}
-        <div className="deversh-right-col">
-          
-          <div className="why-choose-card">
-            <h5>WHY DOCTORS CHOOSE US</h5>
-            <h2>Only Doctors.<br/>No spam. Premium matches.</h2>
-            <ul className="benefits-list">
-              <li><CheckCircle2 size={14}/> 100% MBBS+ verified profiles</li>
-              <li><CheckCircle2 size={14}/> Free 2-min video introduction</li>
-              <li><CheckCircle2 size={14}/> Family background checked</li>
-              <li><CheckCircle2 size={14}/> Hospital & city filters</li>
-              <li><CheckCircle2 size={14}/> Paid chat = serious intent only</li>
-            </ul>
-            <div className="promo-banner">
-              <img src="https://images.unsplash.com/photo-1594824436998-d40cead1bf0b?auto=format&fit=crop&w=50&h=50" alt="Doctor" />
-              <div>
-                <strong>Dr Priya is online now</strong>
-                <p>Tap Video Call to connect instantly - FREE</p>
-              </div>
-              <button className="btn-view">View</button>
-            </div>
-          </div>
 
-          <div className="live-now-card">
-            <h4>LIVE NOW</h4>
-            <div className="live-list">
-              {dummyLiveDoctors.map((doc, idx) => (
-                <div key={idx} className="live-item">
-                  <div className="live-item-avatar">
-                    <img src={`https://i.pravatar.cc/150?img=${30 + idx}`} alt={doc.name} />
-                  </div>
-                  <div className="live-item-info">
-                    <strong>{doc.name}</strong>
-                    <span>{doc.spec}</span>
-                  </div>
-                  <div className="live-badge-small">ONLINE</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-        </div>
 
       </div>
     </div>

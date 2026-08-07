@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Upload, Camera, ShieldCheck, CheckCircle2, Video } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { uploadImageToCloudinary } from '../utils/cloudinary';
 import './DevershRegistration.css';
 
 const DevershRegistration = () => {
@@ -15,6 +16,7 @@ const DevershRegistration = () => {
 
   const [photoFile, setPhotoFile] = useState(null);
   const [certFile, setCertFile] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // useEffect(() => {
   //   if (localStorage.getItem('hasDevershProfile')) {
@@ -32,7 +34,21 @@ const DevershRegistration = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
     try {
+      let photoUrl = null;
+      let certUrl = null;
+
+      if (photoFile) {
+        photoUrl = await uploadImageToCloudinary(photoFile);
+      }
+      
+      if (certFile) {
+        certUrl = await uploadImageToCloudinary(certFile);
+      }
+
       const { data, error } = await supabase
         .from('deversh_matrimony_profiles')
         .insert([{
@@ -55,12 +71,15 @@ const DevershRegistration = () => {
           sister_details: formData.sisterDetails,
           astrologer_match_required: formData.astrologerMatch === 'Yes',
           habits: habits,
-          partner_expectations: formData.partnerExpectations
+          partner_expectations: formData.partnerExpectations,
+          profile_photo_url: photoUrl,
+          certificate_url: certUrl
         }]);
 
       if (error) {
         console.error('Supabase Error:', error);
         alert(`Database Error: ${error.message}`);
+        setIsSubmitting(false);
         return;
       }
       
@@ -69,7 +88,9 @@ const DevershRegistration = () => {
       navigate('/');
     } catch (error) {
       console.error(error);
-      alert('Network error');
+      alert('Network error or image upload failed');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -231,7 +252,9 @@ const DevershRegistration = () => {
               <textarea placeholder="Looking for doctor partner, age 28-32, Gujarati, family oriented..." rows="3" value={formData.partnerExpectations} onChange={e => setFormData({...formData, partnerExpectations: e.target.value})}></textarea>
             </div>
 
-            <button type="submit" className="btn-submit-profile">Submit Profile - Powered by HRM</button>
+            <button type="submit" className="btn-submit-profile" disabled={isSubmitting}>
+              {isSubmitting ? 'Uploading & Submitting...' : 'Submit Profile - Powered by HRM'}
+            </button>
             <p className="privacy-text">By submitting you agree to verification & privacy policy of MyHRM.co.in</p>
           </form>
         </div>

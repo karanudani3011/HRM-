@@ -341,6 +341,8 @@ const AdminServiceSubmissions = () => {
             astrologerMatch: d.astrologer_match_required ? 'Yes' : 'No',
             habits: Array.isArray(d.habits) ? d.habits.join(', ') : d.habits,
             partnerExpectations: d.partner_expectations,
+            profilePhotoUrl: d.profile_photo_url,
+            certificateUrl: d.certificate_url,
             createdAt: new Date(d.created_at)
           }));
           setDevershSubmissions(mapped);

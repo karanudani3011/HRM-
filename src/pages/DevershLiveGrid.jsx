@@ -1,23 +1,40 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ShieldCheck, Play, MapPin, Award, Video } from 'lucide-react';
+import io from 'socket.io-client';
 import './DevershLiveGrid.css';
+
+const socket = io('http://localhost:5000');
 
 const DevershLiveGrid = () => {
   const navigate = useNavigate();
 
-  const doctors = [
-    { name: 'Dr Priya Sharma', spec: 'Cardiologist', age: '28y', loc: 'Ahmedabad', hosp: 'Apollo', img: 'https://images.unsplash.com/photo-1594824436998-d40cead1bf0b?auto=format&fit=crop&w=400&h=500' },
-    { name: 'Dr Neha Patel', spec: 'Dermatologist', age: '27y', loc: 'Rajkot', hosp: 'Sterling', img: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&h=500' },
-    { name: 'Dr Ayesha Khan', spec: 'Gynecologist', age: '29y', loc: 'Jamnagar', hosp: 'GG Hospital', img: 'https://images.unsplash.com/photo-1614608682850-e0d6ed316d47?auto=format&fit=crop&w=400&h=500' },
-    { name: 'Dr Riya Mehta', spec: 'Pediatrician', age: '26y', loc: 'Surat', hosp: 'Sunshine', img: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=400&h=500' },
-    { name: 'Dr Sneha Desai', spec: 'Physician', age: '30y', loc: 'Vadodara', hosp: 'Zydus', img: 'https://images.unsplash.com/photo-1527613426441-4da17471b66d?auto=format&fit=crop&w=400&h=500' },
-    { name: 'Dr Arjun Singh', spec: 'Orthopedic', age: '30y', loc: 'Rajkot', hosp: 'Wockhardt', img: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=400&h=500' },
-    { name: 'Dr Rohan Joshi', spec: 'Neurologist', age: '31y', loc: 'Ahmedabad', hosp: 'SAL', img: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&w=400&h=500' },
-    { name: 'Dr Karan Malhotra', spec: 'Dentist', age: '29y', loc: 'Jamnagar', hosp: 'Grace', img: 'https://images.unsplash.com/photo-1550525811-e5869dd03032?auto=format&fit=crop&w=400&h=500' },
-    { name: 'Dr Vivek Rao', spec: 'Surgeon', age: '32y', loc: 'Surat', hosp: 'Kiran', img: 'https://images.unsplash.com/photo-1622902046580-2b47f47f5471?auto=format&fit=crop&w=400&h=500' },
-    { name: 'Dr Aman Pandya', spec: 'Psychiatrist', age: '28y', loc: 'Rajkot', hosp: 'MindCare', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&h=500' },
-  ];
+  const [doctors, setDoctors] = useState([]);
+
+  const fetchDoctors = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/doctors/online');
+      if (response.ok) {
+        const data = await response.json();
+        // filter online only
+        setDoctors(data.filter(d => d.online));
+      }
+    } catch (err) {
+      console.error('Error fetching doctors:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchDoctors();
+
+    socket.on('doctor_list_updated', () => {
+      fetchDoctors();
+    });
+
+    return () => {
+      socket.off('doctor_list_updated');
+    };
+  }, []);
 
   const handleConnect = () => {
     navigate('/swap-call');
@@ -40,14 +57,18 @@ const DevershLiveGrid = () => {
       </div>
 
       <div className="live-grid-container">
-        {doctors.map((doc, index) => (
-          <div key={index} className="live-card">
-            <img src={doc.img} alt={doc.name} className="card-bg" />
+        {doctors.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '40px', width: '100%', color: '#64748b' }}>
+            No online doctors currently available. Waiting for doctors to join...
+          </div>
+        ) : doctors.map((doc, index) => (
+          <div key={doc._id || index} className="live-card">
+            <img src={doc.photo || "https://images.unsplash.com/photo-1594824436998-d40cead1bf0b?auto=format&fit=crop&w=400&h=500"} alt={doc.name} className="card-bg" />
             <div className="card-overlay">
               <div className="card-top">
                 <div className="status-badges">
                   <span className="badge-live">LIVE</span>
-                  <span className="badge-hd">HD</span>
+                  {doc.premium && <span className="badge-hd" style={{ background: '#f59e0b', color: '#fff' }}>PRO</span>}
                 </div>
                 <div className="status-dot"></div>
               </div>
@@ -57,12 +78,12 @@ const DevershLiveGrid = () => {
               </button>
 
               <div className="card-bottom">
-                <h3>{doc.name} <ShieldCheck size={14} color="#06b6d4" /></h3>
+                <h3>{doc.name} {doc.verified && <ShieldCheck size={14} color="#06b6d4" title="Verified Badge" />}</h3>
                 <div className="doc-info">
-                  <Award size={12} /> {doc.spec} • {doc.age}
+                  <Award size={12} /> {doc.specialization} • {doc.age}y
                 </div>
                 <div className="doc-info">
-                  <MapPin size={12} /> {doc.loc} • {doc.hosp}
+                  <MapPin size={12} /> {doc.city} • {doc.hospital}
                 </div>
                 <button className="btn-connect" onClick={handleConnect}>
                   <Video size={16} /> Connect Video <span className="free-tag">FREE</span>

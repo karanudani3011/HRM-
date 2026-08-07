@@ -7,6 +7,7 @@ import CardScanner from '../components/CardScanner';
 import { supabase } from '../lib/supabase';
 import html2pdf from 'html2pdf.js';
 import './AdminDashboard.css';
+import { DocMatrimonialRegistrations, DocMatrimonialVerification, DocMatrimonialOnline, DocMatrimonialSessions, DocMatrimonialPremium, DocMatrimonialReports, DocMatrimonialQueue, DocMatrimonialAnalytics, DocMatrimonialSettings, DocMatrimonialCMS, DocMatrimonialNotifications, DocMatrimonialProfile } from '../components/DoctorMatrimonialTabs';
 
 /* ── Inline SVG Icons ── */
 const IconDashboard = () => (
@@ -970,6 +971,24 @@ const AdminDashboard = () => {
               Card Activation & Renewals
             </Link>
           )}
+          {adminUsername === 'admin' && (
+            <>
+              <div className="admin-nav-divider" />
+              <div className="admin-nav-section-label">Doctor Matrimonial</div>
+              <Link to="/admin/dashboard?tab=doc-mat-reg" className={`admin-nav-item ${activeTab === 'doc-mat-reg' ? 'active' : ''}`} onClick={() => setActiveTab('doc-mat-reg')}><IconUsers /> Registrations</Link>
+              <Link to="/admin/dashboard?tab=doc-mat-verif" className={`admin-nav-item ${activeTab === 'doc-mat-verif' ? 'active' : ''}`} onClick={() => setActiveTab('doc-mat-verif')}><IconClipboard /> Verification Requests</Link>
+              <Link to="/admin/dashboard?tab=doc-mat-online" className={`admin-nav-item ${activeTab === 'doc-mat-online' ? 'active' : ''}`} onClick={() => setActiveTab('doc-mat-online')}><IconZap /> Online Doctors</Link>
+              <Link to="/admin/dashboard?tab=doc-mat-sess" className={`admin-nav-item ${activeTab === 'doc-mat-sess' ? 'active' : ''}`} onClick={() => setActiveTab('doc-mat-sess')}><IconDashboard /> Video Sessions</Link>
+              <Link to="/admin/dashboard?tab=doc-mat-prem" className={`admin-nav-item ${activeTab === 'doc-mat-prem' ? 'active' : ''}`} onClick={() => setActiveTab('doc-mat-prem')}><IconDashboard /> Premium Membership</Link>
+              <Link to="/admin/dashboard?tab=doc-mat-rep" className={`admin-nav-item ${activeTab === 'doc-mat-rep' ? 'active' : ''}`} onClick={() => setActiveTab('doc-mat-rep')}><IconEdit /> Reports</Link>
+              <Link to="/admin/dashboard?tab=doc-mat-queue" className={`admin-nav-item ${activeTab === 'doc-mat-queue' ? 'active' : ''}`} onClick={() => setActiveTab('doc-mat-queue')}><IconUsers /> Matching Queue</Link>
+              <Link to="/admin/dashboard?tab=doc-mat-analytics" className={`admin-nav-item ${activeTab === 'doc-mat-analytics' ? 'active' : ''}`} onClick={() => setActiveTab('doc-mat-analytics')}><IconTrendUp /> Live Analytics</Link>
+              <Link to="/admin/dashboard?tab=doc-mat-settings" className={`admin-nav-item ${activeTab === 'doc-mat-settings' ? 'active' : ''}`} onClick={() => setActiveTab('doc-mat-settings')}><IconSettings /> Settings</Link>
+              <Link to="/admin/dashboard?tab=doc-mat-cms" className={`admin-nav-item ${activeTab === 'doc-mat-cms' ? 'active' : ''}`} onClick={() => setActiveTab('doc-mat-cms')}><IconEdit /> CMS</Link>
+              <Link to="/admin/dashboard?tab=doc-mat-notif" className={`admin-nav-item ${activeTab === 'doc-mat-notif' ? 'active' : ''}`} onClick={() => setActiveTab('doc-mat-notif')}><IconDashboard /> Notifications</Link>
+              <Link to="/admin/dashboard?tab=doc-mat-profile" className={`admin-nav-item ${activeTab === 'doc-mat-profile' ? 'active' : ''}`} onClick={() => setActiveTab('doc-mat-profile')}><IconUserStat /> Profile View Test</Link>
+            </>
+          )}
         </nav>
 
         <div className="admin-sidebar-footer">
@@ -1901,6 +1920,20 @@ const AdminDashboard = () => {
               )}
             </div>
           )}
+
+          {/* 6. DOCTOR MATRIMONIAL TABS */}
+          {activeTab === 'doc-mat-reg' && adminUsername === 'admin' && <DocMatrimonialRegistrations />}
+          {activeTab === 'doc-mat-verif' && adminUsername === 'admin' && <DocMatrimonialVerification />}
+          {activeTab === 'doc-mat-online' && adminUsername === 'admin' && <DocMatrimonialOnline />}
+          {activeTab === 'doc-mat-sess' && adminUsername === 'admin' && <DocMatrimonialSessions />}
+          {activeTab === 'doc-mat-prem' && adminUsername === 'admin' && <DocMatrimonialPremium />}
+          {activeTab === 'doc-mat-rep' && adminUsername === 'admin' && <DocMatrimonialReports />}
+          {activeTab === 'doc-mat-queue' && adminUsername === 'admin' && <DocMatrimonialQueue />}
+          {activeTab === 'doc-mat-analytics' && adminUsername === 'admin' && <DocMatrimonialAnalytics />}
+          {activeTab === 'doc-mat-settings' && adminUsername === 'admin' && <DocMatrimonialSettings />}
+          {activeTab === 'doc-mat-cms' && adminUsername === 'admin' && <DocMatrimonialCMS />}
+          {activeTab === 'doc-mat-notif' && adminUsername === 'admin' && <DocMatrimonialNotifications />}
+          {activeTab === 'doc-mat-profile' && adminUsername === 'admin' && <DocMatrimonialProfile />}
 
         </div>
       </main>

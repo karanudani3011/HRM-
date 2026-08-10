@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { db } from '../firebase';
-import { collection, onSnapshot, orderBy, query, doc, deleteDoc, getDocs, addDoc } from 'firebase/firestore';
+import { collection, onSnapshot, orderBy, query, doc, deleteDoc, getDocs, addDoc, updateDoc } from 'firebase/firestore';
 import { supabase } from '../lib/supabase';
-import { Trash2, Eye, Download, Info } from 'lucide-react';
+import { Trash2, Eye, Download, Info, CheckCircle } from 'lucide-react';
 import './AdminDashboard.css';
 import './AdminServiceSubmissions.css';
 
@@ -424,6 +424,19 @@ const AdminServiceSubmissions = () => {
         }
       } catch (err) {
         alert('Error deleting submission: ' + err.message);
+      }
+    }
+  };
+
+  const handleAccept = async (sub) => {
+    if (window.confirm(`Are you sure you want to approve ${sub.name || 'this partner'}?`)) {
+      try {
+        await updateDoc(doc(db, 'serviceForms', sub.id), {
+          isAccepted: true
+        });
+        alert('Partner approved successfully!');
+      } catch (err) {
+        alert('Error approving partner: ' + err.message);
       }
     }
   };
@@ -1084,6 +1097,21 @@ const AdminServiceSubmissions = () => {
                       <td>{formatDate(sub.createdAt)}</td>
                       <td>
                         <div style={{ display: 'flex', gap: '8px' }}>
+                          {sub.formType === 'Partner Registration' && !sub.isAccepted && (
+                            <button 
+                              className="admin-accept-btn" 
+                              title="Accept Partner"
+                              style={{ color: '#10b981', background: '#ecfdf5', border: '1px solid #10b981', padding: '4px', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                              onClick={() => handleAccept(sub)}
+                            >
+                              <CheckCircle size={16} />
+                            </button>
+                          )}
+                          {sub.formType === 'Partner Registration' && sub.isAccepted && (
+                            <span style={{ color: '#10b981', fontWeight: 'bold', fontSize: '12px', display: 'flex', alignItems: 'center' }} title="Approved">
+                              <CheckCircle size={16} />
+                            </span>
+                          )}
                           <button 
                             className="admin-view-btn" 
                             title="View Details"

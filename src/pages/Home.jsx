@@ -57,6 +57,7 @@ const Home = () => {
   const [feedPosts, setFeedPosts] = useState([]);
   const [feedLoading, setFeedLoading] = useState(true);
   const [likedPosts, setLikedPosts] = useState(new Set());
+  const [acceptedPartners, setAcceptedPartners] = useState([]);
 
   // Fetch Profile & Search Credits on mount/user change
   useEffect(() => {
@@ -161,6 +162,23 @@ const Home = () => {
     }, (error) => {
       console.error("Error listening to feed posts:", error);
       setFeedLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // Fetch accepted partners
+  useEffect(() => {
+    if (!db) return;
+    const q = query(collection(db, 'serviceForms'), where('formType', '==', 'Partner Registration'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const partners = [];
+      snapshot.forEach((document) => {
+        const data = document.data();
+        if (data.isAccepted) {
+          partners.push(data.name || data.hospitalName || data.contactPerson);
+        }
+      });
+      setAcceptedPartners(partners);
     });
     return () => unsubscribe();
   }, []);
@@ -449,6 +467,20 @@ const Home = () => {
     <div className="dashboard-wrapper">
       <div className="dashboard-container">
         
+        {acceptedPartners.length > 0 && (
+          <div className="accepted-partners-marquee">
+            <div className="marquee-content">
+              <strong>🎉 Welcome to our New Network Partners:</strong>
+              {acceptedPartners.map((partner, index) => (
+                <span key={index} className="partner-item">
+                  <ShieldCheck size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '4px' }} />
+                  {partner}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
         {editMode ? (
           /* EDIT PROFILE VIEW */
           <div className="edit-profile-card-wrapper">

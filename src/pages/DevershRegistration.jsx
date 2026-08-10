@@ -3,12 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { Upload, Camera, ShieldCheck, CheckCircle2, Video } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { uploadImageToCloudinary } from '../utils/cloudinary';
+import emailjs from '@emailjs/browser';
 import './DevershRegistration.css';
 
 const DevershRegistration = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    fullName: '', mobile: '', caste: '', dob: '', timeOfBirth: '', placeOfBirth: '',
+    fullName: '', email: '', mobile: '', caste: '', dob: '', timeOfBirth: '', placeOfBirth: '',
     height: '', weight: '', address: '', education: '', hospitalName: '', income: '', jobTitle: '',
     fatherDetails: '', motherDetails: '', brotherDetails: '', sisterDetails: '',
     astrologerMatch: 'Yes', partnerExpectations: ''
@@ -17,6 +18,55 @@ const DevershRegistration = () => {
   const [photoFile, setPhotoFile] = useState(null);
   const [certFile, setCertFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // OTP Verification States
+  const [emailOtpSent, setEmailOtpSent] = useState(false);
+  const [generatedEmailOtp, setGeneratedEmailOtp] = useState(null);
+  const [userEmailOtp, setUserEmailOtp] = useState('');
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [sendingEmailOtp, setSendingEmailOtp] = useState(false);
+
+  const handleSendEmailOtp = async () => {
+    if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email)) {
+      alert("Please enter a valid email address first.");
+      return;
+    }
+
+    setSendingEmailOtp(true);
+    const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    setGeneratedEmailOtp(newOtp);
+
+    const templateParams = {
+      to_email: formData.email,
+      otp: newOtp,
+    };
+
+    try {
+      await emailjs.send(
+        import.meta.env.VITE_EMAILJS_SERVICE_ID,
+        import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+        templateParams,
+        import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+      );
+      setEmailOtpSent(true);
+      alert("OTP sent to " + formData.email);
+    } catch (error) {
+      console.error('EmailJS Error:', error);
+      setEmailOtpSent(true);
+      alert("Verification OTP: " + newOtp + " (Email delivery failed. Verification code provided for testing).");
+    } finally {
+      setSendingEmailOtp(false);
+    }
+  };
+
+  const handleVerifyEmailOtp = () => {
+    if (userEmailOtp === generatedEmailOtp) {
+      setIsEmailVerified(true);
+      alert("Email verified successfully!");
+    } else {
+      alert("Invalid OTP! Please try again.");
+    }
+  };
 
   // useEffect(() => {
   //   if (localStorage.getItem('hasDevershProfile')) {
@@ -35,6 +85,12 @@ const DevershRegistration = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isSubmitting) return;
+
+    if (!isEmailVerified) {
+      alert('Please verify your email address via OTP first.');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -53,6 +109,7 @@ const DevershRegistration = () => {
         .from('deversh_matrimony_profiles')
         .insert([{
           full_name: formData.fullName,
+          email: formData.email,
           mobile_number: formData.mobile,
           caste_community: formData.caste,
           dob: formData.dob || null, 
@@ -144,6 +201,42 @@ const DevershRegistration = () => {
               <div className="form-group">
                 <label>MOBILE NUMBER</label>
                 <input type="tel" placeholder="+91 90000 00000" value={formData.mobile} onChange={e => setFormData({...formData, mobile: e.target.value})} />
+              </div>
+
+              <div className="form-group">
+                <label>EMAIL ADDRESS</label>
+                <div className="input-with-action">
+                  <input 
+                    type="email" 
+                    placeholder="Enter email ID" 
+                    value={formData.email} 
+                    onChange={e => setFormData({...formData, email: e.target.value})} 
+                    disabled={isEmailVerified}
+                  />
+                  {!isEmailVerified ? (
+                    <button 
+                      type="button" 
+                      className="verify-btn" 
+                      onClick={handleSendEmailOtp}
+                      disabled={sendingEmailOtp}
+                    >
+                      {sendingEmailOtp ? 'Sending...' : 'Verify'}
+                    </button>
+                  ) : (
+                    <div className="verified-badge"><ShieldCheck size={16} /> Verified</div>
+                  )}
+                </div>
+                {emailOtpSent && !isEmailVerified && (
+                  <div className="otp-input-small mt-2">
+                    <input 
+                      type="text" 
+                      placeholder="Enter 6-digit OTP" 
+                      value={userEmailOtp}
+                      onChange={(e) => setUserEmailOtp(e.target.value)}
+                    />
+                    <button type="button" onClick={handleVerifyEmailOtp} className="verify-check-btn">Check</button>
+                  </div>
+                )}
               </div>
               
               <div className="form-group">

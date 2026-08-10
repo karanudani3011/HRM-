@@ -9,6 +9,8 @@ import { QRCodeSVG } from 'qrcode.react';
 import { supabase } from '../lib/supabase';
 import { Link } from 'react-router-dom';
 import emailjs from '@emailjs/browser';
+import { db } from '../firebase';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 
 const SampleShowcase = () => {
   // Check if user has already submitted a card (persisted across sessions)
@@ -108,6 +110,36 @@ const SampleShowcase = () => {
 
     syncCardData();
   }, []);
+
+  // Fetch accepted network partners from Firestore
+  const [acceptedPartners, setAcceptedPartners] = useState([]);
+  useEffect(() => {
+    if (!db) return;
+    const q = query(collection(db, 'serviceForms'), where('formType', '==', 'Partner Registration'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const partners = [];
+      snapshot.forEach((document) => {
+        const data = document.data();
+        if (data.isAccepted) {
+          partners.push(data.hospitalName || data.name || data.contactPerson);
+        }
+      });
+      setAcceptedPartners(partners);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const staticPartners = [
+    "Vedant Multispeciality Hospital",
+    "Pulse+ Multi Speciality",
+    "Dev Multi Speciality",
+    "Unicare",
+    "Shiv Multi Speciality",
+    "Plexus",
+    "Olympus SuperSpeciality"
+  ];
+
+  const allPartners = [...staticPartners, ...acceptedPartners];
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -297,36 +329,20 @@ const SampleShowcase = () => {
           <div className="hospital-ticker-label">Network Partner :</div>
           <div className="hospital-ticker-content">
             <div className="hospital-ticker-track">
-              <span>1. Vedant Multispeciality Hospital</span>
-              <span className="ticker-bullet">•</span>
-              <span>2. Pulse+ Multi Speciality</span>
-              <span className="ticker-bullet">•</span>
-              <span>3. Dev Multi Speciality</span>
-              <span className="ticker-bullet">•</span>
-              <span>4. Unicare</span>
-              <span className="ticker-bullet">•</span>
-              <span>5. Shiv Multi Speciality</span>
-              <span className="ticker-bullet">•</span>
-              <span>6. Plexus</span>
-              <span className="ticker-bullet">•</span>
-              <span>7. Olympus SuperSpeciality</span>
-              <span className="ticker-bullet">•</span>
+              {allPartners.map((partner, idx) => (
+                <React.Fragment key={idx}>
+                  <span>{idx + 1}. {partner}</span>
+                  <span className="ticker-bullet">•</span>
+                </React.Fragment>
+              ))}
 
               {/* Duplicated set for seamless infinite loop */}
-              <span>1. Vedant Multispeciality Hospital</span>
-              <span className="ticker-bullet">•</span>
-              <span>2. Pulse+ Multi Speciality</span>
-              <span className="ticker-bullet">•</span>
-              <span>3. Dev Multi Speciality</span>
-              <span className="ticker-bullet">•</span>
-              <span>4. Unicare</span>
-              <span className="ticker-bullet">•</span>
-              <span>5. Shiv Multi Speciality</span>
-              <span className="ticker-bullet">•</span>
-              <span>6. Plexus</span>
-              <span className="ticker-bullet">•</span>
-              <span>7. Olympus SuperSpeciality</span>
-              <span className="ticker-bullet">•</span>
+              {allPartners.map((partner, idx) => (
+                <React.Fragment key={`dup-${idx}`}>
+                  <span>{idx + 1}. {partner}</span>
+                  <span className="ticker-bullet">•</span>
+                </React.Fragment>
+              ))}
             </div>
           </div>
         </div>

@@ -51,7 +51,7 @@ const DoctorSearch = () => {
     setLoading(true);
     setHasSearched(true);
     try {
-      let query = supabase.from('doctors_mbbs').select('*');
+      let query = supabase.from('HRM REGISTER DR.MEMBERS').select('*');
 
       if (kw) {
         query = query.or(`Name.ilike.%${kw}%,"Course(Highest Education)".ilike.%${kw}%`);

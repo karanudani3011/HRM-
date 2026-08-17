@@ -45,18 +45,7 @@ const DEVELOPERS = [
     linkedin: 'https://www.linkedin.com/in/karan-udani-web-developer',
     email: 'karanudani30@gmail.com',
   },
-  {
-    id: 'vaidikpandya',
-    name: 'Vaidik Pandya',
-    role: 'Backend Specialist, DevOps Engineer & Business Developer',
-    bio: 'Expert in designing secure database relations, server-side configurations, and robust cloud hosting pipelines. Focuses on performance scaling, data encryption, and high-availability server patterns.',
-    skills: ['PostgreSQL', 'Cloudinary API', 'Docker', 'Git / GitHub', 'JSON Storage', 'DevOps'],
-    initials: 'VP',
-    photo: '/images/vaidik-pandya.jpeg',
-    github: 'https://github.com/vaidikpandya20',
-    linkedin: 'https://www.linkedin.com/in/vaidik-pandya-222208315/?utm_source=share_via&utm_content=profile&utm_medium=member_androidLinkedIn',
-    email: 'vaidikpandya2005@gmail.com',
-  },
+
 ];
 
 // Avatar component — shows photo if it exists, otherwise falls back to initials

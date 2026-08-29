@@ -517,14 +517,14 @@ const AdminServiceSubmissions = () => {
       <div style="font-family: Arial, sans-serif; font-size: 13px; line-height: 1.6; padding: 40px; color: #000; page-break-before: always;">
         <h2 style="text-align: center; text-decoration: underline; margin-bottom: 20px; font-size: 18px;">NETWORK HOSPITAL PARTNERSHIP AGREEMENT</h2>
 
-        <p><strong>Version: 3.0</strong><br>
+        <p><strong>Version: 4.0</strong><br>
         <strong>Effective Date:</strong> આ કરાર HRM Consultancy દ્વારા Hospital ની અરજી મંજૂર (Approved) કરવામાં આવે તે તારીખથી અમલમાં આવશે.</p>
 
         <p><strong>1. DEFINITIONS (વ્યાખ્યાઓ)</strong><br>
         આ કરારમાં, સંદર્ભ અન્યથા ન માંગતો હોય ત્યાં સુધી નીચેના શબ્દોનો અર્થ નીચે મુજબ રહેશે:<br>
-        1.1 HRM: HRM Consultancy, Rajkot, Gujarat, જે PRIVY League Card Membership Program નું સંચાલન કરે છે.<br>
+        1.1 HRM: HRM Consultancy, Rajkot, Gujarat, જે HRM PRIVILEGE CARD Membership Program નું સંચાલન કરે છે.<br>
         1.2 Hospital: આ કરાર સ્વીકારી HRM દ્વારા Network Hospital તરીકે મંજૂર કરવામાં આવેલ હોસ્પિટલ અથવા આરોગ્યસેવા સંસ્થા.<br>
-        1.3 Membership Card: HRM દ્વારા જારી કરવામાં આવેલ PRIVY League Card.<br>
+        1.3 Membership Card: HRM દ્વારા જારી કરવામાં આવેલ HRM PRIVILEGE CARD.<br>
         1.4 Card Holder / Member: માન્ય Membership Card ધરાવતી વ્યક્તિ.<br>
         1.5 Rahat (Benefit): Hospital દ્વારા આ કરાર અને પોતાની જાહેર કરેલી નીતિ મુજબ સભ્યને આપવામાં આવતો લાભ અથવા રાહત.<br>
         1.6 Platform: HRM ની Website, Mobile Application, Dashboard અને અન્ય અધિકૃત ડિજિટલ માધ્યમો.<br>
@@ -532,7 +532,7 @@ const AdminServiceSubmissions = () => {
         1.8 Services: HRM દ્વારા Membership Program નું સંચાલન, Hospital Listing, સભ્યપદ સંબંધિત માહિતી, Branding Support અને અન્ય સંબંધિત સેવાઓ.</p>
 
         <p><strong>2. PURPOSE AND SCOPE OF PARTNERSHIP</strong><br>
-        2.1 આ કરારનો હેતુ HRM અને Hospital વચ્ચે PRIVY League Card Membership Program સંબંધિત સહયોગ માટેની શરતો નક્કી કરવાનો છે.<br>
+        2.1 આ કરારનો હેતુ HRM અને Hospital વચ્ચે HRM PRIVILEGE CARD Membership Program સંબંધિત સહયોગ માટેની શરતો નક્કી કરવાનો છે.<br>
         2.2 HRM Membership Program નું સંચાલન અને Hospital Listing સંબંધિત સેવાઓ પૂરી પાડશે.<br>
         2.3 Hospital પોતાની નીતિ અને આ કરાર મુજબ પાત્ર સભ્યોને જાહેર કરાયેલ લાભ અથવા રાહત ઉપલબ્ધ કરાવશે.<br>
         2.4 આ કરારનો અર્થ કોઈ Referral Agreement, Patient Procurement Agreement, Employment, Partnership Firm, Joint Venture અથવા Agency Agreement તરીકે કરવામાં આવશે નહીં.<br>
@@ -540,7 +540,7 @@ const AdminServiceSubmissions = () => {
 
         <p><strong>3. RESPONSIBILITIES OF HRM</strong><br>
         HRM યોગ્ય પ્રયત્નો સાથે નીચેની સેવાઓ પૂરી પાડશે:<br>
-        3.1 PRIVY League Card Membership Program નું સંચાલન અને સભ્યપદ પ્રક્રિયાનું વહીવટ.<br>
+        3.1 HRM PRIVILEGE CARD Membership Program નું સંચાલન અને સભ્યપદ પ્રક્રિયાનું વહીવટ.<br>
         3.2 મંજૂર થયેલા Hospital ને HRM Platform પર Network Hospital તરીકે દર્શાવવું.<br>
         3.3 Hospital ને Login Credentials, Branding Guidelines અને સંબંધિત Digital Materials ઉપલબ્ધ કરાવવું.<br>
         3.4 Program સંબંધિત સામાન્ય ગ્રાહક સહાય પોતાની જાહેર કરેલી Support Policy મુજબ ઉપલબ્ધ કરાવવી.<br>
@@ -569,7 +569,7 @@ const AdminServiceSubmissions = () => {
         <div style="page-break-before: always;"></div>
 
         <p><strong>6. MEMBERSHIP CARD TERMS</strong><br>
-        6.1 PRIVY League Card એ HRM Consultancy દ્વારા સંચાલિત એક ખાનગી સભ્યપદ (Private Membership) કાર્યક્રમનો ભાગ છે.<br>
+        6.1 HRM PRIVILEGE CARD એ HRM Consultancy દ્વારા સંચાલિત એક ખાનગી સભ્યપદ (Private Membership) કાર્યક્રમનો ભાગ છે.<br>
         6.2 સભ્યપદ ફી, કાર્ડની માન્યતા, પાત્રતા અને અન્ય સંબંધિત નિયમો HRM દ્વારા સમયાંતરે જાહેર કરવામાં આવશે અને HRM ની વેબસાઇટ પર ઉપલબ્ધ રહેશે.<br>
         6.3 Membership Card પર દર્શાવેલ સમયગાળા દરમિયાન જ તેનો ઉપયોગ કરી શકાશે.<br>
         6.4 Membership Card વ્યક્તિગત સભ્યપદ માટે જારી કરવામાં આવે છે. જો Family Membership ઉપલબ્ધ હોય, તો તેના નિયમો HRM દ્વારા અલગથી જાહેર કરવામાં આવશે.<br>
@@ -599,7 +599,7 @@ const AdminServiceSubmissions = () => {
         9.5 બંને પક્ષો પોતાના નિયંત્રણ હેઠળ રહેલા ડેટાને સુરક્ષિત રાખવા માટે વાજબી વહીવટી અને ટેક્નિકલ પગલાં લેવાનો પ્રયત્ન કરશે.</p>
 
         <p><strong>10. INTELLECTUAL PROPERTY</strong><br>
-        10.1 "HRM Consultancy", "PRIVY League Card", સંબંધિત Logo, Design, Website Content અને Branding Materials પરના બૌદ્ધિક સંપત્તિ અધિકારો, જ્યાં લાગુ પડે ત્યાં, HRM અથવા સંબંધિત અધિકારધારક પાસે રહેશે.<br>
+        10.1 "HRM Consultancy", "HRM PRIVILEGE CARD", સંબંધિત Logo, Design, Website Content અને Branding Materials પરના બૌદ્ધિક સંપત્તિ અધિકારો, જ્યાં લાગુ પડે ત્યાં, HRM અથવા સંબંધિત અધિકારધારક પાસે રહેશે.<br>
         10.2 Hospital ને આ સામગ્રીનો ઉપયોગ માત્ર આ કરારના હેતુ માટે મર્યાદિત, બિન-વિશિષ્ટ (Non-Exclusive) અને રદ કરી શકાય તેવા (Revocable) અધિકાર હેઠળ કરવાની મંજૂરી આપવામાં આવે છે.<br>
         10.3 HRM ની પૂર્વ લેખિત મંજૂરી વિના Hospital કોઈપણ Logo, Design અથવા Branding Material માં ફેરફાર કરશે નહીં.<br>
         10.4 કરાર સમાપ્ત થયા પછી Hospital HRM સંબંધિત Branding Material નો ઉપયોગ બંધ કરશે અને વાજબી સમયમર્યાદામાં તેને દૂર કરશે.<br>
@@ -637,7 +637,7 @@ const AdminServiceSubmissions = () => {
 
         <p><strong>16. TERM, SUSPENSION AND TERMINATION</strong><br>
         16.1 આ કરાર HRM દ્વારા Hospital ને Approved Partner તરીકે સ્વીકાર્યાની તારીખથી અમલમાં આવશે.<br>
-        16.2 કરારનો પ્રારંભિક સમયગાળો એક (1) વર્ષનો રહેશે, જો બંને પક્ષો અન્યથા લેખિતમાં સંમત ન થાય.<br>
+        16.2 કરારનો સમયગાળો ૧૦ (દસ) વર્ષનો રહેશે, જો બંને પક્ષો અન્યથા લેખિતમાં સંમત ન થાય.<br>
         16.3 કોઈપણ પક્ષ ઓછામાં ઓછી 30 દિવસની લેખિત નોટિસ આપી કરાર સમાપ્ત કરી શકે છે.<br>
         16.4 જો કોઈ પક્ષ આ કરારનો ગંભીર ભંગ કરે અને યોગ્ય સમયમર્યાદામાં તે સુધારે નહીં, તો બીજો પક્ષ કરાર સસ્પેન્ડ અથવા સમાપ્ત કરી શકે છે.<br>
         16.5 કરાર સમાપ્ત થયા પછી:<br>
@@ -695,10 +695,10 @@ const AdminServiceSubmissions = () => {
         <div style="page-break-before: always;"></div>
 
         <p><strong>22. WEBSITE CONSENT</strong><br>
-        ☐ હું/અમે હોસ્પિટલના અધિકૃત પ્રતિનિધિ તરીકે જાહેર કરીએ છીએ કે મેં/અમે HRM Consultancy – PRIVY League Card Network Hospital Partnership Agreement, Terms & Conditions, Privacy Policy અને Disclaimer વાંચ્યા, સમજ્યા અને સ્વીકાર્યા છે. હું/અમે આ કરાર સ્વીકારવાની સત્તા ધરાવું છું અને અરજીમાં આપવામાં આવેલી માહિતી સાચી હોવાનું જાહેર કરીએ છીએ.</p>
+        ☐ હું/અમે હોસ્પિટલના અધિકૃત પ્રતિનિધિ તરીકે જાહેર કરીએ છીએ કે મેં/અમે HRM Consultancy – HRM PRIVILEGE CARD Network Hospital Partnership Agreement, Terms & Conditions, Privacy Policy અને Disclaimer વાંચ્યા, સમજ્યા અને સ્વીકાર્યા છે. હું/અમે આ કરાર સ્વીકારવાની સત્તા ધરાવું છું અને અરજીમાં આપવામાં આવેલી માહિતી સાચી હોવાનું જાહેર કરીએ છીએ.</p>
 
         <p><strong>23. FOOTER DISCLAIMER</strong><br>
-        PRIVY League Card એ HRM Consultancy દ્વારા સંચાલિત ખાનગી સભ્યપદ કાર્યક્રમ છે. Hospital પોતાની સેવાઓ, સારવાર, બિલિંગ અને ક્લિનિકલ નિર્ણયો માટે સ્વતંત્ર રીતે જવાબદાર છે. HRM આરોગ્યસેવા પ્રદાતા નથી અને મેડિકલ સલાહ અથવા સારવાર આપતું નથી. સભ્યપદ, લાભો અને સંબંધિત શરતો સમયાંતરે સુધારવામાં આવી શકે છે. કૃપા કરીને નવીનતમ Terms & Conditions, Privacy Policy અને અન્ય નીતિઓ માટે HRM ની અધિકૃત વેબસાઇટ જુઓ.</p>
+        HRM PRIVILEGE CARD એ HRM Consultancy દ્વારા સંચાલિત ખાનગી સભ્યપદ કાર્યક્રમ છે. Hospital પોતાની સેવાઓ, સારવાર, બિલિંગ અને ક્લિનિકલ નિર્ણયો માટે સ્વતંત્ર રીતે જવાબદાર છે. HRM આરોગ્યસેવા પ્રદાતા નથી અને મેડિકલ સલાહ અથવા સારવાર આપતું નથી. સભ્યપદ, લાભો અને સંબંધિત શરતો સમયાંતરે સુધારવામાં આવી શકે છે. કૃપા કરીને નવીનતમ Terms & Conditions, Privacy Policy અને અન્ય નીતિઓ માટે HRM ની અધિકૃત વેબસાઇટ જુઓ.</p>
 
         <p><strong>24. ELIGIBILITY OF HOSPITAL</strong><br>
         24.1 Hospital જાહેર કરે છે કે તેની પાસે પોતાની સેવાઓ ચલાવવા માટે લાગુ પડતા કાયદા મુજબ જરૂરી નોંધણીઓ, લાઇસન્સ અને મંજૂરીઓ છે અથવા જ્યાં જરૂરી હોય ત્યાં તે જાળવવાની જવાબદારી તેની રહેશે.<br>
@@ -739,7 +739,7 @@ const AdminServiceSubmissions = () => {
         32.2 નવી આવૃત્તિ ભવિષ્યની ભાગીદારીઓ અથવા HRM દ્વારા નક્કી કરાયેલ પ્રક્રિયા મુજબ લાગુ થઈ શકે છે.</p>
 
         <p><strong>33. DIGITAL CARD ACTIVATION & VERIFICATION</strong><br>
-        33.1 દરેક PRIVY League Card ને એક Unique Membership ID આપવામાં આવશે.<br>
+        33.1 દરેક HRM PRIVILEGE CARD ને એક Unique Membership ID આપવામાં આવશે.<br>
         33.2 Card HRM System માં "Inactive" રહેશે જ્યાં સુધી HRM દ્વારા સભ્યપદ સક્રિય ન કરવામાં આવે.<br>
         33.3 Card Active થયા પછી System નીચેની વિગતો સંગ્રહિત કરશે:<br>
         • Membership Number<br>
@@ -829,7 +829,7 @@ const AdminServiceSubmissions = () => {
         39.2 Audit Logs નો ઉપયોગ માત્ર સુરક્ષા, સિસ્ટમ સંચાલન, વિવાદ નિવારણ, અનુપાલન (Compliance) અને છેતરપિંડી નિવારણ જેવા વાજબી હેતુઓ માટે કરવામાં આવશે.</p>
 
         <p><strong>40. MEMBERSHIP FEE</strong><br>
-        40.1 PRIVY League Card માટેની Membership Fee હાલમાં ₹500 (લાગુ પડતા કર સિવાય અથવા સહિત, જેમ HRM દ્વારા જાહેર કરવામાં આવે) રહેશે.<br>
+        40.1 HRM PRIVILEGE CARD માટેની Membership Fee હાલમાં ₹500 (લાગુ પડતા કર સિવાય અથવા સહિત, જેમ HRM દ્વારા જાહેર કરવામાં આવે) રહેશે.<br>
         40.2 Membership Fee સીધી HRM Consultancy ને ઓનલાઈન પેમેન્ટ ગેટવે અથવા HRM દ્વારા અધિકૃત ડિજિટલ પેમેન્ટ માધ્યમ દ્વારા જ ચૂકવવાની રહેશે.<br>
         40.3 Hospital ને Membership Fee વસૂલવાનો, એકત્રિત કરવાનો અથવા તેના બદલામાં રસીદ આપવાનો અધિકાર રહેશે નહીં, સિવાય કે HRM દ્વારા લેખિતમાં અલગથી અધિકૃત કરવામાં આવ્યું હોય.<br>
         40.4 Membership Fee HRM દ્વારા સંચાલિત Membership Program, ટેકનોલોજી પ્લેટફોર્મ, ગ્રાહક સહાય અને સંબંધિત વહીવટી સેવાઓ માટે લેવામાં આવે છે.<br>
@@ -839,10 +839,10 @@ const AdminServiceSubmissions = () => {
         40.8 Hospital Membership Fee સંબંધિત કોઈ વિવાદ, રિફંડ અથવા પેમેન્ટ ક્લેમ માટે જવાબદાર રહેશે નહીં. આવા તમામ પ્રશ્નો HRM દ્વારા સંભાળવામાં આવશે.</p>
 
         <p><strong>Website Disclaimer</strong><br>
-        PRIVY League Card એ HRM Consultancy દ્વારા સંચાલિત Private Membership Program છે. Membership Fee ₹500 (લાગુ કર મુજબ) સીધી HRM Consultancy ને ઓનલાઈન ચૂકવવાની રહેશે. Hospital કોઈ Membership Fee વસૂલતું નથી અને તે માટે જવાબદાર નથી. Membership Fee મેડિકલ સારવાર અથવા ઈન્સ્યોરન્સ પ્રીમિયમ નથી.</p>
+        HRM PRIVILEGE CARD એ HRM Consultancy દ્વારા સંચાલિત Private Membership Program છે. Membership Fee ₹500 (લાગુ કર મુજબ) સીધી HRM Consultancy ને ઓનલાઈન ચૂકવવાની રહેશે. Hospital કોઈ Membership Fee વસૂલતું નથી અને તે માટે જવાબદાર નથી. Membership Fee મેડિકલ સારવાર અથવા ઈન્સ્યોરન્સ પ્રીમિયમ નથી.</p>
 
         <p><strong>CARD DISCLAIMER</strong><br>
-        • PRIVY League Card is a Private Membership Program by HRM Consultancy.<br>
+        • HRM PRIVILEGE CARD is a Private Membership Program by HRM Consultancy.<br>
         • Membership Fee: ₹500, payable only to HRM Consultancy.<br>
         • This Card is not an Insurance, Mediclaim, or Cashless Card.<br>
         • Benefits are available only at participating Network Hospitals, subject to applicable Terms & Conditions.<br>

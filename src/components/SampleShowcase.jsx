@@ -448,7 +448,7 @@ const SampleShowcase = () => {
                     <div className="back-terms-content">
                       <div className="terms-heading">Member Terms & Conditions</div>
                       <div className="terms-text">
-                        1. <strong>Private Membership:</strong> PRIVY League Card is a Private Membership Program operated by HRM Consultancy.<br />
+                        1. <strong>Private Membership:</strong> HRM PRIVILEGE CARD is a Private Membership Program operated by HRM Consultancy.<br />
                         2. <strong>Membership Fee:</strong> The Membership Fee is ₹500 (plus applicable GST, if applicable) and is payable only to HRM Consultancy through authorized payment channels.<br />
                         3. <strong>Validity:</strong> The Card is valid for the period mentioned in the Member Account or on the Card from the date of activation.<br />
                         4. <strong>Not an Insurance Product:</strong> This Card is not a health insurance policy, mediclaim policy, TPA service, cashless card or financial product.<br />

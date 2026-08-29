@@ -46,7 +46,7 @@ const DEVELOPERS = [
     email: 'karanudani30@gmail.com',
   },
 
-];
+];  
 
 // Avatar component — shows photo if it exists, otherwise falls back to initials
 const DevAvatar = ({ photo, name, initials }) => {

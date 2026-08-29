@@ -313,15 +313,11 @@ const VerifyCard = () => {
                   </p>
                   
                   <div className="payment-qr-wrapper" style={{ background: '#fff', padding: '12px', borderRadius: '12px', display: 'inline-block', marginBottom: '12px' }}>
-                    <QRCodeSVG 
-                      value={`upi://pay?pa=hrmconsultancy@okaxis&pn=HRM%20Consultancy&am=100&cu=INR`} 
-                      size={150}
-                      level="M"
-                    />
+                    <img src="/payment-qr.png" alt="Payment QR Code" style={{ width: '160px', height: 'auto', display: 'block', borderRadius: '8px' }} />
                   </div>
                   
                   <p style={{ fontSize: '13px', color: '#94a3b8', margin: '4px 0 12px 0' }}>
-                    UPI ID: <strong style={{ color: '#fff' }}>hrmconsultancy@okaxis</strong>
+                    UPI ID: <strong style={{ color: '#fff' }}>pn70974-2@okhdfcbank</strong>
                   </p>
 
                   <div>

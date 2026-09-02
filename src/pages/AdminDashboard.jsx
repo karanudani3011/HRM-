@@ -7,6 +7,7 @@ import CardScanner from '../components/CardScanner';
 import { supabase } from '../lib/supabase';
 import html2pdf from 'html2pdf.js';
 import './AdminDashboard.css';
+import { uploadImageToCloudinary } from '../utils/cloudinary';
 import { DocMatrimonialRegistrations, DocMatrimonialVerification, DocMatrimonialOnline, DocMatrimonialSessions, DocMatrimonialPremium, DocMatrimonialReports, DocMatrimonialQueue, DocMatrimonialAnalytics, DocMatrimonialSettings, DocMatrimonialCMS, DocMatrimonialNotifications, DocMatrimonialProfile } from '../components/DoctorMatrimonialTabs';
 
 /* ── Inline SVG Icons ── */
@@ -210,10 +211,13 @@ const AdminDashboard = () => {
     try {
       const { data, error } = await supabase
         .from('privilege_cards')
-        .select('*')
-        .order('name', { ascending: true });
+        .select('id, id_no, name, card_name, mobile, email, city, join_date, expire_date, card_status, photo_url');
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase query error for privilege_cards:', error);
+        alert('Supabase Error loading cards: ' + error.message);
+        throw error;
+      }
       setPrivilegeCards(data || []);
     } catch (err) {
       console.error('Error fetching privilege cards:', err);
@@ -278,6 +282,28 @@ const AdminDashboard = () => {
     } catch (err) {
       console.error('Failed to delete card:', err);
       alert('Error deleting card: ' + err.message);
+    }
+  };
+
+  const handleUploadCardPhoto = async (cardId, file) => {
+    if (!file) return;
+    try {
+      setCardsLoading(true);
+      const url = await uploadImageToCloudinary(file);
+      if (url) {
+        const { error } = await supabase
+          .from('privilege_cards')
+          .update({ photo_url: url })
+          .eq('id_no', cardId);
+
+        if (error) throw error;
+        alert('Photo uploaded & updated successfully!');
+        fetchPrivilegeCards();
+      }
+    } catch (err) {
+      console.error('Error uploading photo:', err);
+      alert('Photo upload failed: ' + err.message);
+      setCardsLoading(false);
     }
   };
 
@@ -1543,6 +1569,7 @@ const AdminDashboard = () => {
                                 <img 
                                   src={card.photo_url} 
                                   alt="" 
+                                  loading="lazy"
                                   style={{ width: '40px', height: '40px', borderRadius: '4px', objectFit: 'cover', border: '1px solid var(--ad-border)' }} 
                                 />
                               ) : (
@@ -1631,6 +1658,23 @@ const AdminDashboard = () => {
                                 >
                                   🗑️
                                 </button>
+                                
+                                <label 
+                                  title="Upload / Update Member Photo"
+                                  style={{ 
+                                    background: '#fff', color: '#0284c7', border: '1px solid #7dd3fc',
+                                    width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    borderRadius: '6px', cursor: 'pointer', flexShrink: 0, fontSize: '16px', margin: 0
+                                  }}
+                                >
+                                  📷
+                                  <input 
+                                    type="file" 
+                                    accept="image/*" 
+                                    style={{ display: 'none' }} 
+                                    onChange={(e) => handleUploadCardPhoto(card.id_no, e.target.files[0])}
+                                  />
+                                </label>
                               </div>
                             </td>
                           </tr>

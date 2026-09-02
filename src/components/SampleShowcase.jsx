@@ -11,6 +11,7 @@ import { Link } from 'react-router-dom';
 import emailjs from '@emailjs/browser';
 import { db } from '../firebase';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { uploadImageToCloudinary } from '../utils/cloudinary';
 
 const SampleShowcase = () => {
   // Check if user has already submitted a card (persisted across sessions)
@@ -154,10 +155,12 @@ const SampleShowcase = () => {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
   };
+  const [photoFile, setPhotoFile] = useState(null);
 
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setPhotoFile(file);
       const reader = new FileReader();
       reader.onload = (ev) => setPhotoPreview(ev.target.result);
       reader.readAsDataURL(file);
@@ -207,6 +210,19 @@ const SampleShowcase = () => {
       return;
     }
 
+    let finalPhotoUrl = photoPreview || '';
+    if (photoFile) {
+      try {
+        const uploadedUrl = await uploadImageToCloudinary(photoFile);
+        if (uploadedUrl) {
+          finalPhotoUrl = uploadedUrl;
+          setPhotoPreview(uploadedUrl);
+        }
+      } catch (uploadErr) {
+        console.error('Cloudinary upload error:', uploadErr);
+      }
+    }
+
     // Attempt DB insert FIRST — only mark submitted if it succeeds
     try {
       const { error } = await supabase
@@ -221,7 +237,7 @@ const SampleShowcase = () => {
           mobile: formData.mobile,
           email: emailInput,
           card_status: 'PENDING_ACTIVATION',
-          photo_url: photoPreview || '',
+          photo_url: finalPhotoUrl,
           card_name: formData.cardName || ''
         }]);
 
@@ -245,7 +261,7 @@ const SampleShowcase = () => {
               mobile: updatedFormData.mobile,
               email: emailInput,
               card_status: 'PENDING_ACTIVATION',
-              photo_url: photoPreview || '',
+              photo_url: finalPhotoUrl,
               card_name: updatedFormData.cardName || ''
             }]);
           if (retryError) {
@@ -253,7 +269,7 @@ const SampleShowcase = () => {
             return;
           }
           // Retry succeeded — save updated form data
-          const savedData = { formData: { ...updatedFormData, email: emailInput }, photoPreview };
+          const savedData = { formData: { ...updatedFormData, email: emailInput }, photoPreview: finalPhotoUrl };
           localStorage.setItem('hrmCardSubmitted', JSON.stringify(savedData));
         } else {
           alert('Submission failed: ' + error.message + '. Please try again.');
@@ -264,7 +280,7 @@ const SampleShowcase = () => {
         // Persist submitted state only after successful insert
         localStorage.setItem('hrmCardSubmitted', JSON.stringify({
           formData: { ...formData, email: emailInput },
-          photoPreview: photoPreview
+          photoPreview: finalPhotoUrl
         }));
       }
 
